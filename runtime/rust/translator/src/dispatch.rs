@@ -14,8 +14,7 @@ pub struct EncodeOptions {
 impl Default for Cat062Options {
     fn default() -> Self {
         Self {
-            sac: 0,
-            sic: 0,
+            default_source: None,
             sources: Default::default(),
         }
     }
@@ -112,8 +111,7 @@ mod tests {
     fn dispatches_to_cat062_with_node_source_configuration() {
         let options = EncodeOptions {
             cat062: Cat062Options {
-                sac: 4,
-                sic: 22,
+                default_source: Some(crate::Cat062SourceIdentifier { sac: 4, sic: 22 }),
                 sources: Default::default(),
             },
             ..EncodeOptions::default()
@@ -130,8 +128,7 @@ mod tests {
         let mut request = request_for("asterix-cat062");
         let options = EncodeOptions {
             cat062: Cat062Options {
-                sac: 0,
-                sic: 0,
+                default_source: None,
                 sources: std::collections::HashMap::from([
                     (
                         ("oetf".to_owned(), "263".to_owned()),

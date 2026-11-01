@@ -9,10 +9,8 @@ const GEOMETRIC_ALTITUDE_LSB_M: f64 = 1.905;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Cat062Options {
-    /// System Area Code configured for this node.
-    pub sac: u8,
-    /// System Identification Code configured for this node.
-    pub sic: u8,
+    /// Node-level fallback for sources without an explicit assignment.
+    pub default_source: Option<Cat062SourceIdentifier>,
     /// Optional per-kid, per-source I062/010 assignments.
     pub sources: HashMap<(String, String), Cat062SourceIdentifier>,
 }
@@ -23,121 +21,129 @@ pub struct Cat062SourceIdentifier {
     pub sic: u8,
 }
 
+#[derive(Clone, Debug, Default, Eq, PartialEq)]
+pub struct Cat062SourceConfig {
+    pub default_source: Option<Cat062SourceIdentifier>,
+    pub sources: HashMap<(String, String), Cat062SourceIdentifier>,
+}
+
 /// Parse the operator-maintained JSON source-ID file. Duplicate SAC/SIC pairs
 /// are rejected because they would not disambiguate overlapping track numbers.
 pub fn parse_source_identifiers_json(
     contents: &str,
 ) -> Result<HashMap<(String, String), Cat062SourceIdentifier>, String> {
+    Ok(parse_cat062_source_config_json(contents)?.sources)
+}
+
+/// Parse node-default and per-kid CAT062 SAC/SIC configuration. Legacy global
+/// `sources` entries are retained as wildcard assignments during migration.
+pub fn parse_cat062_source_config_json(contents: &str) -> Result<Cat062SourceConfig, String> {
     let root: serde_json::Value = serde_json::from_str(contents)
         .map_err(|error| format!("invalid CAT062 source map JSON: {error}"))?;
     let root = root
         .as_object()
         .ok_or_else(|| "CAT062 source map must be a JSON object".to_owned())?;
-    if root.keys().any(|key| key != "kids" && key != "sources") {
-        return Err("CAT062 source map accepts only the 'kids' property".to_owned());
-    }
-    if root.contains_key("sources") && root.contains_key("kids") {
+    if root
+        .keys()
+        .any(|key| key != "default" && key != "kids" && key != "sources")
+    {
         return Err(
-            "CAT062 source map cannot mix legacy 'sources' and scoped 'kids' properties".to_owned(),
+            "CAT062 source map accepts only 'default', 'kids', and legacy 'sources' properties"
+                .to_owned(),
         );
     }
-    // Platform releases before 0.3.0 stored source assignments globally.
-    // Preserve that behavior as a fallback so an upgrade cannot prevent the
-    // translator from starting; operators can move the map to a kid scope.
-    if root.contains_key("sources") && !root.contains_key("kids") {
-        let sources = root["sources"]
+    let mut used_pairs = HashMap::new();
+    let default_source = root
+        .get("default")
+        .map(|value| parse_source_identifier(value, "node default", &mut used_pairs))
+        .transpose()?;
+    let mut assignments = HashMap::new();
+    if let Some(sources_value) = root.get("sources") {
+        let sources = sources_value
             .as_object()
             .ok_or_else(|| "legacy CAT062 source map 'sources' must be an object".to_owned())?;
-        let mut assignments = HashMap::new();
-        let mut used_pairs = HashMap::new();
-        for (source_id, value) in sources {
-            if source_id.trim().is_empty() || source_id.len() > 128 {
-                return Err("CAT062 source IDs must contain 1 to 128 characters".to_owned());
-            }
-            let fields = value.as_object().ok_or_else(|| {
-                format!("legacy CAT062 source '{source_id}' must contain sac and sic")
-            })?;
-            if fields.len() != 2 || fields.keys().any(|key| key != "sac" && key != "sic") {
-                return Err(format!(
-                    "legacy CAT062 source '{source_id}' accepts only sac and sic"
-                ));
-            }
-            let read_code = |key: &str| -> Result<u8, String> {
-                fields.get(key).and_then(serde_json::Value::as_u64)
-                    .and_then(|code| u8::try_from(code).ok())
-                    .ok_or_else(|| format!("legacy CAT062 source '{source_id}' {key} must be an integer from 0 to 255"))
-            };
-            let assignment = Cat062SourceIdentifier {
-                sac: read_code("sac")?,
-                sic: read_code("sic")?,
-            };
-            if used_pairs
-                .insert((assignment.sac, assignment.sic), source_id)
-                .is_some()
-            {
-                return Err(format!(
-                    "legacy CAT062 map assigns duplicate SAC/SIC {}/{}",
-                    assignment.sac, assignment.sic
-                ));
-            }
-            assignments.insert(("*".to_owned(), source_id.clone()), assignment);
-        }
-        return Ok(assignments);
+        parse_source_assignments("*", sources, &mut assignments, &mut used_pairs)?;
     }
-    let kids = root
-        .get("kids")
-        .and_then(serde_json::Value::as_object)
-        .ok_or_else(|| "CAT062 source map requires an object property named 'kids'".to_owned())?;
-    let mut assignments = HashMap::new();
-    let mut used_pairs = HashMap::new();
-    for (kid, kid_value) in kids {
-        if kid != "*" && (kid.is_empty() || kid.len() > 63 || !valid_kid_id(kid)) {
-            return Err("CAT062 kid IDs must use lowercase letters, digits, and hyphens; 1 to 63 characters".to_owned());
-        }
-        let kid_fields = kid_value
+    if let Some(kids_value) = root.get("kids") {
+        let kids = kids_value
             .as_object()
-            .ok_or_else(|| format!("CAT062 kid '{kid}' must contain a sources object"))?;
-        if kid_fields.len() != 1 || !kid_fields.contains_key("sources") {
-            return Err(format!(
-                "CAT062 kid '{kid}' accepts only a 'sources' property"
-            ));
-        }
-        let sources = kid_fields["sources"]
-            .as_object()
-            .ok_or_else(|| format!("CAT062 kid '{kid}' sources must be an object"))?;
-        for (source_id, value) in sources {
-            if source_id.trim().is_empty() || source_id.len() > 128 {
-                return Err("CAT062 source IDs must contain 1 to 128 characters".to_owned());
+            .ok_or_else(|| "CAT062 source map 'kids' must be an object".to_owned())?;
+        for (kid, kid_value) in kids {
+            if kid != "*" && (kid.is_empty() || kid.len() > 63 || !valid_kid_id(kid)) {
+                return Err("CAT062 kid IDs must use lowercase letters, digits, and hyphens; 1 to 63 characters".to_owned());
             }
-            let fields = value.as_object().ok_or_else(|| {
-                format!("CAT062 source '{kid}/{source_id}' must map to an object with sac and sic")
-            })?;
-            if fields.len() != 2 || fields.keys().any(|key| key != "sac" && key != "sic") {
+            let kid_fields = kid_value
+                .as_object()
+                .ok_or_else(|| format!("CAT062 kid '{kid}' must contain a sources object"))?;
+            if kid_fields.len() != 1 || !kid_fields.contains_key("sources") {
                 return Err(format!(
-                    "CAT062 source '{kid}/{source_id}' accepts only sac and sic"
+                    "CAT062 kid '{kid}' accepts only a 'sources' property"
                 ));
             }
-            let read_code = |key: &str| -> Result<u8, String> {
-                fields.get(key).and_then(serde_json::Value::as_u64).and_then(|code| u8::try_from(code).ok())
-                    .ok_or_else(|| format!("CAT062 source '{kid}/{source_id}' {key} must be an integer from 0 to 255"))
-            };
-            let assignment = Cat062SourceIdentifier {
-                sac: read_code("sac")?,
-                sic: read_code("sic")?,
-            };
-            if let Some(previous) = used_pairs.insert(
-                (assignment.sac, assignment.sic),
-                format!("{kid}/{source_id}"),
-            ) {
-                return Err(format!(
-                    "CAT062 sources '{previous}' and '{kid}/{source_id}' share SAC/SIC {}/{}",
-                    assignment.sac, assignment.sic
-                ));
-            }
-            assignments.insert((kid.clone(), source_id.clone()), assignment);
+            let sources = kid_fields["sources"]
+                .as_object()
+                .ok_or_else(|| format!("CAT062 kid '{kid}' sources must be an object"))?;
+            parse_source_assignments(kid, sources, &mut assignments, &mut used_pairs)?;
         }
     }
-    Ok(assignments)
+    Ok(Cat062SourceConfig {
+        default_source,
+        sources: assignments,
+    })
+}
+
+fn parse_source_assignments(
+    kid: &str,
+    sources: &serde_json::Map<String, serde_json::Value>,
+    assignments: &mut HashMap<(String, String), Cat062SourceIdentifier>,
+    used_pairs: &mut HashMap<(u8, u8), String>,
+) -> Result<(), String> {
+    for (source_id, value) in sources {
+        if source_id.trim().is_empty() || source_id.len() > 128 {
+            return Err("CAT062 source IDs must contain 1 to 128 characters".to_owned());
+        }
+        let label = if kid == "*" {
+            source_id.clone()
+        } else {
+            format!("{kid}/{source_id}")
+        };
+        let assignment = parse_source_identifier(value, &label, used_pairs)?;
+        assignments.insert((kid.to_owned(), source_id.clone()), assignment);
+    }
+    Ok(())
+}
+
+fn parse_source_identifier(
+    value: &serde_json::Value,
+    label: &str,
+    used_pairs: &mut HashMap<(u8, u8), String>,
+) -> Result<Cat062SourceIdentifier, String> {
+    let fields = value
+        .as_object()
+        .ok_or_else(|| format!("CAT062 source '{label}' must contain sac and sic"))?;
+    if fields.len() != 2 || fields.keys().any(|key| key != "sac" && key != "sic") {
+        return Err(format!("CAT062 source '{label}' accepts only sac and sic"));
+    }
+    let read_code = |key: &str| -> Result<u8, String> {
+        fields
+            .get(key)
+            .and_then(serde_json::Value::as_u64)
+            .and_then(|code| u8::try_from(code).ok())
+            .ok_or_else(|| {
+                format!("CAT062 source '{label}' {key} must be an integer from 0 to 255")
+            })
+    };
+    let assignment = Cat062SourceIdentifier {
+        sac: read_code("sac")?,
+        sic: read_code("sic")?,
+    };
+    if let Some(previous) = used_pairs.insert((assignment.sac, assignment.sic), label.to_owned()) {
+        return Err(format!(
+            "CAT062 sources '{previous}' and '{label}' share SAC/SIC {}/{}",
+            assignment.sac, assignment.sic
+        ));
+    }
+    Ok(assignment)
 }
 
 fn valid_kid_id(value: &str) -> bool {
@@ -272,9 +278,6 @@ impl Cat062Encoder {
     }
 
     fn source_identifier(&self, kid: &str, source_id: &str) -> Result<(u8, u8), Cat062EncodeError> {
-        if self.options.sources.is_empty() {
-            return Ok((self.options.sac, self.options.sic));
-        }
         let assignment = self
             .options
             .sources
@@ -284,10 +287,11 @@ impl Cat062Encoder {
                     .sources
                     .get(&("*".to_owned(), source_id.to_owned()))
             })
+            .or(self.options.default_source.as_ref())
             .ok_or_else(|| Cat062EncodeError {
                 code: "missing_source_identifier",
                 message: format!(
-                    "CAT062 has no SAC/SIC assignment for kid '{kid}' and sourceId '{source_id}'"
+                    "CAT062 has no SAC/SIC assignment for kid '{kid}' and sourceId '{source_id}', and no node default is configured"
                 ),
             })?;
         Ok((assignment.sac, assignment.sic))
@@ -368,8 +372,7 @@ mod tests {
     #[test]
     fn encodes_minimal_cat062_uap_record_with_optional_items() {
         let block = Cat062Encoder::new(Cat062Options {
-            sac: 1,
-            sic: 7,
+            default_source: Some(Cat062SourceIdentifier { sac: 1, sic: 7 }),
             sources: HashMap::new(),
         })
         .encode_for_kid(&sample(), "oetf")
@@ -403,8 +406,7 @@ mod tests {
     #[test]
     fn rejects_unrepresentable_track_id_and_longitude() {
         let encoder = Cat062Encoder::new(Cat062Options {
-            sac: 1,
-            sic: 7,
+            default_source: Some(Cat062SourceIdentifier { sac: 1, sic: 7 }),
             sources: HashMap::new(),
         });
         let mut track = sample();
@@ -429,8 +431,7 @@ mod tests {
         track.coasting = true;
         track.final_update = true;
         let block = Cat062Encoder::new(Cat062Options {
-            sac: 1,
-            sic: 7,
+            default_source: Some(Cat062SourceIdentifier { sac: 1, sic: 7 }),
             sources: HashMap::new(),
         })
         .encode_for_kid(&track, "oetf")
@@ -439,10 +440,9 @@ mod tests {
     }
 
     #[test]
-    fn selects_source_specific_sac_sic_and_requires_every_configured_source() {
+    fn selects_exact_source_assignments_and_falls_back_for_unmapped_sources() {
         let encoder = Cat062Encoder::new(Cat062Options {
-            sac: 0,
-            sic: 0,
+            default_source: Some(Cat062SourceIdentifier { sac: 9, sic: 9 }),
             sources: HashMap::from([
                 (
                     ("oetf".to_owned(), "sensor-a".to_owned()),
@@ -465,10 +465,61 @@ mod tests {
 
         let mut unknown = sample();
         unknown.source_id = "sensor-c".to_owned();
+        let fallback = encoder.encode_for_kid(&unknown, "oetf").unwrap();
+        assert_eq!(&fallback[6..8], &[9, 9]);
+    }
+
+    #[test]
+    fn rejects_cat062_when_neither_source_assignment_nor_node_default_exists() {
+        let encoder = Cat062Encoder::new(Cat062Options::default());
+        let error = encoder.encode_for_kid(&sample(), "oetf").unwrap_err();
+        assert_eq!(error.code, "missing_source_identifier");
+        assert!(error.message.contains("no node default is configured"));
+    }
+
+    #[test]
+    fn exact_source_assignment_takes_precedence_over_node_default() {
+        let encoder = Cat062Encoder::new(Cat062Options {
+            default_source: Some(Cat062SourceIdentifier { sac: 9, sic: 9 }),
+            sources: HashMap::from([(
+                ("oetf".to_owned(), "sensor-a".to_owned()),
+                Cat062SourceIdentifier { sac: 1, sic: 7 },
+            )]),
+        });
+        let encoded = encoder.encode_for_kid(&sample(), "oetf").unwrap();
+        assert_eq!(&encoded[6..8], &[1, 7]);
+    }
+
+    #[test]
+    fn migrated_legacy_assignment_takes_precedence_over_node_default() {
+        let parsed = parse_cat062_source_config_json(
+            r#"{"default":{"sac":9,"sic":9},"sources":{"sensor-a":{"sac":4,"sic":20}}}"#,
+        )
+        .unwrap();
+        let encoder = Cat062Encoder::new(Cat062Options {
+            default_source: parsed.default_source,
+            sources: parsed.sources,
+        });
+        let encoded = encoder.encode_for_kid(&sample(), "oetf").unwrap();
+        assert_eq!(&encoded[6..8], &[4, 20]);
+    }
+
+    #[test]
+    fn parses_node_default_and_scoped_assignments_together() {
+        let config = parse_cat062_source_config_json(
+            r#"{"default":{"sac":9,"sic":9},"kids":{"oetf":{"sources":{"sensor-a":{"sac":1,"sic":7}}}}}"#,
+        )
+        .unwrap();
         assert_eq!(
-            encoder.encode_for_kid(&unknown, "oetf").unwrap_err().code,
-            "missing_source_identifier"
+            config.default_source,
+            Some(Cat062SourceIdentifier { sac: 9, sic: 9 })
         );
+        assert_eq!(config.sources.len(), 1);
+        assert!(parse_cat062_source_config_json(
+            r#"{"default":{"sac":1,"sic":7},"kids":{"oetf":{"sources":{"sensor-a":{"sac":1,"sic":7}}}}}"#,
+        )
+        .unwrap_err()
+        .contains("share SAC/SIC"));
     }
 
     #[test]
@@ -502,8 +553,7 @@ mod tests {
             parse_source_identifiers_json(r#"{"sources":{"sensor-a":{"sac":4,"sic":20}}}"#)
                 .unwrap();
         let encoder = Cat062Encoder::new(Cat062Options {
-            sac: 0,
-            sic: 0,
+            default_source: None,
             sources: parsed,
         });
         let encoded = encoder.encode_for_kid(&sample(), "oetf").unwrap();

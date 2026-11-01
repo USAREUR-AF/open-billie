@@ -1,7 +1,7 @@
 #[cfg(unix)]
 fn main() {
     use billie_translator::{
-        parse_source_identifiers_json, publish_to_local_zenoh, serve_unix, EncodeOptions,
+        parse_cat062_source_config_json, publish_to_local_zenoh, serve_unix, EncodeOptions,
     };
     use std::path::PathBuf;
 
@@ -44,13 +44,16 @@ fn main() {
                 std::process::exit(2);
             }
         };
-        encode_options.cat062.sources = match parse_source_identifiers_json(&source_map_json) {
-            Ok(sources) => sources,
+        match parse_cat062_source_config_json(&source_map_json) {
+            Ok(config) => {
+                encode_options.cat062.default_source = config.default_source;
+                encode_options.cat062.sources = config.sources;
+            }
             Err(error) => {
                 eprintln!("billie-translator: {}: {error}", source_map_path.display());
                 std::process::exit(2);
             }
-        };
+        }
     }
     if let Err(error) = serve_unix(
         socket_path,

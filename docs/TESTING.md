@@ -24,6 +24,7 @@ The following checks have been completed in development environments:
 
 ## Known validation gaps
 
+- The macOS platform builder runs the Debian release build inside a Rust 1.75 Linux container. It has not yet been exercised on Apple Silicon or Intel macOS.
 - The GitHub Actions OIDC release signing workflow has not been exercised against a published release.
 - A live NetBird management enrollment has not been validated by the repository's automated exercise.
 - Independent receipt of a bridged health publication by a remote subscriber remains unverified.

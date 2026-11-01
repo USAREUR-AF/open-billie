@@ -14,8 +14,8 @@ mod request;
 mod sapient;
 
 pub use cat062::{
-    parse_source_identifiers_json, Cat062EncodeError, Cat062Encoder, Cat062Options,
-    Cat062SourceIdentifier,
+    parse_cat062_source_config_json, parse_source_identifiers_json, Cat062EncodeError,
+    Cat062Encoder, Cat062Options, Cat062SourceConfig, Cat062SourceIdentifier,
 };
 pub use cot::{CotEncodeError, CotEncoder, CotOptions};
 pub use dispatch::{encode_request, EncodeDispatchError, EncodeOptions, EncodedPayload};

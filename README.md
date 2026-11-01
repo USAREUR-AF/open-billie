@@ -14,7 +14,7 @@ Read the [provisioning guide](deploy/README.md) before installing. It lists prer
 
 - **Windows 10/11:** Run the guided workflow from PowerShell; it launches Bash inside Ubuntu 24.04 on WSL 2. Use a normal Ubuntu distribution, not Docker Desktop’s internal WSL distribution. SSH keys and host-key trust must be available to the WSL user running the wizard.
 - **Linux:** Run the Bash workflow from a terminal at the repository root.
-- **macOS:** Run the Bash workflow from a terminal. Installing a prebuilt signed Linux release is supported; building Debian artifacts requires a Linux build environment.
+- **macOS:** Run the Bash workflow from a terminal. The wizard builds the Linux platform package in a Docker or Podman Linux container, or installs an existing release. Kid package builds use the same container engine.
 
 The target node is **Ubuntu Server 24.04**, `amd64` or `arm64`, with SSH access and non-interactive `sudo`. The wizard checks the selected release, node architecture, SSH access, and prerequisites before installing. For kid image builds, install Podman or Docker Buildx; cross-architecture builds also need image emulation. The provisioning guide has platform-specific setup details.
 

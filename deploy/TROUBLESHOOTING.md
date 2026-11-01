@@ -48,6 +48,10 @@ Do not install the artifact. Rebuild it from a clean source tree and transfer th
     bash tools/build-platform-release.sh
     cd dist && sha256sum -c SHA256SUMS-arm64
 
+## macOS platform build cannot start
+
+The Mac wizard builds the Linux package inside Docker or Podman. Start Docker Desktop, or start the existing Podman machine with `podman machine start`, then retry. The first build needs network access to download the Rust 1.75 builder image and its Linux packages. If the container build completes but the package is missing, check that the repository `dist/` directory is writable and inspect the builder output for a Rust target or cross-linker error.
+
 ## Workstation installer refuses the release signature
 
 The installer fails closed if a bundle is missing or the signing identity does not match. Confirm the expected signer from the trusted release workflow and pass the full identity:
@@ -122,7 +126,7 @@ On the sending workstation, bind the synthetic sender to the address assigned to
 
 ## CAT062 source identity is missing or collides
 
-When a source map is configured, every authenticated kid and canonical `sourceId` pair sent to the CAT062 encoder must appear in it. Check with `sudo billie cat062 source list`, then assign each pair using `sudo billie cat062 source set <kid> <sourceId> --sac <0-255> --sic <0-255>`. Use assigned values from the sensor-system authority. The CLI rejects duplicate pairs and restarts the translator when a mapping changes. Without any map, the encoder uses the node-default pair for single-source compatibility.
+CAT062 resolves the source pair by exact authenticated kid and canonical `sourceId`, then by a legacy global mapping until migrated, then by the optional node default. Check the current settings with `sudo billie cat062 source list`. For a single-source setup or fallback, configure the authorized node pair with `sudo billie cat062 default set --sac <0-255> --sic <0-255>`. For distinct sources, assign each pair with `sudo billie cat062 source set <kid> <sourceId> --sac <0-255> --sic <0-255>`. The CLI rejects duplicate pairs and restarts the translator after changes. If neither a matching mapping nor a node default exists, CAT062 encoding is rejected with `missing_source_identifier`.
 
 ## Remove a kid or the Billie platform
 

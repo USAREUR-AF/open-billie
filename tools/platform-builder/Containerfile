@@ -1,0 +1,24 @@
+FROM rust:1.75-bookworm
+
+ENV RUSTUP_HOME=/usr/local/rustup \
+    CARGO_HOME=/usr/local/cargo \
+    PATH=/usr/local/cargo/bin:${PATH}
+
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends \
+        build-essential \
+        ca-certificates \
+        coreutils \
+        dpkg-dev \
+        git \
+        python3 \
+        tar \
+    && case "$(dpkg --print-architecture)" in \
+        amd64) apt-get install --yes --no-install-recommends gcc-aarch64-linux-gnu ;; \
+        arm64) apt-get install --yes --no-install-recommends gcc-x86-64-linux-gnu ;; \
+        *) echo "unsupported Linux builder architecture: $(dpkg --print-architecture)" >&2; exit 2 ;; \
+    esac \
+    && rustup target add aarch64-unknown-linux-gnu x86_64-unknown-linux-gnu \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /workspace

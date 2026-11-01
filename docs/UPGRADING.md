@@ -14,7 +14,14 @@ Platform 0.3.0 continues to read the legacy global file shape:
 {"sources":{"sensor-a":{"sac":4,"sic":20}}}
 ```
 
-The translator keeps those assignments available to all kids as a compatibility fallback, so a legacy file does not prevent translator startup. Move to explicit per-kid assignments when ready:
+The translator keeps those assignments available to all kids as a compatibility fallback, so a legacy file does not prevent translator startup. Resolution order is exact `(kid, sourceId)` assignment, legacy global assignment until migrated, then the optional node default. Configure the node default for a single-source setup or as a fallback using a pair authorized by the sensor-system authority:
+
+```sh
+sudo billie cat062 default set --sac <0-255> --sic <0-255>
+sudo billie cat062 default show
+```
+
+Move to explicit per-kid assignments when ready:
 
 ```sh
 sudo billie cat062 source list
@@ -22,7 +29,7 @@ sudo billie cat062 source migrate <kid-id>
 sudo billie cat062 source list
 ```
 
-Migration scopes the existing assignments to the selected kid. Other kids then need their own unique SAC/SIC assignments (or the platform default when no scoped source map applies). Back up the file before migration if the old global behavior must be retained for another kid. The `migrate` command restarts the translator after writing the new file.
+Migration scopes the existing assignments to the selected kid and preserves the node default. Other kids use exact assignments when present, then the node default. Without either, CAT062 output for that source is rejected. Back up the file before migration if the old global behavior must be retained for another kid. Successful configuration commands restart the translator. Use `sudo billie cat062 default clear` to remove the fallback while preserving mapped assignments.
 
 ### Validation
 

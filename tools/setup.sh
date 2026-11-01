@@ -14,13 +14,25 @@ for cmd in ssh scp; do require "$cmd"; done
 
 build_default=1
 if ! command -v dpkg-deb >/dev/null 2>&1; then build_default=2; fi
-build_choice="$(ask 'Release source: [1] Build [2] Existing' "$build_default")"
+if [ "$(uname -s)" = Darwin ]; then
+  build_default=2
+  if command -v docker >/dev/null 2>&1 || command -v podman >/dev/null 2>&1; then build_default=1; fi
+  printf 'The platform .deb is built inside a Linux container on macOS. Start Docker Desktop or the Podman machine first.\n'
+  build_choice="$(ask 'Release source: [1] Build in Linux container [2] Existing' "$build_default")"
+else
+  build_choice="$(ask 'Release source: [1] Build [2] Existing' "$build_default")"
+fi
 built_locally=0
 case "$build_choice" in
   1|build|Build|BUILD)
     built_locally=1
-    require cargo; require rustc; require dpkg-deb; require tar; require sha256sum
-    host_arch="$(dpkg --print-architecture 2>/dev/null || uname -m)"
+    require tar; require sha256sum
+    if [ "$(uname -s)" = Darwin ]; then
+      host_arch="$(uname -m)"
+    else
+      require cargo; require rustc; require dpkg-deb
+      host_arch="$(dpkg --print-architecture 2>/dev/null || uname -m)"
+    fi
     case "$host_arch" in x86_64|amd64) host_deb=amd64 ;; aarch64|arm64) host_deb=arm64 ;; *) fail "unsupported workstation architecture: $host_arch" ;; esac
     case "$host_deb" in amd64) arch_default=1 ;; arm64) arch_default=2 ;; esac
     arch_choice="$(ask 'Target node architecture: [1] amd64 [2] arm64' "$arch_default")"
@@ -30,7 +42,9 @@ case "$build_choice" in
       arm64) triple=aarch64-unknown-linux-gnu ;;
       *) fail 'choose amd64 or arm64' ;;
     esac
-    if [ "$target_arch" = "$host_deb" ]; then
+    if [ "$(uname -s)" = Darwin ]; then
+      bash tools/build-platform-release-container.sh --target-triple "$triple"
+    elif [ "$target_arch" = "$host_deb" ]; then
       bash tools/build-platform-release.sh
     else
       printf 'Cross-building requires the matching Rust target and GNU cross compiler.\n'

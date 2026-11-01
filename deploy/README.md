@@ -40,7 +40,7 @@ python -m pip install --upgrade pip
 python -m pip install PyYAML jsonschema
 ```
 
-Install **Docker Desktop** with Buildx, or Podman Desktop. For Podman, initialize a machine if you do not already have one, then start it before building:
+Install **Docker Desktop** with Buildx, or Podman Desktop. The Linux container engine is used both to build the platform `.deb` on macOS and to build kid images. For Podman, initialize a machine if you do not already have one, then start it before building:
 
 ```sh
 podman machine init
@@ -58,9 +58,11 @@ docker buildx version
 docker buildx inspect --bootstrap
 ```
 
-Apple Silicon can build `linux/arm64` natively for an ARM64 Pi. An Intel Mac needs working ARM64 emulation in its image builder. If the selected Docker builder rejects `--output type=oci`, create and select a container builder with `docker buildx create --name open-billie-builder --driver docker-container --use`, then run `docker buildx inspect --bootstrap`.
+The guided setup can build the Billie platform on macOS inside a Linux container. It uses a Rust 1.75 Debian-based builder, selects a Linux container matching the Mac's CPU architecture, and cross-compiles for the selected node architecture. The first build downloads the builder image and packages. This platform build uses a cross-compiler and does not need ARM emulation. The same Docker/Podman engine is later used for the kid image build; Apple Silicon builds ARM64 kid images natively, while an Intel Mac needs ARM64 emulation for ARM64 kid images. If the selected Docker builder rejects `--output type=oci` during a kid build, create and select a container builder with `docker buildx create --name open-billie-builder --driver docker-container --use`, then run `docker buildx inspect --bootstrap`.
 
-macOS can install a signed prebuilt Linux platform release, but it cannot run this repository's Debian platform build directly: that build requires Linux tools such as `dpkg-deb` and GNU `readlink -f`. Choose **Existing** in the setup wizard, or build the platform package on Linux and transfer the complete artifact set. The Mac still needs `sha256sum` and Cosign when verifying signed releases.
+If both engines are installed and you want to choose one explicitly, set `BILLIE_CONTAINER_ENGINE=docker` or `BILLIE_CONTAINER_ENGINE=podman` in the terminal before starting the wizard.
+
+The platform builder itself still runs in Linux because it needs Linux tools such as `dpkg-deb` and GNU `readlink -f`. The setup wizard runs it in the configured container engine, then uses the generated package and checksum files from `dist/`. A local build is unsigned and defaults to checksum-only verification. Signed prebuilt releases require `sha256sum` and Cosign.
 
 #### Ubuntu or Debian workstation
 
@@ -186,7 +188,7 @@ Install Xcode command line tools if prompted, and activate the Python virtual en
 
     bash tools/setup.sh
 
-Choose **Existing** in the setup wizard to install a prebuilt signed Linux release. To build the platform `.deb`, use a Linux workstation or WSL and transfer the complete artifact set; the repository's platform builder does not support macOS directly. Mac Bash 3.2 is sufficient for the setup, install, and configure scripts. The kid wizard is also Bash 3.2 compatible.
+The wizard offers **[1] Build in Linux container** when you want to build locally, or **[2] Existing** for a prebuilt release. Start Docker Desktop or the Podman machine before choosing Build. Select the target node architecture; the wizard leaves the resulting `.deb`, matching tarball, and checksum manifest under `dist/`. Mac Bash 3.2 is sufficient for setup, install, configure, and kid deployment.
 
 ### Windows 10/11
 
@@ -259,11 +261,28 @@ When UFW is active, billie kid configure requires the sensor source network as o
 
 ASTERIX CAT062 identifies a track with a numeric 12-bit track number and a SAC/SIC source pair. If multiple sources can use overlapping track numbers, assign each source ID a distinct pair. For example, with synthetic assignments:
 
+The protected node configuration uses an optional node-wide fallback and per-kid source mappings:
+
+```json
+{
+  "default": {"sac": 4, "sic": 21},
+  "kids": {
+    "oetf": {
+      "sources": {
+        "sensor-a": {"sac": 4, "sic": 23}
+      }
+    }
+  }
+}
+```
+
+The `default` property may be omitted. Each configured SAC/SIC pair, including the default, must be unique.
+
     sudo billie cat062 source set oetf sensor-a --sac 4 --sic 22
     sudo billie cat062 source set oetf sensor-b --sac 4 --sic 23
     sudo billie cat062 source list
 
-Use SAC/SIC assignments authorized for your system in real deployments. Assignments are keyed by authenticated kid and canonical `sourceId`; the same source ID can have a separate assignment for each kid. Once a map is configured, the translator rejects CAT062 requests whose kid/source pair has no assignment. `source remove <kid> <sourceId>` removes an assignment; if you remove all assignments, the translator returns to the single-source node-default mode. Each change restarts the shared translator. The map is stored in `/etc/billie/translator/cat062-sources.json` with root-only permissions and is removed by full Billie teardown.
+Use SAC/SIC values authorized for your system in real deployments. Assignments are keyed by authenticated kid and canonical `sourceId`; the same source ID can have a separate assignment for each kid. CAT062 resolves an exact kid/source assignment first, a legacy global assignment while it is being migrated second, and the optional node default last. For a single-source setup or fallback for unmapped sources, configure the authorized node pair with `sudo billie cat062 default set --sac <0-255> --sic <0-255>`; inspect it with `sudo billie cat062 default show` and clear it with `sudo billie cat062 default clear`. For multiple sources that need distinct identities, assign each source explicitly. `source remove <kid> <sourceId>` removes only that assignment. Without a match or node default, the translator rejects CAT062 output for that track. Each successful change restarts the shared translator. The map is stored in `/etc/billie/translator/cat062-sources.json` with root-only permissions and is removed by full Billie teardown.
 
 To send the synthetic OETF frame from a workstation connected to the node's sensor link, use the node sensor-interface address and the workstation's address on that same link. Replace the placeholders with the addresses shown by `billie network interfaces` and your workstation network configuration:
 

@@ -227,18 +227,18 @@ cat062_command() {
   need_command python3
   need_command systemctl
   local helper="$SELF_DIR/billie-cat062-sources.py"
-  [ -r "$helper" ] || die "CAT062 source configuration helper is missing: $helper"
-  [ "$#" -ge 2 ] && [ "$1" = source ] || die "usage: sudo $CLI_NAME cat062 source list|set|remove|migrate ..."
+  [ -r "$helper" ] || die "CAT062 configuration helper is missing: $helper"
+  [ "$#" -ge 2 ] && { [ "$1" = source ] || [ "$1" = default ]; } || die "usage: sudo $CLI_NAME cat062 source|default ..."
+  local domain="$1"
   shift
-  local action="$1"
-  shift
-  run python3 "$helper" --file "$ETC_DIR/translator/cat062-sources.json" "$action" "$@"
-  if [ "$action" != list ]; then
+  local action="${1:-}"
+  run python3 "$helper" --file "$ETC_DIR/translator/cat062-sources.json" "$domain" "$@"
+  if { [ "$domain" = source ] && [ "$action" != list ]; } || { [ "$domain" = default ] && [ "$action" != show ]; }; then
     if ! systemctl restart "$INSTANCE_PREFIX-translator.service"; then
-      die "source map was saved, but the translator could not restart; inspect its journal and run sudo $CLI_NAME apply after correcting the map"
+      die "CAT062 configuration was saved, but the translator could not restart; inspect its journal and run sudo $CLI_NAME apply after correcting the configuration"
     fi
     systemctl is-active --quiet "$INSTANCE_PREFIX-translator.service" || die "translator restart did not become active; inspect systemctl status and journal"
-    say "CAT062 source map is active."
+    say "CAT062 source configuration is active."
   fi
 }
 show_help() {
@@ -261,6 +261,10 @@ Usage:
   PLATFORM_CLI cat062 source list
   PLATFORM_CLI cat062 source set <kid> <sourceId> --sac <0-255> --sic <0-255>
   PLATFORM_CLI cat062 source remove <kid> <sourceId>
+  PLATFORM_CLI cat062 source migrate <kid>
+  PLATFORM_CLI cat062 default show
+  PLATFORM_CLI cat062 default set --sac <0-255> --sic <0-255>
+  PLATFORM_CLI cat062 default clear
   PLATFORM_CLI kid validate <package-directory> [--strict]
   PLATFORM_CLI kid build <package-directory> [--decoder-language python|rust|typescript] [--platform linux/amd64|linux/arm64] [--output <directory>] [--force]
   PLATFORM_CLI kid scan [source-root ...] [--json]
@@ -285,7 +289,7 @@ check previews local Ansible changes. apply converges the generic platform basel
 verify checks the platform health timer and local runtime prerequisites.
 network configure manages a dedicated sensor-facing static IPv4 address with Netplan and adds no gateway.
 It refuses the default-route and current SSH interfaces. Kid configure selects a declared listener, node bind address, and host port. Signing, persistent kid data, and fleet upgrades are not implemented. Kid upgrades retain the previous stateless deployment for rollback.
-CAT062 source assignments map each authenticated kid and canonical sourceId to a unique SAC/SIC pair. When a map exists, every kid/sourceId sent to CAT062 must have an assignment. Configure all sources on the node; the runtime will reject missing or duplicate assignments.
+CAT062 resolves SAC/SIC in this order: exact kid/sourceId assignment, legacy global assignment until migrated, then the node default. Configure a default with 'cat062 default set' for a single-source setup, or assign unique pairs to every source when sources need distinct identities. Without a match or default, CAT062 requests are rejected. The CLI restarts the translator after configuration changes.
 The local Zenoh island is provisioned by apply. Configure optional fabric mTLS
 with zenoh configure; certificate contents are copied into a root-only directory.
 `kid validate` checks a local kid source package without network access. Strict mode
@@ -331,7 +335,7 @@ case "$command_name" in
     [ "$#" -ge 1 ] || die "usage: sudo $CLI_NAME network interfaces|configure|clear [options]"
     network_command "$@" ;;
   cat062)
-    [ "$#" -ge 1 ] || die "usage: sudo $CLI_NAME cat062 source list|set|remove|migrate ..."
+    [ "$#" -ge 2 ] || die "usage: sudo $CLI_NAME cat062 source|default ..."
     cat062_command "$@" ;;
   kid)
     [ "$#" -ge 1 ] || die "usage: billie kid validate <package-directory> [--strict]"
