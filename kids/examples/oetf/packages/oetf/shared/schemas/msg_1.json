@@ -1,0 +1,92 @@
+{
+    "messageName": "Sensor Status",
+    "messageSize": 46,
+    "fields": [
+        {
+            "name": "Timestamp",
+            "offset": 16,
+            "type": "uint64",
+            "units": "usec",
+            "notes": "Microseconds since 1970-01-01T00:00:00Z."
+        },
+        {
+            "name": "Sensor latitude",
+            "offset": 24,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg. No units suffix so near-zero values stay numeric."
+        },
+        {
+            "name": "Sensor longitude",
+            "offset": 28,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg."
+        },
+        {
+            "name": "Sensor altitude",
+            "offset": 32,
+            "type": "int32",
+            "scale": 0.01,
+            "units": "m",
+            "notes": "Height above WGS-84 ellipsoid. LSB = 1 cm."
+        },
+        {
+            "name": "Boresight azimuth",
+            "offset": 36,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "deg",
+            "notes": "Clockwise from true north. LSB = 0.01 deg."
+        },
+        {
+            "name": "Operating state",
+            "offset": 38,
+            "type": "uint8",
+            "values": {
+                "0": "Off",
+                "1": "Standby",
+                "2": "Scanning",
+                "3": "Degraded",
+                "4": "Fault"
+            }
+        },
+        {
+            "name": "Active track count",
+            "offset": 39,
+            "type": "uint8"
+        },
+        {
+            "name": "Status flags",
+            "offset": 40,
+            "type": "uint16",
+            "bits": [
+                {
+                    "name": "Transmitting",
+                    "bitStart": 0,
+                    "length": 1
+                },
+                {
+                    "name": "Time sync valid",
+                    "bitStart": 1,
+                    "length": 1
+                },
+                {
+                    "name": "Position valid",
+                    "bitStart": 2,
+                    "length": 1
+                },
+                {
+                    "name": "Over temperature",
+                    "bitStart": 3,
+                    "length": 1
+                }
+            ]
+        },
+        {
+            "name": "Reserved",
+            "offset": 42,
+            "type": "uint16"
+        }
+    ]
+}

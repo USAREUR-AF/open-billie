@@ -1,0 +1,386 @@
+{
+  "name": "track_report_two_tracks",
+  "description": "Two tracks: one confirmed with Mode 3/A, one tentative/coasting/final/simulated with no Mode 3/A.",
+  "chunks": [
+    "4f45544601106e002a0000000701000040d235df4a42060002000000370103571100000e68512f17b82915d2883b00001efba90196004001180162025a00460049ff4a00380105570e00000068512f17b82915d2883b00001efba90196004001180162025a00460049ff4a005b7a"
+  ],
+  "errors": [],
+  "records": [
+    {
+      "messageName": "Track Report",
+      "msgId": 16,
+      "fields": {
+        "Magic": 1179927887,
+        "Format version": 1,
+        "Message type": "TRACK REPORT (16)",
+        "Frame length": "110 bytes",
+        "Sequence number": 42,
+        "Sensor ID": 263,
+        "Header flags": {
+          "Test data": 0,
+          "Simulated": 0,
+          "_raw": 0
+        },
+        "Timestamp": "1761739200123456 usec",
+        "Track count": 2,
+        "Reserved": 0,
+        "Reserved 2": 0,
+        "Track 0 ID": 311,
+        "Track 0 Classification": "Small UAS (3)",
+        "Track 0 Confidence": "87 %",
+        "Track 0 Flags": {
+          "Confirmed": 1,
+          "Coasting": 0,
+          "Final update": 0,
+          "Simulated": 0,
+          "Mode 3/A valid": 1,
+          "_raw": 17
+        },
+        "Track 0 Mode 3/A code": 3584,
+        "Track 0 Latitude": 38.8977,
+        "Track 0 Longitude": -77.03649999999999,
+        "Track 0 Altitude": "152.4 m",
+        "Track 0 Velocity east": "-12.5 m/s",
+        "Track 0 Velocity north": "4.25 m/s",
+        "Track 0 Velocity up": "1.5 m/s",
+        "Track 0 Position sigma east": "3.2 m",
+        "Track 0 Position sigma north": "2.8000000000000003 m",
+        "Track 0 Altitude sigma": "6.1000000000000005 m",
+        "Track 0 Velocity sigma east": "0.9 m/s",
+        "Track 0 Velocity sigma north": "0.7000000000000001 m/s",
+        "Track 0 RCS": "-18.3 dBsm",
+        "Track 0 Age": "74 s",
+        "Track 1 ID": 312,
+        "Track 1 Classification": "Bird (5)",
+        "Track 1 Confidence": "87 %",
+        "Track 1 Flags": {
+          "Confirmed": 0,
+          "Coasting": 1,
+          "Final update": 1,
+          "Simulated": 1,
+          "Mode 3/A valid": 0,
+          "_raw": 14
+        },
+        "Track 1 Mode 3/A code": 0,
+        "Track 1 Latitude": 38.8977,
+        "Track 1 Longitude": -77.03649999999999,
+        "Track 1 Altitude": "152.4 m",
+        "Track 1 Velocity east": "-12.5 m/s",
+        "Track 1 Velocity north": "4.25 m/s",
+        "Track 1 Velocity up": "1.5 m/s",
+        "Track 1 Position sigma east": "3.2 m",
+        "Track 1 Position sigma north": "2.8000000000000003 m",
+        "Track 1 Altitude sigma": "6.1000000000000005 m",
+        "Track 1 Velocity sigma east": "0.9 m/s",
+        "Track 1 Velocity sigma north": "0.7000000000000001 m/s",
+        "Track 1 RCS": "-18.3 dBsm",
+        "Track 1 Age": "74 s",
+        "Track 2 ID": "(not present)",
+        "Track 2 Classification": "(not present)",
+        "Track 2 Confidence": "(not present)",
+        "Track 2 Flags": "(not present)",
+        "Track 2 Mode 3/A code": "(not present)",
+        "Track 2 Latitude": "(not present)",
+        "Track 2 Longitude": "(not present)",
+        "Track 2 Altitude": "(not present)",
+        "Track 2 Velocity east": "(not present)",
+        "Track 2 Velocity north": "(not present)",
+        "Track 2 Velocity up": "(not present)",
+        "Track 2 Position sigma east": "(not present)",
+        "Track 2 Position sigma north": "(not present)",
+        "Track 2 Altitude sigma": "(not present)",
+        "Track 2 Velocity sigma east": "(not present)",
+        "Track 2 Velocity sigma north": "(not present)",
+        "Track 2 RCS": "(not present)",
+        "Track 2 Age": "(not present)",
+        "Track 3 ID": "(not present)",
+        "Track 3 Classification": "(not present)",
+        "Track 3 Confidence": "(not present)",
+        "Track 3 Flags": "(not present)",
+        "Track 3 Mode 3/A code": "(not present)",
+        "Track 3 Latitude": "(not present)",
+        "Track 3 Longitude": "(not present)",
+        "Track 3 Altitude": "(not present)",
+        "Track 3 Velocity east": "(not present)",
+        "Track 3 Velocity north": "(not present)",
+        "Track 3 Velocity up": "(not present)",
+        "Track 3 Position sigma east": "(not present)",
+        "Track 3 Position sigma north": "(not present)",
+        "Track 3 Altitude sigma": "(not present)",
+        "Track 3 Velocity sigma east": "(not present)",
+        "Track 3 Velocity sigma north": "(not present)",
+        "Track 3 RCS": "(not present)",
+        "Track 3 Age": "(not present)",
+        "Track 4 ID": "(not present)",
+        "Track 4 Classification": "(not present)",
+        "Track 4 Confidence": "(not present)",
+        "Track 4 Flags": "(not present)",
+        "Track 4 Mode 3/A code": "(not present)",
+        "Track 4 Latitude": "(not present)",
+        "Track 4 Longitude": "(not present)",
+        "Track 4 Altitude": "(not present)",
+        "Track 4 Velocity east": "(not present)",
+        "Track 4 Velocity north": "(not present)",
+        "Track 4 Velocity up": "(not present)",
+        "Track 4 Position sigma east": "(not present)",
+        "Track 4 Position sigma north": "(not present)",
+        "Track 4 Altitude sigma": "(not present)",
+        "Track 4 Velocity sigma east": "(not present)",
+        "Track 4 Velocity sigma north": "(not present)",
+        "Track 4 RCS": "(not present)",
+        "Track 4 Age": "(not present)",
+        "Track 5 ID": "(not present)",
+        "Track 5 Classification": "(not present)",
+        "Track 5 Confidence": "(not present)",
+        "Track 5 Flags": "(not present)",
+        "Track 5 Mode 3/A code": "(not present)",
+        "Track 5 Latitude": "(not present)",
+        "Track 5 Longitude": "(not present)",
+        "Track 5 Altitude": "(not present)",
+        "Track 5 Velocity east": "(not present)",
+        "Track 5 Velocity north": "(not present)",
+        "Track 5 Velocity up": "(not present)",
+        "Track 5 Position sigma east": "(not present)",
+        "Track 5 Position sigma north": "(not present)",
+        "Track 5 Altitude sigma": "(not present)",
+        "Track 5 Velocity sigma east": "(not present)",
+        "Track 5 Velocity sigma north": "(not present)",
+        "Track 5 RCS": "(not present)",
+        "Track 5 Age": "(not present)",
+        "Track 6 ID": "(not present)",
+        "Track 6 Classification": "(not present)",
+        "Track 6 Confidence": "(not present)",
+        "Track 6 Flags": "(not present)",
+        "Track 6 Mode 3/A code": "(not present)",
+        "Track 6 Latitude": "(not present)",
+        "Track 6 Longitude": "(not present)",
+        "Track 6 Altitude": "(not present)",
+        "Track 6 Velocity east": "(not present)",
+        "Track 6 Velocity north": "(not present)",
+        "Track 6 Velocity up": "(not present)",
+        "Track 6 Position sigma east": "(not present)",
+        "Track 6 Position sigma north": "(not present)",
+        "Track 6 Altitude sigma": "(not present)",
+        "Track 6 Velocity sigma east": "(not present)",
+        "Track 6 Velocity sigma north": "(not present)",
+        "Track 6 RCS": "(not present)",
+        "Track 6 Age": "(not present)",
+        "Track 7 ID": "(not present)",
+        "Track 7 Classification": "(not present)",
+        "Track 7 Confidence": "(not present)",
+        "Track 7 Flags": "(not present)",
+        "Track 7 Mode 3/A code": "(not present)",
+        "Track 7 Latitude": "(not present)",
+        "Track 7 Longitude": "(not present)",
+        "Track 7 Altitude": "(not present)",
+        "Track 7 Velocity east": "(not present)",
+        "Track 7 Velocity north": "(not present)",
+        "Track 7 Velocity up": "(not present)",
+        "Track 7 Position sigma east": "(not present)",
+        "Track 7 Position sigma north": "(not present)",
+        "Track 7 Altitude sigma": "(not present)",
+        "Track 7 Velocity sigma east": "(not present)",
+        "Track 7 Velocity sigma north": "(not present)",
+        "Track 7 RCS": "(not present)",
+        "Track 7 Age": "(not present)"
+      },
+      "translations": {
+        "asterix-cat062": [
+          {
+            "I062/070": {
+              "Time Of Track Information": 5529616
+            },
+            "I062/040": {
+              "Track Number": 311
+            },
+            "I062/105": {
+              "Latitude": 7251056.831146667,
+              "Longitude": -14360644.44871111
+            },
+            "I062/130": {
+              "Altitude": 80
+            },
+            "I062/185": {
+              "Vx": -50,
+              "Vy": 17
+            },
+            "I062/220": {
+              "Rate": 47.24409448818898
+            },
+            "I062/060": {
+              "Mode 3/A code": 3584
+            },
+            "I062/245": {
+              "Target Identification": "SUAS    "
+            },
+            "I062/080": {
+              "CNF": 0,
+              "SIM": 0,
+              "TSE": 0
+            },
+            "I062/500": {
+              "APC": {
+                "APC X": 6.4,
+                "APC Y": 5.6000000000000005
+              },
+              "AGA": {
+                "AGA": 3.2020997375328086
+              },
+              "ATV": {
+                "ATV Vx": 3.6,
+                "ATV Vy": 2.8000000000000003
+              }
+            }
+          },
+          {
+            "I062/070": {
+              "Time Of Track Information": 5529616
+            },
+            "I062/040": {
+              "Track Number": 312
+            },
+            "I062/105": {
+              "Latitude": 7251056.831146667,
+              "Longitude": -14360644.44871111
+            },
+            "I062/130": {
+              "Altitude": 80
+            },
+            "I062/185": {
+              "Vx": -50,
+              "Vy": 17
+            },
+            "I062/220": {
+              "Rate": 47.24409448818898
+            },
+            "I062/245": {
+              "Target Identification": "BIRD    "
+            },
+            "I062/080": {
+              "CNF": 1,
+              "SIM": 1,
+              "TSE": 1
+            },
+            "I062/500": {
+              "APC": {
+                "APC X": 6.4,
+                "APC Y": 5.6000000000000005
+              },
+              "AGA": {
+                "AGA": 3.2020997375328086
+              },
+              "ATV": {
+                "ATV Vx": 3.6,
+                "ATV Vy": 2.8000000000000003
+              }
+            }
+          }
+        ],
+        "cot": [
+          {
+            "time": "2025-10-29T12:00:00.123Z",
+            "uid": "311",
+            "detail": {
+              "uid": {
+                "tadilj": "311"
+              },
+              "track": {
+                "speed": 13.202745926510893,
+                "course": 289,
+                "eSpeed": 1.140175425099138
+              }
+            },
+            "type": "a-u-A-M-F-Q",
+            "lat": 38.8977,
+            "lon": -77.03649999999999,
+            "hae": 152.4,
+            "ce": 4.25205832509386,
+            "le": 6.1000000000000005
+          },
+          {
+            "time": "2025-10-29T12:00:00.123Z",
+            "uid": "312",
+            "detail": {
+              "uid": {
+                "tadilj": "312"
+              },
+              "track": {
+                "speed": 13.202745926510893,
+                "course": 289,
+                "eSpeed": 1.140175425099138
+              }
+            },
+            "type": "a-u-A",
+            "lat": 38.8977,
+            "lon": -77.03649999999999,
+            "hae": 152.4,
+            "ce": 4.25205832509386,
+            "le": 6.1000000000000005
+          }
+        ],
+        "sapient": [
+          {
+            "timestamp": {
+              "seconds": 1761739200,
+              "nanos": 123456000
+            },
+            "detection_report": {
+              "id": "311",
+              "classification": {
+                "type": "UAV"
+              },
+              "detection_confidence": 0.87,
+              "location": {
+                "y": 38.8977,
+                "x": -77.03649999999999,
+                "z": 152.4,
+                "z_error": 6.1000000000000005
+              },
+              "enu_velocity": {
+                "east_rate": -12.5,
+                "north_rate": 4.25,
+                "up_rate": 1.5,
+                "east_rate_error": 0.9,
+                "north_rate_error": 0.7000000000000001
+              },
+              "object_info": {
+                "type": "rcs_dbsm",
+                "value": "-18.3"
+              }
+            }
+          },
+          {
+            "timestamp": {
+              "seconds": 1761739200,
+              "nanos": 123456000
+            },
+            "detection_report": {
+              "id": "312",
+              "classification": {
+                "type": "BIRD"
+              },
+              "detection_confidence": 0.87,
+              "location": {
+                "y": 38.8977,
+                "x": -77.03649999999999,
+                "z": 152.4,
+                "z_error": 6.1000000000000005
+              },
+              "enu_velocity": {
+                "east_rate": -12.5,
+                "north_rate": 4.25,
+                "up_rate": 1.5,
+                "east_rate_error": 0.9,
+                "north_rate_error": 0.7000000000000001
+              },
+              "object_info": {
+                "type": "rcs_dbsm",
+                "value": "-18.3"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

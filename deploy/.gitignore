@@ -1,0 +1,9 @@
+dist/
+*.deb
+*.tar.gz
+SHA256SUMS
+*.pem
+*.key
+.env
+platform/inventory.yml
+platform/host_vars/

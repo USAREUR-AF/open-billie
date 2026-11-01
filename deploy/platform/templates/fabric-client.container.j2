@@ -1,0 +1,23 @@
+[Unit]
+Description=Open Billie Zenoh fabric client
+After=network-online.target {{ billie_instance_prefix }}-zenohd.service
+Wants=network-online.target
+ConditionPathExists={{ billie_etc_dir }}/zenoh/fabric-client.enabled
+
+[Container]
+Image={{ billie_zenoh_image | default('docker.io/eclipse/zenoh@sha256:157965d71e0bfd0a044d76a985ff0e5c306ad3968929168fb9678cd2a7fec23f') }}
+ContainerName={{ billie_instance_prefix }}-fabric-client
+{% if billie_fabric_enabled | default(false) | bool %}PodmanArgs=--add-host={{ billie_fabric_endpoint_host }}:{{ billie_fabric_peer_ip }}
+{% endif %}PublishPort=127.0.0.1:{{ billie_fabric_rest_port }}:8000
+Volume={{ billie_etc_dir }}/zenoh/fabric-client.json5:/etc/billie/zenoh/fabric-client.json5:ro
+Volume={{ billie_etc_dir }}/zenoh/tls:/etc/billie/zenoh/tls:ro
+Exec=--rest-http-port=8000 --config=/etc/billie/zenoh/fabric-client.json5
+NoNewPrivileges=true
+
+[Service]
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target default.target

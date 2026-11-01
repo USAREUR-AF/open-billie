@@ -1,0 +1,35 @@
+apiVersion: billie.dev/v1
+kind: KidPackage
+metadata:
+  id: example-kid
+  version: 0.1.0
+  displayName: Example Billie kid
+  description: Replace this with a short, sensor-neutral package summary.
+  repository: https://example.invalid/owner/example-kid
+
+runtime:
+  # Replace with the immutable image reference produced by this kid's release.
+  image: registry.example.invalid/owner/example-kid@sha256:0000000000000000000000000000000000000000000000000000000000000000
+  command: ["/app/bin/example-kid"]
+  environment:
+    - BILLIE_TRANSLATOR_SOCKET
+    - BILLIE_INPUT_PORT
+  persistentPaths: []
+
+components:
+  decoder: decoder
+  mapper: mapper
+  schemas: schemas
+  mappings: mappings
+  lookups: lookups
+  vectors: tests/vectors
+
+interfaces:
+  inputs:
+    - name: tracks
+      transport: udp
+      port: 5100
+  outputs:
+    - name: tracks
+      format: cot
+  requires: []

@@ -1,0 +1,14 @@
+FROM docker.io/library/python:3.12.10-slim-bookworm
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/opt/oetf \
+    OETF_SHARED_DIR=/opt/oetf/shared
+
+WORKDIR /app
+COPY kids/examples/oetf/packages/oetf/python/src/billie_oetf /opt/oetf/billie_oetf
+COPY kids/examples/oetf/packages/oetf/shared /opt/oetf/shared
+COPY tools/sensor-pod-sim/sensor_pod_sim.py /app/sensor_pod_sim.py
+
+USER 10001:10001
+ENTRYPOINT ["python3", "/app/sensor_pod_sim.py"]

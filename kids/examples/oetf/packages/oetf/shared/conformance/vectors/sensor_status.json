@@ -1,0 +1,47 @@
+{
+  "name": "sensor_status",
+  "description": "Sensor Status has no maps; every translation is null.",
+  "chunks": [
+    "4f45544601012e002e0000000701020040d235df4a42060040ab2f1700a114d2d0070000aa6903020b000000a4b0"
+  ],
+  "errors": [],
+  "records": [
+    {
+      "messageName": "Sensor Status",
+      "msgId": 1,
+      "fields": {
+        "Magic": 1179927887,
+        "Format version": 1,
+        "Message type": "SENSOR STATUS (1)",
+        "Frame length": "46 bytes",
+        "Sequence number": 46,
+        "Sensor ID": 263,
+        "Header flags": {
+          "Test data": 0,
+          "Simulated": 1,
+          "_raw": 2
+        },
+        "Timestamp": "1761739200123456 usec",
+        "Sensor latitude": 38.9,
+        "Sensor longitude": -77.03999999999999,
+        "Sensor altitude": "20 m",
+        "Boresight azimuth": "270.5 deg",
+        "Operating state": "Degraded (3)",
+        "Active track count": 2,
+        "Status flags": {
+          "Transmitting": 1,
+          "Time sync valid": 1,
+          "Position valid": 0,
+          "Over temperature": 1,
+          "_raw": 11
+        },
+        "Reserved": 0
+      },
+      "translations": {
+        "asterix-cat062": null,
+        "cot": null,
+        "sapient": null
+      }
+    }
+  ]
+}

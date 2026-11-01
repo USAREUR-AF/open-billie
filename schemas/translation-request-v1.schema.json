@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://open-billie.example/schemas/translation-request-v1.schema.json",
+  "title": "Billie translation request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "requestId", "kid", "target", "record"],
+  "properties": {
+    "apiVersion": { "const": "billie.dev/translation-v1" },
+    "kind": { "const": "TranslateRequest" },
+    "requestId": { "type": "string", "minLength": 1, "maxLength": 128 },
+    "kid": { "type": "string", "pattern": "^[a-z0-9][a-z0-9-]{0,62}$" },
+    "target": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["outputName", "format"],
+      "properties": {
+        "outputName": { "type": "string", "pattern": "^[a-z][a-z0-9-]{0,31}$" },
+        "format": { "enum": ["cot", "asterix-cat062", "sapient"] },
+        "profile": { "type": "string", "minLength": 1, "maxLength": 128 }
+      }
+    },
+    "record": { "$ref": "https://open-billie.example/schemas/canonical-track-v2.schema.json" }
+  }
+}

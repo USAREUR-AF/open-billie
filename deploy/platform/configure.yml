@@ -1,0 +1,434 @@
+---
+- name: Converge the generic Billie platform baseline
+  hosts: billie
+  connection: local
+  become: true
+  gather_facts: true
+  vars:
+    billie_release_version: "{{ lookup('file', playbook_dir + '/../VERSION') | trim }}"
+    billie_instance_prefix: billie
+    billie_etc_dir: /etc/billie
+    billie_runtime_dir: "/run/{{ billie_instance_prefix }}"
+    billie_state_dir: "/var/lib/{{ billie_instance_prefix }}"
+    billie_local_rest_port: 8000
+    billie_local_peer_port: 7447
+    billie_fabric_rest_port: 8001
+    billie_translator_bin: /opt/billie/platform/current/bin/billie-translator
+    # Multi-architecture OCI index digest verified from the upstream registry.
+    billie_zenoh_image: "docker.io/eclipse/zenoh@sha256:157965d71e0bfd0a044d76a985ff0e5c306ad3968929168fb9678cd2a7fec23f"
+    billie_bridge_script_path: "/usr/local/libexec/{{ billie_instance_prefix }}-island-bridge.py"
+    billie_health_script_path: "/usr/local/libexec/{{ billie_instance_prefix }}-health"
+  tasks:
+    - name: Validate node identity
+      ansible.builtin.assert:
+        that:
+          - node_handle is match('^[a-z0-9][a-z0-9-]{0,62}$')
+          - node_supply in ['connected', 'airgap']
+          - billie_instance_prefix is match('^[a-z][a-z0-9-]{0,30}$')
+          - (billie_local_rest_port | int) > 0
+          - (billie_local_rest_port | int) <= 65535
+          - (billie_local_peer_port | int) > 0
+          - (billie_local_peer_port | int) <= 65535
+          - (billie_fabric_rest_port | int) > 0
+          - (billie_fabric_rest_port | int) <= 65535
+          - (billie_local_rest_port | int) != (billie_fabric_rest_port | int)
+          - (billie_local_peer_port | int) != (billie_local_rest_port | int)
+          - (billie_local_peer_port | int) != (billie_fabric_rest_port | int)
+        fail_msg: Billie node identity is invalid.
+
+    - name: Generate SAPIENT node UUID for legacy node identities
+      ansible.builtin.set_fact:
+        sapient_node_id: "{{ lookup('ansible.builtin.pipe', 'python3 -c \"import uuid; print(uuid.uuid4())\"') }}"
+      when: sapient_node_id is not defined
+
+    - name: Validate SAPIENT node UUID
+      ansible.builtin.assert:
+        that:
+          - sapient_node_id is match('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
+        fail_msg: SAPIENT node identity must be a UUID.
+
+    - name: Persist SAPIENT node UUID in protected identity
+      ansible.builtin.lineinfile:
+        path: "{{ billie_etc_dir }}/identity/node.yml"
+        regexp: '^sapient_node_id:'
+        line: "sapient_node_id: {{ sapient_node_id }}"
+        owner: root
+        group: root
+        mode: "0600"
+
+    - name: Require Ubuntu 24.04 for the first platform slice
+      ansible.builtin.assert:
+        that:
+          - ansible_distribution == 'Ubuntu'
+          - ansible_distribution_version == '24.04'
+          - ansible_architecture in ['aarch64', 'x86_64']
+        fail_msg: Open Billie 0.2 supports Ubuntu 24.04 on arm64 or amd64.
+
+    - name: Confirm Podman is installed
+      ansible.builtin.command:
+        argv:
+          - podman
+          - --version
+      register: billie_podman_version
+      changed_when: false
+      check_mode: false
+
+    - name: Create the shared kid runtime group
+      ansible.builtin.group:
+        name: billie-kids
+        system: true
+        state: present
+
+    - name: Create Billie platform directories
+      ansible.builtin.file:
+        path: "{{ item.path }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "{{ item.mode }}"
+      loop:
+        - { path: "{{ billie_etc_dir }}/identity", mode: "0700" }
+        - { path: "{{ billie_etc_dir }}/zenoh", mode: "0750" }
+        - { path: "{{ billie_etc_dir }}/translator", mode: "0700" }
+        - { path: "{{ billie_state_dir }}", mode: "0750" }
+        - { path: "{{ billie_runtime_dir }}", mode: "0755" }
+        - { path: /usr/local/libexec, mode: "0755" }
+
+    - name: Resolve fabric endpoint for Podman host mapping
+      ansible.builtin.command:
+        argv:
+          - getent
+          - ahostsv4
+          - "{{ billie_fabric_endpoint | regex_replace('^tls/([^:]+):[0-9]+$', '\\1') }}"
+      register: billie_fabric_peer_lookup
+      changed_when: false
+      check_mode: false
+      when: billie_fabric_enabled | default(false) | bool
+
+    - name: Record resolved fabric endpoint address
+      ansible.builtin.set_fact:
+        billie_fabric_endpoint_host: "{{ billie_fabric_endpoint | regex_replace('^tls/([^:]+):[0-9]+$', '\\1') }}"
+        billie_fabric_peer_ip: "{{ billie_fabric_peer_lookup.stdout.split()[0] }}"
+      changed_when: false
+      when: billie_fabric_enabled | default(false) | bool
+
+    - name: Validate optional fabric configuration
+      ansible.builtin.assert:
+        that:
+          - billie_fabric_endpoint is match('^tls/[A-Za-z0-9.-]+:[0-9]{1,5}$')
+          - (billie_fabric_endpoint.rsplit(':', 1)[1] | int) > 0
+          - (billie_fabric_endpoint.rsplit(':', 1)[1] | int) <= 65535
+          - billie_fabric_prefix is match('^[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)*$')
+          - billie_fabric_prefix is not search('[*?]')
+          - "'..' not in billie_fabric_prefix.split('/')"
+          - "'.' not in billie_fabric_prefix.split('/')"
+        fail_msg: Fabric endpoint or scoped prefix is invalid.
+      when: billie_fabric_enabled | default(false) | bool
+
+    - name: Confirm fabric mTLS files are present
+      ansible.builtin.stat:
+        path: "{{ item }}"
+      loop:
+        - "{{ billie_etc_dir }}/zenoh/tls/ca.pem"
+        - "{{ billie_etc_dir }}/zenoh/tls/client.pem"
+        - "{{ billie_etc_dir }}/zenoh/tls/client-key.pem"
+      register: billie_fabric_tls_files
+      when: billie_fabric_enabled | default(false) | bool
+
+    - name: Require all fabric mTLS files
+      ansible.builtin.assert:
+        that:
+          - item.stat.exists
+          - item.stat.isreg
+        fail_msg: Required fabric mTLS file is missing.
+      loop: "{{ billie_fabric_tls_files.results | default([]) }}"
+      when: billie_fabric_enabled | default(false) | bool
+
+    - name: Create Quadlet directory
+      ansible.builtin.file:
+        path: /etc/containers/systemd
+        state: directory
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Create fabric TLS directory when configured
+      ansible.builtin.file:
+        path: "{{ billie_etc_dir }}/zenoh/tls"
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+      when: billie_fabric_enabled | default(false) | bool
+
+    - name: Protect fabric private key
+      ansible.builtin.file:
+        path: "{{ billie_etc_dir }}/zenoh/tls/client-key.pem"
+        owner: root
+        group: root
+        mode: "0600"
+      when: billie_fabric_enabled | default(false) | bool
+
+    - name: Check whether pinned Zenoh image is already loaded
+      ansible.builtin.command:
+        argv:
+          - podman
+          - image
+          - exists
+          - "{{ billie_zenoh_image }}"
+      register: billie_zenoh_image_check
+      changed_when: false
+      failed_when: false
+      check_mode: false
+
+    - name: Pull pinned Zenoh image for connected nodes when missing
+      ansible.builtin.command:
+        argv:
+          - podman
+          - pull
+          - "{{ billie_zenoh_image }}"
+      when:
+        - not ansible_check_mode
+        - node_supply == 'connected'
+        - billie_zenoh_image_check.rc != 0
+
+    - name: Require preloaded Zenoh image for airgap nodes
+      ansible.builtin.assert:
+        that:
+          - billie_zenoh_image_check.rc == 0
+        fail_msg: >-
+          Airgap deployment needs the pinned Zenoh image {{ billie_zenoh_image }} loaded with Podman.
+      when:
+        - node_supply == 'airgap'
+
+    - name: Render isolated local Zenoh router configuration
+      ansible.builtin.template:
+        src: templates/zenohd.json5.j2
+        dest: "{{ billie_etc_dir }}/zenoh/zenohd.json5"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart local Zenoh island
+
+    - name: Render local Zenoh router Quadlet
+      ansible.builtin.template:
+        src: templates/zenohd.container.j2
+        dest: "/etc/containers/systemd/{{ billie_instance_prefix }}-zenohd.container"
+        owner: root
+        group: root
+        mode: "0644"
+      notify: Restart local Zenoh island
+
+    - name: Render fabric client configuration when configured
+      ansible.builtin.template:
+        src: templates/fabric-client.json5.j2
+        dest: "{{ billie_etc_dir }}/zenoh/fabric-client.json5"
+        owner: root
+        group: root
+        mode: "0644"
+      when: billie_fabric_enabled | default(false) | bool
+      notify: Restart fabric client
+
+    - name: Render client-mode fabric Quadlet
+      ansible.builtin.template:
+        src: templates/fabric-client.container.j2
+        dest: "/etc/containers/systemd/{{ billie_instance_prefix }}-fabric-client.container"
+        owner: root
+        group: root
+        mode: "0644"
+      notify:
+        - Restart fabric client
+
+    - name: Gate client-mode fabric session
+      ansible.builtin.file:
+        path: "{{ billie_etc_dir }}/zenoh/fabric-client.enabled"
+        owner: root
+        group: root
+        mode: "0644"
+        state: touch
+        modification_time: preserve
+        access_time: preserve
+      when: billie_fabric_enabled | default(false) | bool
+
+    - name: Remove client-mode fabric gate when unconfigured
+      ansible.builtin.file:
+        path: "{{ billie_etc_dir }}/zenoh/fabric-client.enabled"
+        state: absent
+      when: not (billie_fabric_enabled | default(false) | bool)
+
+    - name: Install one-way fabric bridge
+      ansible.builtin.copy:
+        src: ../bin/billie-island-bridge.py
+        dest: "{{ billie_bridge_script_path }}"
+        owner: root
+        group: root
+        mode: "0755"
+      notify: Restart island bridge
+
+    - name: Render one-way fabric bridge systemd unit
+      ansible.builtin.template:
+        src: templates/island-bridge.service.j2
+        dest: "/etc/systemd/system/{{ billie_instance_prefix }}-island-bridge.service"
+        owner: root
+        group: root
+        mode: "0644"
+      notify:
+        - Restart island bridge
+
+    - name: Render shared translator systemd unit
+      ansible.builtin.template:
+        src: templates/billie-translator.service.j2
+        dest: "/etc/systemd/system/{{ billie_instance_prefix }}-translator.service"
+        owner: root
+        group: root
+        mode: "0644"
+      notify:
+        - Restart shared translator
+
+    - name: Reload systemd after service and Quadlet changes
+      ansible.builtin.systemd:
+        daemon_reload: true
+      changed_when: false
+      when: not ansible_check_mode
+
+    - name: Enable and start the local Zenoh island
+      ansible.builtin.systemd:
+        name: "{{ billie_instance_prefix }}-zenohd.service"
+        enabled: true
+        state: started
+      when: not ansible_check_mode
+
+    - name: Enable and start the shared translator publisher
+      ansible.builtin.systemd:
+        name: "{{ billie_instance_prefix }}-translator.service"
+        enabled: true
+        state: started
+      when: not ansible_check_mode
+
+    - name: Start the client-mode fabric session
+      ansible.builtin.systemd:
+        name: "{{ billie_instance_prefix }}-fabric-client.service"
+        enabled: true
+        state: started
+      when:
+        - not ansible_check_mode
+        - billie_fabric_enabled | default(false) | bool
+
+    - name: Stop the fabric session when not configured
+      ansible.builtin.systemd:
+        name: "{{ billie_instance_prefix }}-fabric-client.service"
+        enabled: false
+        state: stopped
+      when:
+        - not ansible_check_mode
+        - not (billie_fabric_enabled | default(false) | bool)
+      failed_when: false
+
+    - name: Start the one-way fabric bridge
+      ansible.builtin.systemd:
+        name: "{{ billie_instance_prefix }}-island-bridge.service"
+        enabled: true
+        state: started
+      when:
+        - not ansible_check_mode
+        - billie_fabric_enabled | default(false) | bool
+
+    - name: Stop the one-way fabric bridge when not configured
+      ansible.builtin.systemd:
+        name: "{{ billie_instance_prefix }}-island-bridge.service"
+        enabled: false
+        state: stopped
+      when:
+        - not ansible_check_mode
+        - not (billie_fabric_enabled | default(false) | bool)
+      failed_when: false
+
+    - name: Apply pending service restarts before publishing health
+      ansible.builtin.meta: flush_handlers
+
+    - name: Install generic platform health reporter
+      ansible.builtin.template:
+        src: templates/billie-health.sh.j2
+        dest: "{{ billie_health_script_path }}"
+        owner: root
+        group: root
+        mode: "0755"
+
+    - name: Install platform health service
+      ansible.builtin.template:
+        src: templates/billie-health.service.j2
+        dest: "/etc/systemd/system/{{ billie_instance_prefix }}-health.service"
+        owner: root
+        group: root
+        mode: "0644"
+      register: billie_health_service
+
+    - name: Install platform health timer
+      ansible.builtin.template:
+        src: templates/billie-health.timer.j2
+        dest: "/etc/systemd/system/{{ billie_instance_prefix }}-health.timer"
+        owner: root
+        group: root
+        mode: "0644"
+      register: billie_health_timer
+
+    - name: Write platform release metadata
+      ansible.builtin.template:
+        src: templates/platform-state.json.j2
+        dest: "{{ billie_state_dir }}/platform.json"
+        owner: root
+        group: root
+        mode: "0640"
+
+    - name: Reload systemd after health unit changes
+      ansible.builtin.systemd:
+        daemon_reload: true
+      changed_when: false
+      when:
+        - not ansible_check_mode
+        - billie_health_service.changed or billie_health_timer.changed
+
+    - name: Enable and start Billie health timer
+      ansible.builtin.systemd:
+        name: "{{ billie_instance_prefix }}-health.timer"
+        enabled: true
+        state: started
+      when: not ansible_check_mode
+
+    - name: Publish initial platform health record
+      ansible.builtin.command:
+        argv:
+          - systemctl
+          - start
+          - "{{ billie_instance_prefix }}-health.service"
+      changed_when: false
+      when: not ansible_check_mode
+
+  handlers:
+    - name: Restart local Zenoh island
+      ansible.builtin.systemd:
+        name: "{{ billie_instance_prefix }}-zenohd.service"
+        state: restarted
+      when: not ansible_check_mode
+
+    - name: Restart fabric client
+      ansible.builtin.systemd:
+        name: "{{ billie_instance_prefix }}-fabric-client.service"
+        state: restarted
+      when:
+        - not ansible_check_mode
+        - billie_fabric_enabled | default(false) | bool
+
+    - name: Restart island bridge
+      ansible.builtin.systemd:
+        name: "{{ billie_instance_prefix }}-island-bridge.service"
+        state: restarted
+      when:
+        - not ansible_check_mode
+        - billie_fabric_enabled | default(false) | bool
+
+    - name: Restart shared translator
+      ansible.builtin.systemd:
+        name: "{{ billie_instance_prefix }}-translator.service"
+        state: restarted
+      when: not ansible_check_mode

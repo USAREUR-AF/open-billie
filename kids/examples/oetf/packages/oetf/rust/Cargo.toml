@@ -1,0 +1,17 @@
+[package]
+name = "billie-oetf"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "ISC"
+description = "Rust decoder, builder and ASTERIX CAT-062, CoT and SAPIENT mapper for OETF (Open Example Track Format) — a non-proprietary example target wire format."
+
+# The schemas, maps and lookup tables are NOT copied into this crate: build.rs
+# embeds the single shared copy under ../shared (schemas, mappings, lookups) at
+# compile time, so the binary is self-contained and cannot drift from the
+# TypeScript and Python implementations.
+
+[dependencies]
+# float_roundtrip: parse JSON numbers with correct rounding, as JS/Python do.
+# Without it a scale like 1e-07 can land one ULP off and break conformance.
+serde_json = { version = "1", features = ["float_roundtrip"] }

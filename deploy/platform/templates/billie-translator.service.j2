@@ -1,0 +1,29 @@
+[Unit]
+Description=Open Billie shared translator and local Zenoh publisher
+After=network-online.target {{ billie_instance_prefix }}-zenohd.service
+Wants=network-online.target {{ billie_instance_prefix }}-zenohd.service
+
+[Service]
+Type=simple
+Environment=BILLIE_TRANSLATOR_SOCKET={{ billie_runtime_dir }}/translator.sock
+Environment=BILLIE_TRANSLATOR_REGISTRY={{ billie_etc_dir }}/translator/kids.json
+Environment=BILLIE_TRANSLATOR_SOCKET_GROUP=billie-kids
+Environment=BILLIE_LOCAL_ZENOH_REST_ADDR=127.0.0.1:{{ billie_local_rest_port }}
+Environment=BILLIE_SAPIENT_NODE_ID={{ sapient_node_id }}
+Environment=BILLIE_SAPIENT_OBJECT_ID_STORE={{ billie_state_dir }}/sapient-object-ids.json
+Environment=BILLIE_CAT062_SOURCE_MAP={{ billie_etc_dir }}/translator/cat062-sources.json
+ExecStart={{ billie_translator_bin }}
+Restart=on-failure
+RestartSec=3
+RuntimeDirectory={{ billie_instance_prefix }}
+RuntimeDirectoryMode=0755
+RuntimeDirectoryPreserve=restart
+UMask=0007
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths={{ billie_state_dir }}
+
+[Install]
+WantedBy=multi-user.target

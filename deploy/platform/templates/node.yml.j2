@@ -1,0 +1,3 @@
+node_handle: {{ node_handle }}
+node_supply: {{ node_supply }}
+sapient_node_id: {{ lookup('ansible.builtin.pipe', 'python3 -c "import uuid; print(uuid.uuid4())"') }}

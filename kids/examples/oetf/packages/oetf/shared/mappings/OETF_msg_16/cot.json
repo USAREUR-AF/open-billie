@@ -1,0 +1,137 @@
+{
+  "mapVersion": 1,
+  "source": {
+    "protocol": "oetf",
+    "message": "Track Report",
+    "messageId": 16
+  },
+  "target": {
+    "protocol": "cot",
+    "message": "CoTEvent"
+  },
+  "direction": "inbound",
+  "enabled": true,
+  "preserveRaw": true,
+  "repeats": {
+    "field": "Track count",
+    "indexedBy": "Track {n}",
+    "max": 8
+  },
+  "mappings": [
+    {
+      "from": "Timestamp",
+      "to": "time",
+      "via": [
+        {
+          "conversion": "epochMicrosToIso8601"
+        }
+      ],
+      "notes": "µs since epoch → ISO-8601 (ms precision). encoder-defaults mirrors it to `start` and sets `stale` (+180 s) and `how` (m-p)."
+    },
+    {
+      "from": "Track {n} ID",
+      "to": "uid",
+      "via": [
+        {
+          "conversion": "uintToString"
+        }
+      ]
+    },
+    {
+      "from": "Track {n} ID",
+      "to": "detail.uid.tadilj",
+      "via": [
+        {
+          "conversion": "uintToString"
+        }
+      ],
+      "notes": "TADIL-J mirror of event/@uid, the shape TAK radar feeds use."
+    },
+    {
+      "from": "Track {n} Classification",
+      "to": "type",
+      "via": [
+        {
+          "conversion": "lookup",
+          "params": {
+            "table": "OETF_classification_cot"
+          }
+        }
+      ],
+      "notes": "CoT type (unknown affiliation `a-u-…`) per OETF classification."
+    },
+    {
+      "from": "Track {n} Latitude",
+      "to": "lat"
+    },
+    {
+      "from": "Track {n} Longitude",
+      "to": "lon"
+    },
+    {
+      "from": "Track {n} Altitude",
+      "to": "hae",
+      "notes": "OETF altitude is already height above the WGS-84 ellipsoid."
+    },
+    {
+      "from": "Track {n} Velocity east|Track {n} Velocity north",
+      "to": "detail.track.speed",
+      "via": [
+        {
+          "conversion": "speedMsFromVxy"
+        }
+      ],
+      "notes": "Horizontal speed (m/s)."
+    },
+    {
+      "from": "Track {n} Velocity east|Track {n} Velocity north",
+      "to": "detail.track.course",
+      "via": [
+        {
+          "conversion": "headingDegFromVxy"
+        }
+      ],
+      "notes": "OETF velocity is ENU, so (east, north) feeds headingDegFromVxy directly — no NWU swap. Degrees, North=0, clockwise."
+    },
+    {
+      "from": "Track {n} Position sigma east|Track {n} Position sigma north",
+      "to": "ce",
+      "via": [
+        {
+          "conversion": "speedMsFromVxy"
+        }
+      ],
+      "notes": "point/@ce horizontal error (m) = √(σE² + σN²)."
+    },
+    {
+      "from": "Track {n} Altitude sigma",
+      "to": "le",
+      "notes": "point/@le vertical error (m)."
+    },
+    {
+      "from": "Track {n} Velocity sigma east|Track {n} Velocity sigma north",
+      "to": "detail.track.eSpeed",
+      "via": [
+        {
+          "conversion": "speedMsFromVxy"
+        }
+      ],
+      "notes": "detail/track/@eSpeed = √(σVE² + σVN²)."
+    }
+  ],
+  "unmapped": [
+    { "from": "Magic", "reason": "framing only" },
+    { "from": "Format version", "reason": "framing only" },
+    { "from": "Message type", "reason": "framing only" },
+    { "from": "Frame length", "reason": "framing only" },
+    { "from": "Sequence number", "reason": "no cot target" },
+    { "from": "Sensor ID", "reason": "no cot target (uid is per track)" },
+    { "from": "Header flags", "reason": "no cot target" },
+    { "from": "Track {n} Confidence", "reason": "no cot target" },
+    { "from": "Track {n} Flags", "reason": "no cot target for track lifecycle flags" },
+    { "from": "Track {n} Mode 3/A code", "reason": "no cot target in the canonical CoT schema" },
+    { "from": "Track {n} Velocity up", "reason": "CoT track carries horizontal speed/course only" },
+    { "from": "Track {n} RCS", "reason": "no cot target" },
+    { "from": "Track {n} Age", "reason": "no cot target" }
+  ]
+}

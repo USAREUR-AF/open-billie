@@ -1,0 +1,8 @@
+services:
+  arm64-platform-smoke:
+    platform: linux/arm64
+    build:
+      context: ../..
+      dockerfile: tools/arm64-smoke/Containerfile
+    volumes:
+      - ../../dist:/artifacts:ro

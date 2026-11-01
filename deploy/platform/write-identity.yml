@@ -1,0 +1,40 @@
+---
+- name: Create local Billie node identity
+  hosts: billie
+  connection: local
+  become: true
+  gather_facts: false
+  tasks:
+    - name: Validate node handle and supply mode
+      ansible.builtin.assert:
+        that:
+          - node_handle is match('^[a-z0-9][a-z0-9-]{0,62}$')
+          - node_supply in ['connected', 'airgap']
+        fail_msg: Node handle or supply mode is invalid.
+
+    - name: Create protected identity directory
+      ansible.builtin.file:
+        path: "{{ identity_dir }}"
+        state: directory
+        owner: root
+        group: root
+        mode: "0700"
+
+    - name: Check whether node identity already exists
+      ansible.builtin.stat:
+        path: "{{ identity_dir }}/node.yml"
+      register: billie_identity
+
+    - name: Refuse to overwrite node identity
+      ansible.builtin.assert:
+        that:
+          - not billie_identity.stat.exists
+        fail_msg: Existing node identity was left unchanged.
+
+    - name: Write node identity from validated values
+      ansible.builtin.template:
+        src: templates/node.yml.j2
+        dest: "{{ identity_dir }}/node.yml"
+        owner: root
+        group: root
+        mode: "0600"

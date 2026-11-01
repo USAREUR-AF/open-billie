@@ -1,0 +1,18 @@
+services:
+  sensor-pod:
+    build:
+      context: ../..
+      dockerfile: tools/sensor-pod-sim/Containerfile
+    image: open-billie/oetf-sensor-sim:local
+    environment:
+      SENSOR_TRANSPORT: tcp
+      SENSOR_DESTINATION: 192.0.2.20
+      SENSOR_PORT: "3401"
+      SENSOR_INTERVAL_SECONDS: "1"
+      SENSOR_COUNT: "0"
+      SENSOR_TRACK_ID: "311"
+      SENSOR_ID: "263"
+      SENSOR_START_SEQUENCE: "1"
+      SENSOR_LATITUDE: "0.0"
+      SENSOR_LONGITUDE: "0.0"
+      SENSOR_ALTITUDE_M: "100.0"

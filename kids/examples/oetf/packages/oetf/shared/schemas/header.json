@@ -1,0 +1,61 @@
+{
+    "messageName": "Header",
+    "fields": [
+        {
+            "name": "Magic",
+            "offset": 0,
+            "type": "uint32",
+            "notes": "ASCII 'OETF' (bytes 4F 45 54 46). Little-endian uint32 0x4654454F."
+        },
+        {
+            "name": "Format version",
+            "offset": 4,
+            "type": "uint8",
+            "notes": "1 for this revision. Decoder rejects other versions."
+        },
+        {
+            "name": "Message type",
+            "offset": 5,
+            "type": "uint8",
+            "values": {
+                "1": "SENSOR STATUS",
+                "16": "TRACK REPORT"
+            }
+        },
+        {
+            "name": "Frame length",
+            "offset": 6,
+            "type": "uint16",
+            "units": "bytes",
+            "notes": "Total frame size including the 16-byte header and the 2-byte CRC trailer."
+        },
+        {
+            "name": "Sequence number",
+            "offset": 8,
+            "type": "uint32",
+            "notes": "Per-sensor running counter starting at 0; wraps after 0xFFFFFFFF."
+        },
+        {
+            "name": "Sensor ID",
+            "offset": 12,
+            "type": "uint16"
+        },
+        {
+            "name": "Header flags",
+            "offset": 14,
+            "type": "uint16",
+            "bits": [
+                {
+                    "name": "Test data",
+                    "bitStart": 0,
+                    "length": 1
+                },
+                {
+                    "name": "Simulated",
+                    "bitStart": 1,
+                    "length": 1
+                }
+            ]
+        }
+    ]
+}

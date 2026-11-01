@@ -1,0 +1,20 @@
+[Unit]
+Description=Open Billie one-way Zenoh island to fabric bridge
+After={{ billie_instance_prefix }}-zenohd.service {{ billie_instance_prefix }}-fabric-client.service
+Wants={{ billie_instance_prefix }}-zenohd.service {{ billie_instance_prefix }}-fabric-client.service
+
+[Service]
+Type=simple
+Environment=BILLIE_ISLAND_REST_URL=http://127.0.0.1:{{ billie_local_rest_port }}
+Environment=BILLIE_FABRIC_REST_URL=http://127.0.0.1:{{ billie_fabric_rest_port }}
+Environment=BILLIE_FABRIC_PREFIX={{ billie_fabric_prefix | default('') }}
+ExecStart=/usr/bin/python3 {{ billie_bridge_script_path }}
+Restart=always
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+
+[Install]
+WantedBy=multi-user.target

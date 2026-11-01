@@ -1,0 +1,20 @@
+﻿# Local build and deployment state
+dist/
+build/
+*.log
+
+# Credentials and node-specific identity
+.env
+*.pem
+*.key
+deploy/platform/inventory.yml
+deploy/platform/host_vars/
+
+# Language and editor output
+node_modules/
+target/
+.venv/
+__pycache__/
+.pytest_cache/
+*.tsbuildinfo
+.DS_Store

@@ -1,0 +1,8 @@
+FROM docker.io/library/ubuntu:24.04.3
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update \
+    && apt-get install --yes --no-install-recommends bash coreutils dpkg passwd \
+    && rm -rf /var/lib/apt/lists/*
+COPY tools/arm64-smoke/run-smoke.sh /usr/local/bin/billie-arm64-smoke
+RUN chmod 0755 /usr/local/bin/billie-arm64-smoke
+ENTRYPOINT ["/usr/local/bin/billie-arm64-smoke"]

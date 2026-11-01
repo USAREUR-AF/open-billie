@@ -1,0 +1,1852 @@
+{
+    "messageName": "Track Report",
+    "fields": [
+        {
+            "name": "Timestamp",
+            "offset": 16,
+            "type": "uint64",
+            "units": "usec",
+            "notes": "Microseconds since 1970-01-01T00:00:00Z. Applies to every track in the frame."
+        },
+        {
+            "name": "Track count",
+            "offset": 24,
+            "type": "uint8",
+            "notes": "Number of 40-byte track blocks that follow (0..8)."
+        },
+        {
+            "name": "Reserved",
+            "offset": 25,
+            "type": "uint8"
+        },
+        {
+            "name": "Reserved 2",
+            "offset": 26,
+            "type": "uint16"
+        },
+        {
+            "name": "Track 0 ID",
+            "offset": 28,
+            "type": "uint16",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Classification",
+            "offset": 30,
+            "type": "uint8",
+            "values": {
+                "0": "Unknown",
+                "1": "Fixed wing",
+                "2": "Rotary wing",
+                "3": "Small UAS",
+                "4": "Balloon",
+                "5": "Bird",
+                "6": "Surface vehicle",
+                "7": "Clutter"
+            },
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Confidence",
+            "offset": 31,
+            "type": "uint8",
+            "units": "%",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Flags",
+            "offset": 32,
+            "type": "uint16",
+            "bits": [
+                {
+                    "name": "Confirmed",
+                    "bitStart": 0,
+                    "length": 1
+                },
+                {
+                    "name": "Coasting",
+                    "bitStart": 1,
+                    "length": 1
+                },
+                {
+                    "name": "Final update",
+                    "bitStart": 2,
+                    "length": 1
+                },
+                {
+                    "name": "Simulated",
+                    "bitStart": 3,
+                    "length": 1
+                },
+                {
+                    "name": "Mode 3/A valid",
+                    "bitStart": 4,
+                    "length": 1
+                }
+            ],
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Mode 3/A code",
+            "offset": 34,
+            "type": "uint16",
+            "notes": "12-bit octal ABCD packed 3 bits per digit (A in bits 11-9). Meaningful only when Flags.Mode 3/A valid = 1.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Latitude",
+            "offset": 36,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Longitude",
+            "offset": 40,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Altitude",
+            "offset": 44,
+            "type": "int32",
+            "scale": 0.01,
+            "units": "m",
+            "notes": "Height above WGS-84 ellipsoid. LSB = 1 cm.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Velocity east",
+            "offset": 48,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Velocity north",
+            "offset": 50,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Velocity up",
+            "offset": 52,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Position sigma east",
+            "offset": 54,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Position sigma north",
+            "offset": 56,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Altitude sigma",
+            "offset": 58,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Velocity sigma east",
+            "offset": 60,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Velocity sigma north",
+            "offset": 62,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 RCS",
+            "offset": 64,
+            "type": "int16",
+            "scale": 0.1,
+            "units": "dBsm",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 0 Age",
+            "offset": 66,
+            "type": "uint16",
+            "units": "s",
+            "notes": "Seconds since track initiation; saturates at 65535.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 1
+            }
+        },
+        {
+            "name": "Track 1 ID",
+            "offset": 68,
+            "type": "uint16",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Classification",
+            "offset": 70,
+            "type": "uint8",
+            "values": {
+                "0": "Unknown",
+                "1": "Fixed wing",
+                "2": "Rotary wing",
+                "3": "Small UAS",
+                "4": "Balloon",
+                "5": "Bird",
+                "6": "Surface vehicle",
+                "7": "Clutter"
+            },
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Confidence",
+            "offset": 71,
+            "type": "uint8",
+            "units": "%",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Flags",
+            "offset": 72,
+            "type": "uint16",
+            "bits": [
+                {
+                    "name": "Confirmed",
+                    "bitStart": 0,
+                    "length": 1
+                },
+                {
+                    "name": "Coasting",
+                    "bitStart": 1,
+                    "length": 1
+                },
+                {
+                    "name": "Final update",
+                    "bitStart": 2,
+                    "length": 1
+                },
+                {
+                    "name": "Simulated",
+                    "bitStart": 3,
+                    "length": 1
+                },
+                {
+                    "name": "Mode 3/A valid",
+                    "bitStart": 4,
+                    "length": 1
+                }
+            ],
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Mode 3/A code",
+            "offset": 74,
+            "type": "uint16",
+            "notes": "12-bit octal ABCD packed 3 bits per digit (A in bits 11-9). Meaningful only when Flags.Mode 3/A valid = 1.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Latitude",
+            "offset": 76,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Longitude",
+            "offset": 80,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Altitude",
+            "offset": 84,
+            "type": "int32",
+            "scale": 0.01,
+            "units": "m",
+            "notes": "Height above WGS-84 ellipsoid. LSB = 1 cm.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Velocity east",
+            "offset": 88,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Velocity north",
+            "offset": 90,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Velocity up",
+            "offset": 92,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Position sigma east",
+            "offset": 94,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Position sigma north",
+            "offset": 96,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Altitude sigma",
+            "offset": 98,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Velocity sigma east",
+            "offset": 100,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Velocity sigma north",
+            "offset": 102,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 RCS",
+            "offset": 104,
+            "type": "int16",
+            "scale": 0.1,
+            "units": "dBsm",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 1 Age",
+            "offset": 106,
+            "type": "uint16",
+            "units": "s",
+            "notes": "Seconds since track initiation; saturates at 65535.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 2
+            }
+        },
+        {
+            "name": "Track 2 ID",
+            "offset": 108,
+            "type": "uint16",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Classification",
+            "offset": 110,
+            "type": "uint8",
+            "values": {
+                "0": "Unknown",
+                "1": "Fixed wing",
+                "2": "Rotary wing",
+                "3": "Small UAS",
+                "4": "Balloon",
+                "5": "Bird",
+                "6": "Surface vehicle",
+                "7": "Clutter"
+            },
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Confidence",
+            "offset": 111,
+            "type": "uint8",
+            "units": "%",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Flags",
+            "offset": 112,
+            "type": "uint16",
+            "bits": [
+                {
+                    "name": "Confirmed",
+                    "bitStart": 0,
+                    "length": 1
+                },
+                {
+                    "name": "Coasting",
+                    "bitStart": 1,
+                    "length": 1
+                },
+                {
+                    "name": "Final update",
+                    "bitStart": 2,
+                    "length": 1
+                },
+                {
+                    "name": "Simulated",
+                    "bitStart": 3,
+                    "length": 1
+                },
+                {
+                    "name": "Mode 3/A valid",
+                    "bitStart": 4,
+                    "length": 1
+                }
+            ],
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Mode 3/A code",
+            "offset": 114,
+            "type": "uint16",
+            "notes": "12-bit octal ABCD packed 3 bits per digit (A in bits 11-9). Meaningful only when Flags.Mode 3/A valid = 1.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Latitude",
+            "offset": 116,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Longitude",
+            "offset": 120,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Altitude",
+            "offset": 124,
+            "type": "int32",
+            "scale": 0.01,
+            "units": "m",
+            "notes": "Height above WGS-84 ellipsoid. LSB = 1 cm.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Velocity east",
+            "offset": 128,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Velocity north",
+            "offset": 130,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Velocity up",
+            "offset": 132,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Position sigma east",
+            "offset": 134,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Position sigma north",
+            "offset": 136,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Altitude sigma",
+            "offset": 138,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Velocity sigma east",
+            "offset": 140,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Velocity sigma north",
+            "offset": 142,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 RCS",
+            "offset": 144,
+            "type": "int16",
+            "scale": 0.1,
+            "units": "dBsm",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 2 Age",
+            "offset": 146,
+            "type": "uint16",
+            "units": "s",
+            "notes": "Seconds since track initiation; saturates at 65535.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 3
+            }
+        },
+        {
+            "name": "Track 3 ID",
+            "offset": 148,
+            "type": "uint16",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Classification",
+            "offset": 150,
+            "type": "uint8",
+            "values": {
+                "0": "Unknown",
+                "1": "Fixed wing",
+                "2": "Rotary wing",
+                "3": "Small UAS",
+                "4": "Balloon",
+                "5": "Bird",
+                "6": "Surface vehicle",
+                "7": "Clutter"
+            },
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Confidence",
+            "offset": 151,
+            "type": "uint8",
+            "units": "%",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Flags",
+            "offset": 152,
+            "type": "uint16",
+            "bits": [
+                {
+                    "name": "Confirmed",
+                    "bitStart": 0,
+                    "length": 1
+                },
+                {
+                    "name": "Coasting",
+                    "bitStart": 1,
+                    "length": 1
+                },
+                {
+                    "name": "Final update",
+                    "bitStart": 2,
+                    "length": 1
+                },
+                {
+                    "name": "Simulated",
+                    "bitStart": 3,
+                    "length": 1
+                },
+                {
+                    "name": "Mode 3/A valid",
+                    "bitStart": 4,
+                    "length": 1
+                }
+            ],
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Mode 3/A code",
+            "offset": 154,
+            "type": "uint16",
+            "notes": "12-bit octal ABCD packed 3 bits per digit (A in bits 11-9). Meaningful only when Flags.Mode 3/A valid = 1.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Latitude",
+            "offset": 156,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Longitude",
+            "offset": 160,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Altitude",
+            "offset": 164,
+            "type": "int32",
+            "scale": 0.01,
+            "units": "m",
+            "notes": "Height above WGS-84 ellipsoid. LSB = 1 cm.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Velocity east",
+            "offset": 168,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Velocity north",
+            "offset": 170,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Velocity up",
+            "offset": 172,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Position sigma east",
+            "offset": 174,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Position sigma north",
+            "offset": 176,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Altitude sigma",
+            "offset": 178,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Velocity sigma east",
+            "offset": 180,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Velocity sigma north",
+            "offset": 182,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 RCS",
+            "offset": 184,
+            "type": "int16",
+            "scale": 0.1,
+            "units": "dBsm",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 3 Age",
+            "offset": 186,
+            "type": "uint16",
+            "units": "s",
+            "notes": "Seconds since track initiation; saturates at 65535.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 4
+            }
+        },
+        {
+            "name": "Track 4 ID",
+            "offset": 188,
+            "type": "uint16",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Classification",
+            "offset": 190,
+            "type": "uint8",
+            "values": {
+                "0": "Unknown",
+                "1": "Fixed wing",
+                "2": "Rotary wing",
+                "3": "Small UAS",
+                "4": "Balloon",
+                "5": "Bird",
+                "6": "Surface vehicle",
+                "7": "Clutter"
+            },
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Confidence",
+            "offset": 191,
+            "type": "uint8",
+            "units": "%",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Flags",
+            "offset": 192,
+            "type": "uint16",
+            "bits": [
+                {
+                    "name": "Confirmed",
+                    "bitStart": 0,
+                    "length": 1
+                },
+                {
+                    "name": "Coasting",
+                    "bitStart": 1,
+                    "length": 1
+                },
+                {
+                    "name": "Final update",
+                    "bitStart": 2,
+                    "length": 1
+                },
+                {
+                    "name": "Simulated",
+                    "bitStart": 3,
+                    "length": 1
+                },
+                {
+                    "name": "Mode 3/A valid",
+                    "bitStart": 4,
+                    "length": 1
+                }
+            ],
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Mode 3/A code",
+            "offset": 194,
+            "type": "uint16",
+            "notes": "12-bit octal ABCD packed 3 bits per digit (A in bits 11-9). Meaningful only when Flags.Mode 3/A valid = 1.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Latitude",
+            "offset": 196,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Longitude",
+            "offset": 200,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Altitude",
+            "offset": 204,
+            "type": "int32",
+            "scale": 0.01,
+            "units": "m",
+            "notes": "Height above WGS-84 ellipsoid. LSB = 1 cm.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Velocity east",
+            "offset": 208,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Velocity north",
+            "offset": 210,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Velocity up",
+            "offset": 212,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Position sigma east",
+            "offset": 214,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Position sigma north",
+            "offset": 216,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Altitude sigma",
+            "offset": 218,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Velocity sigma east",
+            "offset": 220,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Velocity sigma north",
+            "offset": 222,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 RCS",
+            "offset": 224,
+            "type": "int16",
+            "scale": 0.1,
+            "units": "dBsm",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 4 Age",
+            "offset": 226,
+            "type": "uint16",
+            "units": "s",
+            "notes": "Seconds since track initiation; saturates at 65535.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 5
+            }
+        },
+        {
+            "name": "Track 5 ID",
+            "offset": 228,
+            "type": "uint16",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Classification",
+            "offset": 230,
+            "type": "uint8",
+            "values": {
+                "0": "Unknown",
+                "1": "Fixed wing",
+                "2": "Rotary wing",
+                "3": "Small UAS",
+                "4": "Balloon",
+                "5": "Bird",
+                "6": "Surface vehicle",
+                "7": "Clutter"
+            },
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Confidence",
+            "offset": 231,
+            "type": "uint8",
+            "units": "%",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Flags",
+            "offset": 232,
+            "type": "uint16",
+            "bits": [
+                {
+                    "name": "Confirmed",
+                    "bitStart": 0,
+                    "length": 1
+                },
+                {
+                    "name": "Coasting",
+                    "bitStart": 1,
+                    "length": 1
+                },
+                {
+                    "name": "Final update",
+                    "bitStart": 2,
+                    "length": 1
+                },
+                {
+                    "name": "Simulated",
+                    "bitStart": 3,
+                    "length": 1
+                },
+                {
+                    "name": "Mode 3/A valid",
+                    "bitStart": 4,
+                    "length": 1
+                }
+            ],
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Mode 3/A code",
+            "offset": 234,
+            "type": "uint16",
+            "notes": "12-bit octal ABCD packed 3 bits per digit (A in bits 11-9). Meaningful only when Flags.Mode 3/A valid = 1.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Latitude",
+            "offset": 236,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Longitude",
+            "offset": 240,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Altitude",
+            "offset": 244,
+            "type": "int32",
+            "scale": 0.01,
+            "units": "m",
+            "notes": "Height above WGS-84 ellipsoid. LSB = 1 cm.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Velocity east",
+            "offset": 248,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Velocity north",
+            "offset": 250,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Velocity up",
+            "offset": 252,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Position sigma east",
+            "offset": 254,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Position sigma north",
+            "offset": 256,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Altitude sigma",
+            "offset": 258,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Velocity sigma east",
+            "offset": 260,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Velocity sigma north",
+            "offset": 262,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 RCS",
+            "offset": 264,
+            "type": "int16",
+            "scale": 0.1,
+            "units": "dBsm",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 5 Age",
+            "offset": 266,
+            "type": "uint16",
+            "units": "s",
+            "notes": "Seconds since track initiation; saturates at 65535.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 6
+            }
+        },
+        {
+            "name": "Track 6 ID",
+            "offset": 268,
+            "type": "uint16",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Classification",
+            "offset": 270,
+            "type": "uint8",
+            "values": {
+                "0": "Unknown",
+                "1": "Fixed wing",
+                "2": "Rotary wing",
+                "3": "Small UAS",
+                "4": "Balloon",
+                "5": "Bird",
+                "6": "Surface vehicle",
+                "7": "Clutter"
+            },
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Confidence",
+            "offset": 271,
+            "type": "uint8",
+            "units": "%",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Flags",
+            "offset": 272,
+            "type": "uint16",
+            "bits": [
+                {
+                    "name": "Confirmed",
+                    "bitStart": 0,
+                    "length": 1
+                },
+                {
+                    "name": "Coasting",
+                    "bitStart": 1,
+                    "length": 1
+                },
+                {
+                    "name": "Final update",
+                    "bitStart": 2,
+                    "length": 1
+                },
+                {
+                    "name": "Simulated",
+                    "bitStart": 3,
+                    "length": 1
+                },
+                {
+                    "name": "Mode 3/A valid",
+                    "bitStart": 4,
+                    "length": 1
+                }
+            ],
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Mode 3/A code",
+            "offset": 274,
+            "type": "uint16",
+            "notes": "12-bit octal ABCD packed 3 bits per digit (A in bits 11-9). Meaningful only when Flags.Mode 3/A valid = 1.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Latitude",
+            "offset": 276,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Longitude",
+            "offset": 280,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Altitude",
+            "offset": 284,
+            "type": "int32",
+            "scale": 0.01,
+            "units": "m",
+            "notes": "Height above WGS-84 ellipsoid. LSB = 1 cm.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Velocity east",
+            "offset": 288,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Velocity north",
+            "offset": 290,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Velocity up",
+            "offset": 292,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Position sigma east",
+            "offset": 294,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Position sigma north",
+            "offset": 296,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Altitude sigma",
+            "offset": 298,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Velocity sigma east",
+            "offset": 300,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Velocity sigma north",
+            "offset": 302,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 RCS",
+            "offset": 304,
+            "type": "int16",
+            "scale": 0.1,
+            "units": "dBsm",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 6 Age",
+            "offset": 306,
+            "type": "uint16",
+            "units": "s",
+            "notes": "Seconds since track initiation; saturates at 65535.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 7
+            }
+        },
+        {
+            "name": "Track 7 ID",
+            "offset": 308,
+            "type": "uint16",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Classification",
+            "offset": 310,
+            "type": "uint8",
+            "values": {
+                "0": "Unknown",
+                "1": "Fixed wing",
+                "2": "Rotary wing",
+                "3": "Small UAS",
+                "4": "Balloon",
+                "5": "Bird",
+                "6": "Surface vehicle",
+                "7": "Clutter"
+            },
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Confidence",
+            "offset": 311,
+            "type": "uint8",
+            "units": "%",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Flags",
+            "offset": 312,
+            "type": "uint16",
+            "bits": [
+                {
+                    "name": "Confirmed",
+                    "bitStart": 0,
+                    "length": 1
+                },
+                {
+                    "name": "Coasting",
+                    "bitStart": 1,
+                    "length": 1
+                },
+                {
+                    "name": "Final update",
+                    "bitStart": 2,
+                    "length": 1
+                },
+                {
+                    "name": "Simulated",
+                    "bitStart": 3,
+                    "length": 1
+                },
+                {
+                    "name": "Mode 3/A valid",
+                    "bitStart": 4,
+                    "length": 1
+                }
+            ],
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Mode 3/A code",
+            "offset": 314,
+            "type": "uint16",
+            "notes": "12-bit octal ABCD packed 3 bits per digit (A in bits 11-9). Meaningful only when Flags.Mode 3/A valid = 1.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Latitude",
+            "offset": 316,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Longitude",
+            "offset": 320,
+            "type": "int32",
+            "scale": 1e-07,
+            "notes": "Degrees, WGS-84. LSB = 1e-7 deg.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Altitude",
+            "offset": 324,
+            "type": "int32",
+            "scale": 0.01,
+            "units": "m",
+            "notes": "Height above WGS-84 ellipsoid. LSB = 1 cm.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Velocity east",
+            "offset": 328,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Velocity north",
+            "offset": 330,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Velocity up",
+            "offset": 332,
+            "type": "int16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Position sigma east",
+            "offset": 334,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Position sigma north",
+            "offset": 336,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Altitude sigma",
+            "offset": 338,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Velocity sigma east",
+            "offset": 340,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Velocity sigma north",
+            "offset": 342,
+            "type": "uint16",
+            "scale": 0.01,
+            "units": "m/s",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 RCS",
+            "offset": 344,
+            "type": "int16",
+            "scale": 0.1,
+            "units": "dBsm",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        },
+        {
+            "name": "Track 7 Age",
+            "offset": 346,
+            "type": "uint16",
+            "units": "s",
+            "notes": "Seconds since track initiation; saturates at 65535.",
+            "validIf": {
+                "field": "Track count",
+                "minCount": 8
+            }
+        }
+    ]
+}

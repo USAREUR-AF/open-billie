@@ -1,0 +1,8 @@
+[Unit]
+Description=Open Billie {{ billie_instance_prefix }} platform health record
+After=local-fs.target {{ billie_instance_prefix }}-zenohd.service
+Wants={{ billie_instance_prefix }}-zenohd.service
+
+[Service]
+Type=oneshot
+ExecStart={{ billie_health_script_path }}

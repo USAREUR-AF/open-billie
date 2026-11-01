@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+set -euo pipefail
+node_handle="{{ node_handle }}"
+platform_version="{{ billie_release_version }}"
+observed_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+mkdir -p {{ billie_runtime_dir }}
+temporary={{ billie_runtime_dir }}/health.json.tmp
+printf '{"schema":"billie.health.v1","node_handle":"%s","node":"%s","platform_version":"%s","release":"%s","state":"ready","status":"ok","observed_at":"%s","ts":"%s"}\n' \
+  "$node_handle" "$node_handle" "$platform_version" "$platform_version" "$observed_at" "$observed_at" > "$temporary"
+chmod 0644 "$temporary"
+mv -f "$temporary" {{ billie_runtime_dir }}/health.json
+curl --fail --silent --show-error --max-time 5 \
+  --request PUT \
+  --header 'Content-Type: application/json' \
+  --data-binary @{{ billie_runtime_dir }}/health.json \
+  'http://127.0.0.1:{{ billie_local_rest_port }}/ops/'"$node_handle"'/health' \
+  --output /dev/null

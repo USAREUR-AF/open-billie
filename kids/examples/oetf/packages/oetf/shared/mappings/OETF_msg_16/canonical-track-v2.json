@@ -1,0 +1,200 @@
+{
+  "mapVersion": 1,
+  "source": {
+    "protocol": "oetf",
+    "message": "Track Report",
+    "messageId": 16
+  },
+  "target": {
+    "protocol": "billie-canonical",
+    "message": "Track"
+  },
+  "direction": "inbound",
+  "enabled": true,
+  "preserveRaw": false,
+  "repeats": {
+    "field": "Track count",
+    "indexedBy": "Track {n}",
+    "max": 8
+  },
+  "mappings": [
+    {
+      "value": "billie.dev/track-v2",
+      "to": "apiVersion"
+    },
+    {
+      "value": "Track",
+      "to": "kind"
+    },
+    {
+      "from": "Track {n} ID",
+      "to": "trackId",
+      "via": [
+        {
+          "conversion": "uintToString"
+        }
+      ]
+    },
+    {
+      "from": "Sensor ID",
+      "to": "sourceId",
+      "via": [{ "conversion": "uintToString" }],
+      "notes": "Scope track IDs to the source sensor identifier."
+    },
+    {
+      "value": "fixture-1",
+      "to": "trackGeneration",
+      "notes": "The bundled conformance fixture has no ID recycling; real kid mappings must advance this token for each new lifetime when a source recycles track IDs."
+    },
+    {
+      "from": "Header flags.Test data",
+      "to": "testData",
+      "via": [{ "conversion": "toBoolean" }]
+    },
+    {
+      "from": "Header flags.Simulated",
+      "to": "headerSimulated",
+      "via": [{ "conversion": "toBoolean" }]
+    },
+    {
+      "from": "Track {n} Flags.Confirmed",
+      "to": "confirmed",
+      "via": [{ "conversion": "toBoolean" }]
+    },
+    {
+      "from": "Track {n} Flags.Coasting",
+      "to": "coasting",
+      "via": [{ "conversion": "toBoolean" }]
+    },
+    {
+      "from": "Track {n} Flags.Final update",
+      "to": "finalUpdate",
+      "via": [{ "conversion": "toBoolean" }]
+    },
+    {
+      "from": "Track {n} Flags.Simulated",
+      "to": "simulated",
+      "via": [{ "conversion": "toBoolean" }]
+    },
+    {
+      "from": "Timestamp",
+      "to": "observedAt",
+      "via": [
+        {
+          "conversion": "epochMicrosToIso8601"
+        }
+      ]
+    },
+    {
+      "from": "Track {n} Latitude",
+      "to": "position.latitudeDeg"
+    },
+    {
+      "from": "Track {n} Longitude",
+      "to": "position.longitudeDeg"
+    },
+    {
+      "from": "Track {n} Altitude",
+      "to": "position.altitudeM"
+    },
+    {
+      "from": "Track {n} Velocity east",
+      "to": "velocity.eastMps"
+    },
+    {
+      "from": "Track {n} Velocity north",
+      "to": "velocity.northMps"
+    },
+    {
+      "from": "Track {n} Velocity up",
+      "to": "velocity.upMps"
+    },
+    {
+      "from": "Track {n} Classification",
+      "to": "classification",
+      "via": [
+        {
+          "conversion": "lookup",
+          "params": {
+            "table": "OETF_classification_canonical"
+          }
+        }
+      ]
+    },
+    {
+      "from": "Track {n} Confidence",
+      "to": "confidence",
+      "via": [
+        {
+          "conversion": "scale",
+          "params": {
+            "factor": 0.01
+          }
+        }
+      ]
+    },
+    {
+      "from": "Track {n} Position sigma east",
+      "to": "positionUncertainty.sigmaEastM"
+    },
+    {
+      "from": "Track {n} Position sigma north",
+      "to": "positionUncertainty.sigmaNorthM"
+    },
+    {
+      "from": "Track {n} Altitude sigma",
+      "to": "positionUncertainty.sigmaUpM"
+    },
+    {
+      "from": "Track {n} RCS",
+      "to": "identifiers",
+      "via": [
+        {
+          "conversion": "toCanonicalIdentifier",
+          "params": {
+            "scheme": "sapient-object-info"
+          }
+        }
+      ],
+      "notes": "Preserve RCS as a namespaced canonical identifier for the shared SAPIENT encoder."
+    }
+  ],
+  "unmapped": [
+    {
+      "from": "Magic",
+      "reason": "framing data is not part of the canonical track record"
+    },
+    {
+      "from": "Format version",
+      "reason": "framing data is not part of the canonical track record"
+    },
+    {
+      "from": "Message type",
+      "reason": "framing data is not part of the canonical track record"
+    },
+    {
+      "from": "Frame length",
+      "reason": "framing data is not part of the canonical track record"
+    },
+    {
+      "from": "Sequence number",
+      "reason": "framing data is not part of the canonical track record"
+    },
+    {
+      "from": "Track {n} Mode 3/A code",
+      "reason": "not represented in canonical track v1"
+    },
+    {
+      "from": "Track {n} Velocity sigma east",
+      "reason": "not represented in canonical track v1"
+    },
+    {
+      "from": "Track {n} Velocity sigma north",
+      "reason": "not represented in canonical track v1"
+    },
+    {
+      "from": "Track {n} Age",
+      "reason": "not represented in canonical track v1"
+    }
+  ]
+}

@@ -1,0 +1,390 @@
+#!/usr/bin/env bash
+# Open Billie platform operator CLI. Runs Ansible locally on the node.
+set -eo pipefail
+
+SELF_DIR="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
+DEPLOY_DIR="$(cd "$SELF_DIR/.." && pwd)"
+PLATFORM_DIR="$DEPLOY_DIR/platform"
+VERSION_FILE="$DEPLOY_DIR/VERSION"
+ETC_DIR=/etc/billie
+if [ -n "${BILLIE_ETC_DIR:-}" ]; then ETC_DIR="$BILLIE_ETC_DIR"; fi
+INSTANCE_PREFIX="${BILLIE_INSTANCE_PREFIX:-billie}"
+RUNTIME_DIR="${BILLIE_RUNTIME_DIR:-/run/$INSTANCE_PREFIX}"
+LOCAL_REST_PORT="${BILLIE_LOCAL_REST_PORT:-8000}"
+LOCAL_PEER_PORT="${BILLIE_LOCAL_PEER_PORT:-7447}"
+FABRIC_REST_PORT="${BILLIE_FABRIC_REST_PORT:-8001}"
+CLI_NAME="${BILLIE_CLI_NAME:-billie}"
+TRANSLATOR_BIN="${BILLIE_TRANSLATOR_BIN:-$DEPLOY_DIR/bin/billie-translator}"
+if [ ! -x "$TRANSLATOR_BIN" ]; then TRANSLATOR_BIN=/opt/billie/platform/current/bin/billie-translator; fi
+IDENTITY_DIR="$ETC_DIR/identity"
+IDENTITY_FILE="$IDENTITY_DIR/node.yml"
+INVENTORY="$PLATFORM_DIR/inventory-local.ini"
+
+say() { printf '%s\n' "$*"; }
+die() { printf 'billie: %s\n' "$*" >&2; exit 2; }
+need_root() { [ "$(id -u)" -eq 0 ] || die "run this command with sudo"; }
+need_command() { command -v "$1" >/dev/null 2>&1 || die "required command not found: $1"; }
+validate_instance_settings() {
+  [[ "$INSTANCE_PREFIX" =~ ^[a-z][a-z0-9-]{0,30}$ ]] || die "instance prefix must start with a lowercase letter and contain only lowercase letters, digits, or hyphens"
+  local port
+  for port in "$LOCAL_REST_PORT" "$LOCAL_PEER_PORT" "$FABRIC_REST_PORT"; do
+    [[ "$port" =~ ^[0-9]{1,5}$ ]] && [ "$port" -ge 1 ] && [ "$port" -le 65535 ] || die "Zenoh ports must be integers from 1 through 65535"
+  done
+}
+
+run() {
+  printf '+'
+  printf ' %q' "$@"
+  printf '\n'
+  "$@"
+}
+
+platform_version() {
+  if [ -r "$VERSION_FILE" ]; then
+    tr -d '[:space:]' < "$VERSION_FILE"
+  else
+    printf 'unknown\n'
+  fi
+}
+
+need_identity() {
+  [ -s "$IDENTITY_FILE" ] || die "node is not initialized; run: sudo $CLI_NAME init <node-handle> --supply connected"
+  need_command ansible-playbook
+}
+
+run_playbook() {
+  local playbook="$1"
+  shift
+  local extra_vars=(-e "@$IDENTITY_FILE")
+  extra_vars+=(-e "billie_instance_prefix=$INSTANCE_PREFIX")
+  extra_vars+=(-e "billie_etc_dir=$ETC_DIR")
+  extra_vars+=(-e "billie_runtime_dir=$RUNTIME_DIR")
+  extra_vars+=(-e "billie_state_dir=/var/lib/$INSTANCE_PREFIX")
+  extra_vars+=(-e "billie_local_rest_port=$LOCAL_REST_PORT")
+  extra_vars+=(-e "billie_local_peer_port=$LOCAL_PEER_PORT")
+  extra_vars+=(-e "billie_fabric_rest_port=$FABRIC_REST_PORT")
+  extra_vars+=(-e "billie_translator_bin=$TRANSLATOR_BIN")
+  if [ -r "$ETC_DIR/zenoh/fabric.json" ]; then
+    extra_vars+=(-e "@$ETC_DIR/zenoh/fabric.json")
+  fi
+  ( cd "$PLATFORM_DIR" && run ansible-playbook -i "$INVENTORY" "$PLATFORM_DIR/$playbook" "${extra_vars[@]}" "$@" )
+}
+
+validate_handle() {
+  [[ "$1" =~ ^[a-z0-9][a-z0-9-]{0,62}$ ]] || die "node handle must be 1-63 lowercase letters, digits, or hyphens, starting with a letter or digit"
+}
+
+validate_supply() {
+  case "$1" in
+    connected|airgap) ;;
+    *) die "supply must be connected or airgap" ;;
+  esac
+}
+
+write_identity() {
+  local handle="$1"
+  local supply="$2"
+  validate_handle "$handle"
+  validate_supply "$supply"
+  [ ! -e "$IDENTITY_FILE" ] || die "identity already exists at $IDENTITY_FILE; refusing to overwrite it"
+  need_command ansible-playbook
+  run ansible-playbook -i "$INVENTORY" "$PLATFORM_DIR/write-identity.yml" \
+    -e "node_handle=$handle" -e "node_supply=$supply" -e "identity_dir=$IDENTITY_DIR"
+  say "Node identity created. Next: sudo $CLI_NAME check"
+}
+
+install_platform() {
+  need_root
+  need_command ansible-playbook
+  need_command podman
+  need_command systemctl
+  install -d -o root -g root -m 0700 "$IDENTITY_DIR"
+  say "Billie platform prerequisites are present."
+  say "Next for a connected node: sudo $CLI_NAME bootstrap"
+  say "For an isolated node, skip bootstrap and run: sudo $CLI_NAME init <node-handle> --supply airgap"
+}
+
+validate_kid() {
+  [ "$#" -ge 1 ] || die "usage: billie kid validate <package-directory> [--strict]"
+  need_command python3
+  local validator="$SELF_DIR/billie-kid-validate.py"
+  [ -r "$validator" ] || die "kid validator is missing: $validator"
+  run python3 "$validator" "$@"
+}
+
+build_kid() {
+  [ "$#" -ge 1 ] || die "usage: billie kid build <package-directory> [--decoder-language python|rust|typescript] [--platform linux/amd64|linux/arm64] [--output <directory>] [--force]"
+  need_command python3
+  local builder="$SELF_DIR/billie-kid-build.py"
+  [ -r "$builder" ] || die "kid builder is not included in this Billie installation; run billie kid build from an Open Billie source checkout"
+  run python3 "$builder" "$@"
+}
+
+kid_ops() {
+  local operation="$1"
+  shift
+  local helper="$SELF_DIR/billie-kid-ops.py"
+  [ -r "$helper" ] || die "kid operations helper is missing: $helper"
+  need_command python3
+  case "$operation" in
+    install|configure|activate|upgrade|rollback|deactivate|remove) need_root ;;
+  esac
+  if [ "$operation" = activate ] || [ "$operation" = upgrade ] || [ "$operation" = rollback ]; then
+    run python3 "$helper" "$operation" "$@" --runtime-dir "$RUNTIME_DIR" --instance-prefix "$INSTANCE_PREFIX"
+  else
+    run python3 "$helper" "$operation" "$@"
+  fi
+}
+
+scan_kids() {
+  need_command python3
+  local scanner="$SELF_DIR/billie-kid-scan.py"
+  [ -r "$scanner" ] || die "kid scanner is missing: $scanner"
+  python3 "$scanner" "$@"
+}
+
+generate_mapper() {
+  [ "$#" -gt 0 ] || die "usage: billie mapper generate --schema <path> --target <encoder> [options]"
+  need_command python3
+  local generator="$SELF_DIR/billie-mapper-generate.py"
+  [ -r "$generator" ] || die "mapper generator is missing: $generator"
+  python3 "$generator" "$@"
+}
+
+configure_zenoh() {
+  need_root
+  need_command python3
+  need_command systemctl
+  local helper="$SELF_DIR/billie-zenoh-config.py"
+  [ -r "$helper" ] || die "Zenoh configuration helper is missing: $helper"
+  [ "$#" -gt 0 ] || die "usage: sudo $CLI_NAME zenoh configure --endpoint tls/<host>:<port> --prefix <key-prefix> --ca-file <path> --client-cert-file <path> --client-key-file <path>"
+  systemctl stop "$INSTANCE_PREFIX-island-bridge.service" "$INSTANCE_PREFIX-fabric-client.service" 2>/dev/null || true
+  run python3 "$helper" configure "$@"
+  say "Fabric services stopped for the new settings. Apply them with: sudo $CLI_NAME apply"
+}
+
+disable_zenoh_fabric() {
+  need_root
+  need_command python3
+  need_command systemctl
+  local helper="$SELF_DIR/billie-zenoh-config.py"
+  [ -r "$helper" ] || die "Zenoh configuration helper is missing: $helper"
+  systemctl stop "$INSTANCE_PREFIX-island-bridge.service" "$INSTANCE_PREFIX-fabric-client.service" 2>/dev/null || true
+  run python3 "$helper" disable
+}
+
+bootstrap_network() {
+  need_root
+  need_command ansible-playbook
+  need_command systemctl
+  ( cd "$PLATFORM_DIR" && run ansible-playbook -i "$INVENTORY" "$PLATFORM_DIR/bootstrap.yml" )
+  say "NetBird is installed and running; this node is not enrolled yet."
+  say "Next: sudo $CLI_NAME join <node-handle> --setup-key-file <path> --management-url <https-url>"
+}
+join_network() {
+  need_root
+  [ "$#" -ge 1 ] || die "usage: sudo $CLI_NAME join <node-handle> --setup-key-file <path> --management-url <url> [--supply connected]"
+  local handle="$1"
+  shift
+  local key_file=""
+  local management_url=""
+  local supply="connected"
+  while [ "$#" -gt 0 ]; do
+    case "$1" in
+      --setup-key-file)
+        [ "$#" -ge 2 ] || die "--setup-key-file needs a path"
+        key_file="$2"; shift 2 ;;
+      --management-url)
+        [ "$#" -ge 2 ] || die "--management-url needs a URL"
+        management_url="$2"; shift 2 ;;
+      --supply)
+        [ "$#" -ge 2 ] || die "--supply needs connected or airgap"
+        supply="$2"; shift 2 ;;
+      *) die "unknown join option: $1" ;;
+    esac
+  done
+  validate_handle "$handle"
+  validate_supply "$supply"
+  [ "$supply" = connected ] || die "--supply airgap cannot join NetBird; use billie init for an offline node"
+  [ -n "$key_file" ] && [ -r "$key_file" ] || die "setup key file is missing or unreadable"
+  [[ "$management_url" =~ ^https://[^[:space:]]+$ ]] || die "management URL must use HTTPS"
+  [ ! -e "$IDENTITY_FILE" ] || die "identity already exists at $IDENTITY_FILE; refusing to overwrite it"
+  command -v netbird >/dev/null 2>&1 || die "NetBird is missing; run: sudo $CLI_NAME bootstrap"
+  systemctl is-active --quiet netbird || die "NetBird service is not active; run: sudo $CLI_NAME bootstrap"
+  say "Requesting NetBird enrollment. The setup key value will not be printed."
+  netbird up --setup-key-file "$key_file" --management-url "$management_url"
+  write_identity "$handle" "$supply"
+}
+
+network_command() {
+  need_command python3
+  local helper="$SELF_DIR/billie-network.py"
+  [ -r "$helper" ] || die "network configuration helper is missing: $helper"
+  run python3 "$helper" "$@"
+}
+cat062_command() {
+  need_root
+  need_command python3
+  need_command systemctl
+  local helper="$SELF_DIR/billie-cat062-sources.py"
+  [ -r "$helper" ] || die "CAT062 source configuration helper is missing: $helper"
+  [ "$#" -ge 2 ] && [ "$1" = source ] || die "usage: sudo $CLI_NAME cat062 source list|set|remove|migrate ..."
+  shift
+  local action="$1"
+  shift
+  run python3 "$helper" --file "$ETC_DIR/translator/cat062-sources.json" "$action" "$@"
+  if [ "$action" != list ]; then
+    if ! systemctl restart "$INSTANCE_PREFIX-translator.service"; then
+      die "source map was saved, but the translator could not restart; inspect its journal and run sudo $CLI_NAME apply after correcting the map"
+    fi
+    systemctl is-active --quiet "$INSTANCE_PREFIX-translator.service" || die "translator restart did not become active; inspect systemctl status and journal"
+    say "CAT062 source map is active."
+  fi
+}
+show_help() {
+  cat <<'HELP' | sed "s/PLATFORM_CLI/$CLI_NAME/g"
+Open Billie platform CLI
+
+Usage:
+  PLATFORM_CLI install
+  PLATFORM_CLI bootstrap
+  PLATFORM_CLI init <node-handle> --supply connected|airgap
+  PLATFORM_CLI join <node-handle> --setup-key-file <path> --management-url <https-url> [--supply connected]
+  PLATFORM_CLI check
+  PLATFORM_CLI apply
+  PLATFORM_CLI verify
+  PLATFORM_CLI status
+  PLATFORM_CLI health
+  PLATFORM_CLI network interfaces
+  PLATFORM_CLI network configure --interface <sensor-interface> --address <IPv4/CIDR> [--yes]
+  PLATFORM_CLI network clear --interface <sensor-interface>
+  PLATFORM_CLI cat062 source list
+  PLATFORM_CLI cat062 source set <kid> <sourceId> --sac <0-255> --sic <0-255>
+  PLATFORM_CLI cat062 source remove <kid> <sourceId>
+  PLATFORM_CLI kid validate <package-directory> [--strict]
+  PLATFORM_CLI kid build <package-directory> [--decoder-language python|rust|typescript] [--platform linux/amd64|linux/arm64] [--output <directory>] [--force]
+  PLATFORM_CLI kid scan [source-root ...] [--json]
+  PLATFORM_CLI kid install <bundle.tar.gz> [--checksum <file>]
+  PLATFORM_CLI kid configure <id> --transport udp|tcp --bind-address <node-IP> --port <host-port> [--source-cidr <sensor-CIDR>] [--listener <name>] [--version <version>]
+  PLATFORM_CLI kid activate <id> [--version <version>] [--config <env-file>]
+  PLATFORM_CLI kid upgrade <id> --version <new-version> [--config <env-file>]
+  PLATFORM_CLI kid rollback <id>
+  PLATFORM_CLI kid status <id>
+  PLATFORM_CLI kid logs <id> [--lines <count>]
+  PLATFORM_CLI kid deactivate <id>
+  PLATFORM_CLI kid remove <id> [--version <version>] [--remove-config]
+  PLATFORM_CLI teardown [--preserve-credentials] [--yes]
+  PLATFORM_CLI mapper generate --schema <path> --target <encoder> [--format auto|billie-json|protobuf]
+  PLATFORM_CLI zenoh configure --endpoint <proto/host:port> --prefix <key-prefix> --ca-file <path> --client-cert-file <path> --client-key-file <path>
+  PLATFORM_CLI zenoh disable
+  PLATFORM_CLI version
+  PLATFORM_CLI help
+
+bootstrap installs and starts the NetBird agent without enrolling the node.
+check previews local Ansible changes. apply converges the generic platform baseline.
+verify checks the platform health timer and local runtime prerequisites.
+network configure manages a dedicated sensor-facing static IPv4 address with Netplan and adds no gateway.
+It refuses the default-route and current SSH interfaces. Kid configure selects a declared listener, node bind address, and host port. Signing, persistent kid data, and fleet upgrades are not implemented. Kid upgrades retain the previous stateless deployment for rollback.
+CAT062 source assignments map each authenticated kid and canonical sourceId to a unique SAC/SIC pair. When a map exists, every kid/sourceId sent to CAT062 must have an assignment. Configure all sources on the node; the runtime will reject missing or duplicate assignments.
+The local Zenoh island is provisioned by apply. Configure optional fabric mTLS
+with zenoh configure; certificate contents are copied into a root-only directory.
+`kid validate` checks a local kid source package without network access. Strict mode
+rejects development placeholders and empty data directories. It does not check registry availability.
+`kid build` uses local Podman or Docker Buildx to create an OCI image and unsigned transfer bundle. It does not
+install or activate the kid on a node. The bundle checksum detects changes but does not identify its publisher.
+`kid scan` discovers local manifests and reports build readiness without running package build scripts.
+`kid install` verifies the bundle checksum, OCI digest, target architecture, and manifest before loading the image.
+It requires the external `.sha256` sidecar produced by `kid build`. `kid configure` selects the declared
+TCP or UDP listener, an assigned node bind address, and a host port. `kid activate` creates a systemd service
+for that listener and the shared translator socket. `kid deactivate` stops the service and preserves installed files.
+`kid remove` deletes selected installed version(s); removing an inactive older version leaves the running kid untouched, and protected runtime configuration is retained unless `--remove-config` is supplied.
+`kid upgrade <id> --version <version>` activates a separately installed version and records the prior successful activation. `kid rollback <id>` restores that version's listener and protected runtime settings and swaps the active/previous versions, so it can be used to roll forward again. This applies to stateless kids only; persistentPaths remain unsupported. `teardown` removes Billie services and platform state while preserving
+node identity and fabric credentials after a second confirmation. Use `--preserve-credentials` only when you explicitly want to retain them. NetBird is never modified.
+HELP
+}
+
+command_name=help
+validate_instance_settings
+if [ "$#" -gt 0 ]; then command_name="$1"; shift; fi
+case "$command_name" in
+  help|-h|--help) show_help ;;
+  version) say "billie platform $(platform_version)" ;;
+  install) install_platform ;;
+  bootstrap) bootstrap_network ;;
+  init)
+    need_root
+    [ "$#" -ge 1 ] || die "usage: sudo $CLI_NAME init <node-handle> --supply connected|airgap"
+    handle="$1"; shift
+    supply=""
+    while [ "$#" -gt 0 ]; do
+      case "$1" in
+        --supply)
+          [ "$#" -ge 2 ] || die "--supply needs connected or airgap"
+          supply="$2"; shift 2 ;;
+        *) die "unknown init option: $1" ;;
+      esac
+    done
+    [ -n "$supply" ] || die "--supply is required"
+    write_identity "$handle" "$supply" ;;
+  join) join_network "$@" ;;
+  network)
+    [ "$#" -ge 1 ] || die "usage: sudo $CLI_NAME network interfaces|configure|clear [options]"
+    network_command "$@" ;;
+  cat062)
+    [ "$#" -ge 1 ] || die "usage: sudo $CLI_NAME cat062 source list|set|remove|migrate ..."
+    cat062_command "$@" ;;
+  kid)
+    [ "$#" -ge 1 ] || die "usage: billie kid validate <package-directory> [--strict]"
+    kid_command="$1"; shift
+    case "$kid_command" in
+      validate) validate_kid "$@" ;;
+      build) build_kid "$@" ;;
+      scan) scan_kids "$@" ;;
+      install|configure|activate|deactivate|remove|status|logs)
+        kid_ops "$kid_command" "$@" ;;
+      *) die "unknown kid command: $kid_command" ;;
+    esac ;;
+  mapper)
+    [ "$#" -ge 1 ] || die "usage: billie mapper generate --schema <path> --target <encoder> [options]"
+    mapper_command="$1"; shift
+    case "$mapper_command" in
+      generate) generate_mapper "$@" ;;
+      *) die "unknown mapper command: $mapper_command" ;;
+    esac ;;
+  zenoh)
+    [ "$#" -ge 1 ] || die "usage: billie zenoh configure|disable ..."
+    zenoh_command="$1"; shift
+    case "$zenoh_command" in
+      configure) configure_zenoh "$@" ;;
+      disable) [ "$#" -eq 0 ] || die "zenoh disable takes no options"; disable_zenoh_fabric ;;
+      *) die "unknown zenoh command: $zenoh_command" ;;
+    esac ;;
+  check)
+    need_root; need_identity
+    run_playbook configure.yml --check --diff ;;
+  apply)
+    need_root; need_identity
+    run_playbook configure.yml ;;
+  verify)
+    need_root; need_identity
+    run_playbook verify.yml ;;
+  teardown)
+    need_root
+    need_command python3
+    teardown_helper="$SELF_DIR/billie-teardown.py"
+    [ -r "$teardown_helper" ] || die "teardown helper is missing: $teardown_helper"
+    run python3 "$teardown_helper" --etc-dir "$ETC_DIR" --runtime-dir "$RUNTIME_DIR" --instance-prefix "$INSTANCE_PREFIX" "$@" ;;
+  status)
+    if systemctl is-active --quiet "$INSTANCE_PREFIX-health.timer"; then
+      say "Billie health timer: active"
+    else
+      say "Billie health timer: inactive"
+    fi
+    if [ -r "$RUNTIME_DIR/health.json" ]; then cat "$RUNTIME_DIR/health.json"
+    else say "No platform health record yet."
+    fi ;;
+  health)
+    [ -r "$RUNTIME_DIR/health.json" ] || die "no platform health record; run sudo $CLI_NAME apply"
+    cat "$RUNTIME_DIR/health.json" ;;
+  *) show_help; die "unknown command: $command_name" ;;
+esac

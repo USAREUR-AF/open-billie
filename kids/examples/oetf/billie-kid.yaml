@@ -1,0 +1,65 @@
+apiVersion: billie.dev/v1
+kind: KidPackage
+metadata:
+  id: oetf
+  version: 0.2.0
+  displayName: Open Example Track Format synthetic kid
+  description: Fictional OETF decoder, schemas, mappings, and synthetic conformance data.
+
+runtime:
+  # Built and pinned when the generic kid runtime image is added.
+  image: registry.example.invalid/open-billie/oetf@sha256:0000000000000000000000000000000000000000000000000000000000000000
+  command: ["python", "-m", "billie_oetf.translator_runtime"]
+  environment:
+    - BILLIE_TRANSLATOR_SOCKET
+    - BILLIE_INPUT_PORT
+    - BILLIE_INPUT_TRANSPORT
+  persistentPaths: []
+
+# The builder offers only implementations marked deployable. Source-only
+# decoder libraries remain visible so users know what is available and what
+# work is still needed before they can be shipped as a kid runtime.
+decoderImplementations:
+  python:
+    status: deployable
+    decoder: packages/oetf/python/src/billie_oetf/decoder.py
+    mapper: packages/oetf/python/src/billie_oetf/mapper.py
+    containerfile: Containerfile
+    command: ["python", "-m", "billie_oetf.translator_runtime"]
+  rust:
+    status: deployable
+    decoder: packages/oetf/rust/src/decoder.rs
+    mapper: packages/oetf/rust/src/mapper.rs
+    containerfile: Containerfile.rust
+    command: ["/usr/local/bin/billie-oetf-runtime"]
+  typescript:
+    status: deployable
+    decoder: packages/oetf/typescript/decoder/decoder.ts
+    mapper: packages/oetf/typescript/mappings/src/mapper.ts
+    containerfile: Containerfile.typescript
+    command: ["node", "packages/oetf/typescript/runtime/dist/index.js"]
+
+components:
+  decoder: packages/oetf/python/src/billie_oetf/decoder.py
+  mapper: packages/oetf/python/src/billie_oetf/mapper.py
+  schemas: packages/oetf/shared/schemas
+  mappings: packages/oetf/shared/mappings
+  lookups: packages/oetf/shared/lookups
+  vectors: packages/oetf/shared/conformance/vectors
+
+interfaces:
+  inputs:
+    - name: oetf-udp
+      transport: udp
+      port: 5100
+    - name: oetf-tcp
+      transport: tcp
+      port: 5100
+  outputs:
+    - name: tracks-cot
+      format: cot
+    - name: tracks-cat062
+      format: asterix-cat062
+    - name: tracks-sapient
+      format: sapient
+  requires: []

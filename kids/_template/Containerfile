@@ -1,0 +1,14 @@
+# Replace the base image with a supported, pinned runtime image and build step.
+# Keep the decoder, schemas, and mappings together in this independently
+# released kid image. Do not add sensor-specific files to Open Billie core.
+FROM scratch
+
+# Example shape only:
+# COPY --chown=10001:10001 decoder/ /app/decoder/
+# COPY --chown=10001:10001 mapper/ /app/mapper/
+# COPY --chown=10001:10001 schemas/ /app/schemas/
+# COPY --chown=10001:10001 mappings/ /app/mappings/
+# COPY --chown=10001:10001 build/example-kid /app/bin/example-kid
+# USER 10001:10001
+# Set a CMD if desired. Billie starts runtime.command from billie-kid.yaml.
+# CMD ["/app/bin/example-kid"]

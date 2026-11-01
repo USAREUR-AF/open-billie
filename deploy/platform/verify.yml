@@ -1,0 +1,106 @@
+---
+- name: Verify the generic Billie platform baseline
+  hosts: billie
+  connection: local
+  become: true
+  gather_facts: false
+  vars:
+    billie_instance_prefix: billie
+    billie_etc_dir: /etc/billie
+    billie_runtime_dir: "/run/{{ billie_instance_prefix }}"
+    billie_local_rest_port: 8000
+  tasks:
+    - name: Require initialized identity
+      ansible.builtin.assert:
+        that:
+          - node_handle is match('^[a-z0-9][a-z0-9-]{0,62}$')
+          - node_supply in ['connected', 'airgap']
+          - sapient_node_id is match('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
+          - billie_instance_prefix is match('^[a-z][a-z0-9-]{0,30}$')
+
+    - name: Confirm Podman is installed
+      ansible.builtin.command:
+        argv:
+          - podman
+          - --version
+      changed_when: false
+
+    - name: Confirm health timer is active
+      ansible.builtin.command:
+        argv:
+          - systemctl
+          - is-active
+          - --quiet
+          - "{{ billie_instance_prefix }}-health.timer"
+      changed_when: false
+
+    - name: Confirm local Zenoh island is active
+      ansible.builtin.command:
+        argv:
+          - systemctl
+          - is-active
+          - --quiet
+          - "{{ billie_instance_prefix }}-zenohd.service"
+      changed_when: false
+
+    - name: Confirm shared translator publisher is active
+      ansible.builtin.command:
+        argv:
+          - systemctl
+          - is-active
+          - --quiet
+          - "{{ billie_instance_prefix }}-translator.service"
+      changed_when: false
+
+    - name: Check local Zenoh router health endpoint
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ billie_local_rest_port }}/@/local/router"
+        status_code: 200
+        return_content: false
+
+    - name: Read published Billie health sample from local Zenoh
+      ansible.builtin.uri:
+        url: "http://127.0.0.1:{{ billie_local_rest_port }}/ops/{{ node_handle }}/health"
+        status_code: 200
+        return_content: true
+      register: billie_published_health
+
+    - name: Confirm health sample is published to local Zenoh
+      ansible.builtin.assert:
+        that:
+          - "'node_handle' in billie_published_health.content"
+          - "'status' in billie_published_health.content"
+        fail_msg: Billie health file exists but its health sample is missing from the local Zenoh key.
+
+    - name: Confirm fabric client is active when configured
+      ansible.builtin.command:
+        argv:
+          - systemctl
+          - is-active
+          - --quiet
+          - "{{ billie_instance_prefix }}-fabric-client.service"
+      changed_when: false
+      when: billie_fabric_enabled | default(false) | bool
+
+    - name: Confirm bridge is active when fabric is configured
+      ansible.builtin.command:
+        argv:
+          - systemctl
+          - is-active
+          - --quiet
+          - "{{ billie_instance_prefix }}-island-bridge.service"
+      changed_when: false
+      when: billie_fabric_enabled | default(false) | bool
+
+    - name: Read platform health record
+      ansible.builtin.slurp:
+        src: "{{ billie_runtime_dir }}/health.json"
+      register: billie_health_record
+
+    - name: Validate platform health record
+      ansible.builtin.assert:
+        that:
+          - (billie_health_record.content | b64decode | from_json).schema == 'billie.health.v1'
+          - (billie_health_record.content | b64decode | from_json).node_handle == node_handle
+          - (billie_health_record.content | b64decode | from_json).state == 'ready'
+        fail_msg: Billie platform health record is missing or invalid.

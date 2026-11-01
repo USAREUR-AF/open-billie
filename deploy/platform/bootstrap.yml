@@ -1,0 +1,88 @@
+---
+- name: Bootstrap NetBird on a Billie node
+  hosts: billie
+  connection: local
+  become: true
+  gather_facts: true
+  tasks:
+    - name: Require supported Ubuntu 24.04 host
+      ansible.builtin.assert:
+        that:
+          - ansible_distribution == 'Ubuntu'
+          - ansible_distribution_version == '24.04'
+          - ansible_architecture in ['aarch64', 'x86_64']
+        fail_msg: Open Billie bootstrap supports Ubuntu 24.04 on arm64 or amd64.
+
+    # The earlier Billie bootstrap wrote this same source with an ASCII-armored
+    # key path. Replace that managed file before any APT task parses sources;
+    # otherwise an existing official .gpg source conflicts with the old .asc.
+    - name: Remove the previous Billie-managed NetBird source before APT tasks
+      ansible.builtin.file:
+        path: /etc/apt/sources.list.d/netbird.list
+        state: absent
+
+    - name: Install APT repository prerequisites
+      ansible.builtin.apt:
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+        state: present
+        update_cache: true
+
+    - name: Install NetBird repository signing key
+      ansible.builtin.get_url:
+        url: https://pkgs.netbird.io/debian/public.key
+        dest: /tmp/netbird-public-key.asc
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Convert NetBird signing key to the official APT keyring format
+      ansible.builtin.command:
+        argv:
+          - gpg
+          - --dearmor
+          - --yes
+          - --output
+          - /usr/share/keyrings/netbird-archive-keyring.gpg
+          - /tmp/netbird-public-key.asc
+      changed_when: true
+
+    - name: Set readable permissions on NetBird signing keyring
+      ansible.builtin.file:
+        path: /usr/share/keyrings/netbird-archive-keyring.gpg
+        owner: root
+        group: root
+        mode: '0644'
+
+    - name: Configure the official NetBird APT repository
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/netbird-archive-keyring.gpg] https://pkgs.netbird.io/debian stable main"
+        filename: netbird
+        state: present
+        update_cache: true
+
+    - name: Remove temporary NetBird signing key download
+      ansible.builtin.file:
+        path: /tmp/netbird-public-key.asc
+        state: absent
+
+    - name: Install the NetBird CLI and service
+      ansible.builtin.apt:
+        name: netbird
+        state: present
+        update_cache: true
+
+    - name: Enable and start NetBird service
+      ansible.builtin.systemd:
+        name: netbird
+        enabled: true
+        state: started
+
+    - name: Confirm NetBird CLI is installed
+      ansible.builtin.command:
+        argv:
+          - netbird
+          - version
+      changed_when: false

@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "billie-oetf"
+version = "0.1.0"
+description = "Python decoder, builder and ASTERIX CAT-062, CoT and SAPIENT mapper for OETF (Open Example Track Format) — a non-proprietary example target wire format."
+license = { text = "ISC" }
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]

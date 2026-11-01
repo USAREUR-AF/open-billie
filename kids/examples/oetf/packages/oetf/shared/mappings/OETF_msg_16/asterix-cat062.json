@@ -1,0 +1,229 @@
+{
+  "mapVersion": 1,
+  "source": {
+    "protocol": "oetf",
+    "message": "Track Report",
+    "messageId": 16
+  },
+  "target": {
+    "protocol": "asterix-cat062",
+    "message": "I062"
+  },
+  "direction": "inbound",
+  "enabled": true,
+  "preserveRaw": true,
+  "repeats": {
+    "field": "Track count",
+    "indexedBy": "Track {n}",
+    "max": 8
+  },
+  "mappings": [
+    {
+      "from": "Timestamp",
+      "to": "I062/070.Time Of Track Information",
+      "via": [
+        {
+          "conversion": "epochMicrosToCat062TimeOfDay"
+        }
+      ],
+      "notes": "OETF timestamp is µs since Unix epoch; I062/070 LSB = 1/128 s since UTC midnight."
+    },
+    {
+      "from": "Track {n} ID",
+      "to": "I062/040.Track Number",
+      "notes": "Both are uint16 — copied as-is."
+    },
+    {
+      "from": "Track {n} Latitude",
+      "to": "I062/105.Latitude",
+      "via": [
+        {
+          "conversion": "scale",
+          "params": {
+            "factor": 186413.51111111112
+          }
+        }
+      ],
+      "notes": "deg → raw int32 with LSB = 180/2^25. Factor = 2^25/180."
+    },
+    {
+      "from": "Track {n} Longitude",
+      "to": "I062/105.Longitude",
+      "via": [
+        {
+          "conversion": "scale",
+          "params": {
+            "factor": 186413.51111111112
+          }
+        }
+      ]
+    },
+    {
+      "from": "Track {n} Altitude",
+      "to": "I062/130.Altitude",
+      "via": [
+        {
+          "conversion": "scale",
+          "params": {
+            "factor": 0.5249343832020997
+          }
+        }
+      ],
+      "notes": "OETF altitude is HAE metres; I062/130 is geometric altitude, LSB = 6.25 ft = 1.905 m. raw = m / 1.905."
+    },
+    {
+      "from": "Track {n} Velocity east",
+      "to": "I062/185.Vx",
+      "via": [
+        {
+          "conversion": "scale",
+          "params": {
+            "factor": 4
+          }
+        }
+      ],
+      "notes": "OETF velocities are already ENU, so east → Vx directly. LSB 0.25 m/s."
+    },
+    {
+      "from": "Track {n} Velocity north",
+      "to": "I062/185.Vy",
+      "via": [
+        {
+          "conversion": "scale",
+          "params": {
+            "factor": 4
+          }
+        }
+      ]
+    },
+    {
+      "from": "Track {n} Velocity up",
+      "to": "I062/220.Rate",
+      "via": [
+        {
+          "conversion": "scale",
+          "params": {
+            "factor": 31.496062992125985
+          }
+        }
+      ],
+      "notes": "m/s → ft/min (×196.850) / LSB 6.25 ft/min."
+    },
+    {
+      "from": "Track {n} Mode 3/A code",
+      "to": "I062/060.Mode 3/A code",
+      "availableIf": {
+        "field": "Track {n} Flags.Mode 3/A valid",
+        "equals": 1
+      },
+      "notes": "Same 12-bit octal packing on both sides. Omitted (item not emitted) when the OETF valid flag is clear."
+    },
+    {
+      "from": "Track {n} Classification",
+      "to": "I062/245.Target Identification",
+      "via": [
+        {
+          "conversion": "lookup",
+          "params": {
+            "table": "OETF_classification_callsign"
+          }
+        }
+      ],
+      "notes": "8-char IA5-6bit label per OETF classification. Lookup table ships in this package's lookups/."
+    },
+    {
+      "from": "Track {n} Flags.Confirmed",
+      "to": "I062/080.CNF",
+      "via": [
+        {
+          "conversion": "scaleOffset:-1:1"
+        }
+      ],
+      "notes": "Polarity flip: OETF Confirmed=1 → CAT062 CNF=0 (confirmed). raw = 1 − x."
+    },
+    {
+      "from": "Track {n} Flags.Simulated",
+      "to": "I062/080.SIM"
+    },
+    {
+      "from": "Track {n} Flags.Final update",
+      "to": "I062/080.TSE",
+      "notes": "Last report for this track."
+    },
+    {
+      "from": "Track {n} Position sigma east",
+      "to": "I062/500.APC.APC X",
+      "via": [
+        {
+          "conversion": "scale",
+          "params": {
+            "factor": 2
+          }
+        }
+      ],
+      "notes": "1σ metres → LSB 0.5 m. OETF east/north align with CAT062 X/Y."
+    },
+    {
+      "from": "Track {n} Position sigma north",
+      "to": "I062/500.APC.APC Y",
+      "via": [
+        {
+          "conversion": "scale",
+          "params": {
+            "factor": 2
+          }
+        }
+      ]
+    },
+    {
+      "from": "Track {n} Altitude sigma",
+      "to": "I062/500.AGA.AGA",
+      "via": [
+        {
+          "conversion": "scale",
+          "params": {
+            "factor": 0.5249343832020997
+          }
+        }
+      ],
+      "notes": "1σ metres → LSB 6.25 ft."
+    },
+    {
+      "from": "Track {n} Velocity sigma east",
+      "to": "I062/500.ATV.ATV Vx",
+      "via": [
+        {
+          "conversion": "scale",
+          "params": {
+            "factor": 4
+          }
+        }
+      ]
+    },
+    {
+      "from": "Track {n} Velocity sigma north",
+      "to": "I062/500.ATV.ATV Vy",
+      "via": [
+        {
+          "conversion": "scale",
+          "params": {
+            "factor": 4
+          }
+        }
+      ]
+    }
+  ],
+  "unmapped": [
+    { "from": "Magic", "reason": "framing only" },
+    { "from": "Format version", "reason": "framing only" },
+    { "from": "Message type", "reason": "framing only" },
+    { "from": "Frame length", "reason": "framing only" },
+    { "from": "Sequence number", "reason": "no asterix-cat062 target" },
+    { "from": "Sensor ID", "reason": "I062/010 SAC/SIC is supplied per deployment by encoder-defaults" },
+    { "from": "Header flags", "reason": "frame-level; per-track Simulated maps to I062/080.SIM" },
+    { "from": "Track {n} Confidence", "reason": "no asterix-cat062 target" },
+    { "from": "Track {n} Flags.Coasting", "reason": "no direct CAT062 equivalent (I062/080 CST is a multi-bit extension)" },
+    { "from": "Track {n} RCS", "reason": "no asterix-cat062 target" },
+    { "from": "Track {n} Age", "reason": "I062/290 not yet implemented in the CAT062 schema" }
+  ]
+}

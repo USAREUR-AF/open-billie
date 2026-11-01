@@ -1,0 +1,25 @@
+# TypeScript OETF kid runtime; release bundles record the resolved OCI digest.
+FROM docker.io/library/node:22.14.0-bookworm-slim
+
+WORKDIR /app
+RUN corepack enable
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml ./
+COPY tsconfig.base.json ./tsconfig.base.json
+COPY packages/oetf/typescript/decoder/package.json packages/oetf/typescript/decoder/tsconfig.json ./packages/oetf/typescript/decoder/
+COPY packages/oetf/typescript/decoder/builder.ts packages/oetf/typescript/decoder/decoder.ts packages/oetf/typescript/decoder/index.ts packages/oetf/typescript/decoder/parser.ts ./packages/oetf/typescript/decoder/
+COPY packages/oetf/typescript/mappings/package.json packages/oetf/typescript/mappings/tsconfig.json ./packages/oetf/typescript/mappings/
+COPY packages/oetf/typescript/mappings/src ./packages/oetf/typescript/mappings/src
+COPY packages/oetf/typescript/runtime/package.json packages/oetf/typescript/runtime/tsconfig.json ./packages/oetf/typescript/runtime/
+COPY packages/oetf/typescript/runtime/src ./packages/oetf/typescript/runtime/src
+COPY packages/oetf/shared ./packages/oetf/shared
+RUN pnpm install --frozen-lockfile
+RUN pnpm --filter @open-billie/decoder-oetf build \
+    && pnpm --filter @open-billie/mappings-oetf build \
+    && pnpm --filter @open-billie/oetf-runtime-typescript build
+
+ENV BILLIE_INPUT_BIND=0.0.0.0
+ENV BILLIE_INPUT_PORT=5100
+ENV BILLIE_INPUT_TRANSPORT=udp
+ENV BILLIE_TRANSLATOR_SOCKET=/run/billie/translator.sock
+EXPOSE 5100/udp 5100/tcp
+CMD ["node", "packages/oetf/typescript/runtime/dist/index.js"]

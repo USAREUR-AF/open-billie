@@ -1,0 +1,36 @@
+{
+  "apiVersion": "billie.dev/translation-v1",
+  "kind": "TranslateRequest",
+  "requestId": "oetf-vector-track-311",
+  "kid": "oetf",
+  "target": {
+    "outputName": "tracks-cot",
+    "format": "cot"
+  },
+  "record": {
+    "apiVersion": "billie.dev/track-v2",
+    "kind": "Track",
+    "trackId": "311",
+    "sourceId": "263",
+    "trackGeneration": "fixture-1",
+    "observedAt": "2025-10-29T12:00:00.123Z",
+    "position": {
+      "latitudeDeg": 38.8977,
+      "longitudeDeg": -77.03649999999999,
+      "altitudeM": 152.4
+    },
+    "velocity": {
+      "eastMps": -12.5,
+      "northMps": 4.25,
+      "upMps": 1.5
+    },
+    "classification": "uas",
+    "confidence": 0.87,
+    "confirmed": true,
+    "positionUncertainty": {
+      "sigmaEastM": 3.2,
+      "sigmaNorthM": 2.8000000000000003,
+      "sigmaUpM": 6.1000000000000005
+    }
+  }
+}

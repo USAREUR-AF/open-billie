@@ -1,0 +1,12 @@
+*.container text eol=lf
+*.j2 text eol=lf
+*.md text eol=lf
+*.json5 text eol=lf
+*.py text eol=lf
+*.rs text eol=lf
+*.service text eol=lf
+*.ts text eol=lf
+*.sh text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+deploy/bin/billie text eol=lf

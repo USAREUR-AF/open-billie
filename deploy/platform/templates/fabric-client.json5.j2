@@ -1,0 +1,22 @@
+{
+  mode: "client",
+  connect: {
+    endpoints: ["{{ billie_fabric_endpoint }}"],
+  },
+  scouting: {
+    multicast: {
+      enabled: false,
+    },
+  },
+  transport: {
+    link: {
+      tls: {
+        root_ca_certificate: "/etc/billie/zenoh/tls/ca.pem",
+        connect_certificate: "/etc/billie/zenoh/tls/client.pem",
+        connect_private_key: "/etc/billie/zenoh/tls/client-key.pem",
+        enable_mtls: true,
+        verify_name_on_connect: true,
+      },
+    },
+  },
+}

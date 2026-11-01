@@ -1,0 +1,14 @@
+syntax = "proto3";
+
+package synthetic.mapper;
+
+enum TrackClass {
+  TRACK_CLASS_UNKNOWN = 0;
+  TRACK_CLASS_AIRCRAFT = 1;
+}
+
+message Track {
+  string callsign = 1;
+  TrackClass classification = 2;
+  repeated double confidence_samples = 3;
+}

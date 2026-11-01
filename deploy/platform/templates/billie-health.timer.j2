@@ -1,0 +1,11 @@
+[Unit]
+Description=Refresh Open Billie {{ billie_instance_prefix }} platform health record
+
+[Timer]
+OnBootSec=20s
+OnUnitActiveSec=60s
+AccuracySec=10s
+Unit={{ billie_instance_prefix }}-health.service
+
+[Install]
+WantedBy=timers.target

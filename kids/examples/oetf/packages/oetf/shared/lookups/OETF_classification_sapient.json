@@ -1,0 +1,10 @@
+{
+  "0": "UNKNOWN",
+  "1": "AIRCRAFT_FIXEDWING",
+  "2": "AIRCRAFT_ROTARYWING",
+  "3": "UAV",
+  "4": "BALLOON",
+  "5": "BIRD",
+  "6": "VEHICLE",
+  "7": "CLUTTER"
+}

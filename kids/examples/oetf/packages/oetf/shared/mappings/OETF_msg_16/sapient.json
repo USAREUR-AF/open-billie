@@ -1,0 +1,136 @@
+{
+  "mapVersion": 1,
+  "source": {
+    "protocol": "oetf",
+    "message": "Track Report",
+    "messageId": 16
+  },
+  "target": {
+    "protocol": "sapient",
+    "message": "SapientMessage"
+  },
+  "direction": "inbound",
+  "enabled": true,
+  "preserveRaw": true,
+  "repeats": {
+    "field": "Track count",
+    "indexedBy": "Track {n}",
+    "max": 8
+  },
+  "mappings": [
+    {
+      "from": "Timestamp",
+      "to": "timestamp",
+      "via": [
+        {
+          "conversion": "epochMicrosToProtoTimestamp"
+        }
+      ],
+      "notes": "google.protobuf.Timestamp (seconds + nanos)."
+    },
+    {
+      "from": "Track {n} ID",
+      "to": "detection_report.id",
+      "via": [
+        {
+          "conversion": "uintToString"
+        }
+      ],
+      "notes": "object_id is an encoder-generated ULID; id keeps the correlation to the OETF track ID."
+    },
+    {
+      "from": "Track {n} Classification",
+      "to": "detection_report.classification.type",
+      "via": [
+        {
+          "conversion": "lookup",
+          "params": {
+            "table": "OETF_classification_sapient"
+          }
+        }
+      ]
+    },
+    {
+      "from": "Track {n} Confidence",
+      "to": "detection_report.detection_confidence",
+      "via": [
+        {
+          "conversion": "scale",
+          "params": {
+            "factor": 0.01
+          }
+        }
+      ],
+      "notes": "OETF % (0..100) → SAPIENT 0..1."
+    },
+    {
+      "from": "Track {n} Latitude",
+      "to": "detection_report.location.y",
+      "notes": "SAPIENT Location.y is latitude (LAT_LNG_DEG_M, set by encoder-defaults)."
+    },
+    {
+      "from": "Track {n} Longitude",
+      "to": "detection_report.location.x",
+      "notes": "SAPIENT Location.x is longitude."
+    },
+    {
+      "from": "Track {n} Altitude",
+      "to": "detection_report.location.z"
+    },
+    {
+      "from": "Track {n} Altitude sigma",
+      "to": "detection_report.location.z_error",
+      "notes": "z is metres in LAT_LNG_DEG_M, so the 1σ metres carry straight across."
+    },
+    {
+      "from": "Track {n} Velocity east",
+      "to": "detection_report.enu_velocity.east_rate",
+      "notes": "OETF velocity is already ENU — no frame swap."
+    },
+    {
+      "from": "Track {n} Velocity north",
+      "to": "detection_report.enu_velocity.north_rate"
+    },
+    {
+      "from": "Track {n} Velocity up",
+      "to": "detection_report.enu_velocity.up_rate"
+    },
+    {
+      "from": "Track {n} Velocity sigma east",
+      "to": "detection_report.enu_velocity.east_rate_error"
+    },
+    {
+      "from": "Track {n} Velocity sigma north",
+      "to": "detection_report.enu_velocity.north_rate_error"
+    },
+    {
+      "to": "detection_report.object_info.type",
+      "value": "rcs_dbsm",
+      "notes": "object_info[].type label; encoder-defaults wraps the singleton into the repeated field."
+    },
+    {
+      "from": "Track {n} RCS",
+      "to": "detection_report.object_info.value",
+      "via": [
+        {
+          "conversion": "numberToString"
+        }
+      ],
+      "notes": "object_info[].value is a string; RCS in dBsm."
+    }
+  ],
+  "unmapped": [
+    { "from": "Magic", "reason": "framing only" },
+    { "from": "Format version", "reason": "framing only" },
+    { "from": "Message type", "reason": "framing only" },
+    { "from": "Frame length", "reason": "framing only" },
+    { "from": "Sequence number", "reason": "no sapient target" },
+    { "from": "Sensor ID", "reason": "SAPIENT node_id is a deployment UUID supplied by the encoder" },
+    { "from": "Header flags", "reason": "no sapient target" },
+    { "from": "Track {n} Flags", "reason": "no sapient target for track lifecycle flags" },
+    { "from": "Track {n} Mode 3/A code", "reason": "no sapient target" },
+    { "from": "Track {n} Position sigma east", "reason": "LAT_LNG_DEG_M x_error is in degrees; metres → degrees needs a latitude-aware conversion the translator does not have" },
+    { "from": "Track {n} Position sigma north", "reason": "LAT_LNG_DEG_M y_error is in degrees; see Position sigma east" },
+    { "from": "Track {n} Age", "reason": "no sapient target" }
+  ]
+}

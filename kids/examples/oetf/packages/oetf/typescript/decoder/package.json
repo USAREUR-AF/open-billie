@@ -1,0 +1,14 @@
+{
+  "name": "@open-billie/decoder-oetf",
+  "version": "0.1.0",
+  "description": "Streaming decoder for OETF (Open Example Track Format) — a non-proprietary example target wire format.",
+  "license": "ISC",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "test": "vitest run"
+  },
+  "private": true
+}

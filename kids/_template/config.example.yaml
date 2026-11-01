@@ -1,0 +1,5 @@
+# Safe example only. Supply real per-node values through protected node config.
+zenoh:
+  connect: []
+node:
+  handle: example-node

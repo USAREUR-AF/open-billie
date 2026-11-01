@@ -1,0 +1,14 @@
+{
+  "name": "@open-billie/oetf-runtime-typescript",
+  "version": "0.1.0",
+  "private": true,
+  "description": "OETF TypeScript ingress runtime for Open Billie",
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "@open-billie/decoder-oetf": "workspace:*",
+    "@open-billie/mappings-oetf": "workspace:*"
+  }
+}

@@ -1,0 +1,120 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "OETF Byte-Offset Schema",
+  "description": "Meta-schema for byte-offset schemas used by the OETF decoder.",
+  "type": "object",
+  "required": [
+    "messageName",
+    "fields"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "messageName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "messageSize": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "fields": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "offset",
+          "type"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "offset": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "type": {
+            "enum": [
+              "uint8",
+              "uint16",
+              "uint32",
+              "uint48",
+              "uint64",
+              "int8",
+              "int16",
+              "int32",
+              "real32",
+              "real64"
+            ]
+          },
+          "units": {
+            "type": "string"
+          },
+          "scale": {
+            "type": "number"
+          },
+          "notes": {
+            "type": "string"
+          },
+          "values": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "validIf": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "field": {
+                "type": "string"
+              },
+              "bit": {
+                "type": "string"
+              },
+              "minCount": {
+                "type": "integer"
+              }
+            }
+          },
+          "bits": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "name",
+                "bitStart",
+                "length"
+              ],
+              "additionalProperties": false,
+              "properties": {
+                "name": {
+                  "type": "string"
+                },
+                "bitStart": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 63
+                },
+                "length": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 64
+                },
+                "values": {
+                  "type": "object"
+                },
+                "valuesBy": {
+                  "type": "object"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}

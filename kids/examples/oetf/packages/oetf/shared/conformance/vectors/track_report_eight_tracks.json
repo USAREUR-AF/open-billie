@@ -1,0 +1,1001 @@
+{
+  "name": "track_report_eight_tracks",
+  "description": "A full frame of eight varied tracks, including near-zero lat/lon and negative altitude.",
+  "chunks": [
+    "4f45544601105e012c0000000701010000f0fdfc5e42060008000000e803001e010000000008d0eb48b5205ac4090000589ea70f000032004b0064000a00140070fe00000d04012712008002103a42f108d482418e9d010039b6290b53000f010901ae0137003900bdfe7b00320402301100400f206cb4f6c8f2e428583103001aceab0619fcec01c701f80264005e000afff600570403391000010003000000ffffffff22c50400fbe52d02f900c902850242049100830057ff71017c0404420300000040d098014830a9f7ec580600dcfdaffd4c01a60343038c05be00a800a4ffffffa104054b1800ff0f50020b07084f0bdfb6ec0700bd1531f99f0183040104d606eb00cd00f1ff6702c60406541100400060347d0cc86d6dc62efbffff9e2db3f4f2016005bf0420081801f2003e00e202eb04075d160000047066ef11888ccfad4a140b007f4535f045023d067d056a09450117018b005d031227"
+  ],
+  "errors": [],
+  "records": [
+    {
+      "messageName": "Track Report",
+      "msgId": 16,
+      "fields": {
+        "Magic": 1179927887,
+        "Format version": 1,
+        "Message type": "TRACK REPORT (16)",
+        "Frame length": "350 bytes",
+        "Sequence number": 44,
+        "Sensor ID": 263,
+        "Header flags": {
+          "Test data": 1,
+          "Simulated": 0,
+          "_raw": 1
+        },
+        "Timestamp": "1761825599123456 usec",
+        "Track count": 8,
+        "Reserved": 0,
+        "Reserved 2": 0,
+        "Track 0 ID": 1000,
+        "Track 0 Classification": "Unknown (0)",
+        "Track 0 Confidence": "30 %",
+        "Track 0 Flags": {
+          "Confirmed": 1,
+          "Coasting": 0,
+          "Final update": 0,
+          "Simulated": 0,
+          "Mode 3/A valid": 0,
+          "_raw": 1
+        },
+        "Track 0 Mode 3/A code": 0,
+        "Track 0 Latitude": -33.8688,
+        "Track 0 Longitude": 151.20929999999998,
+        "Track 0 Altitude": "25 m",
+        "Track 0 Velocity east": "-250 m/s",
+        "Track 0 Velocity north": "40.07 m/s",
+        "Track 0 Velocity up": "0 m/s",
+        "Track 0 Position sigma east": "0.5 m",
+        "Track 0 Position sigma north": "0.75 m",
+        "Track 0 Altitude sigma": "1 m",
+        "Track 0 Velocity sigma east": "0.1 m/s",
+        "Track 0 Velocity sigma north": "0.2 m/s",
+        "Track 0 RCS": "-40 dBsm",
+        "Track 0 Age": "0 s",
+        "Track 1 ID": 1037,
+        "Track 1 Classification": "Fixed wing (1)",
+        "Track 1 Confidence": "39 %",
+        "Track 1 Flags": {
+          "Confirmed": 0,
+          "Coasting": 1,
+          "Final update": 0,
+          "Simulated": 0,
+          "Mode 3/A valid": 1,
+          "_raw": 18
+        },
+        "Track 1 Mode 3/A code": 640,
+        "Track 1 Latitude": -24.7318,
+        "Track 1 Longitude": 109.9093,
+        "Track 1 Altitude": "1058.7 m",
+        "Track 1 Velocity east": "-188.87 m/s",
+        "Track 1 Velocity north": "28.57 m/s",
+        "Track 1 Velocity up": "0.8300000000000001 m/s",
+        "Track 1 Position sigma east": "2.71 m",
+        "Track 1 Position sigma north": "2.65 m",
+        "Track 1 Altitude sigma": "4.3 m",
+        "Track 1 Velocity sigma east": "0.55 m/s",
+        "Track 1 Velocity sigma north": "0.5700000000000001 m/s",
+        "Track 1 RCS": "-32.300000000000004 dBsm",
+        "Track 1 Age": "123 s",
+        "Track 2 ID": 1074,
+        "Track 2 Classification": "Rotary wing (2)",
+        "Track 2 Confidence": "48 %",
+        "Track 2 Flags": {
+          "Confirmed": 1,
+          "Coasting": 0,
+          "Final update": 0,
+          "Simulated": 0,
+          "Mode 3/A valid": 1,
+          "_raw": 17
+        },
+        "Track 2 Mode 3/A code": 3904,
+        "Track 2 Latitude": -15.5948,
+        "Track 2 Longitude": 68.60929999999999,
+        "Track 2 Altitude": "2092.4 m",
+        "Track 2 Velocity east": "-127.74000000000001 m/s",
+        "Track 2 Velocity north": "17.07 m/s",
+        "Track 2 Velocity up": "-9.99 m/s",
+        "Track 2 Position sigma east": "4.92 m",
+        "Track 2 Position sigma north": "4.55 m",
+        "Track 2 Altitude sigma": "7.6000000000000005 m",
+        "Track 2 Velocity sigma east": "1 m/s",
+        "Track 2 Velocity sigma north": "0.9400000000000001 m/s",
+        "Track 2 RCS": "-24.6 dBsm",
+        "Track 2 Age": "246 s",
+        "Track 3 ID": 1111,
+        "Track 3 Classification": "Small UAS (3)",
+        "Track 3 Confidence": "57 %",
+        "Track 3 Flags": {
+          "Confirmed": 0,
+          "Coasting": 0,
+          "Final update": 0,
+          "Simulated": 0,
+          "Mode 3/A valid": 1,
+          "_raw": 16
+        },
+        "Track 3 Mode 3/A code": 1,
+        "Track 3 Latitude": 3e-7,
+        "Track 3 Longitude": -1e-7,
+        "Track 3 Altitude": "3126.1 m",
+        "Track 3 Velocity east": "-66.61 m/s",
+        "Track 3 Velocity north": "5.57 m/s",
+        "Track 3 Velocity up": "2.49 m/s",
+        "Track 3 Position sigma east": "7.13 m",
+        "Track 3 Position sigma north": "6.45 m",
+        "Track 3 Altitude sigma": "10.9 m",
+        "Track 3 Velocity sigma east": "1.45 m/s",
+        "Track 3 Velocity sigma north": "1.31 m/s",
+        "Track 3 RCS": "-16.900000000000002 dBsm",
+        "Track 3 Age": "369 s",
+        "Track 4 ID": 1148,
+        "Track 4 Classification": "Balloon (4)",
+        "Track 4 Confidence": "66 %",
+        "Track 4 Flags": {
+          "Confirmed": 1,
+          "Coasting": 1,
+          "Final update": 0,
+          "Simulated": 0,
+          "Mode 3/A valid": 0,
+          "_raw": 3
+        },
+        "Track 4 Mode 3/A code": 0,
+        "Track 4 Latitude": 2.6792,
+        "Track 4 Longitude": -13.990699999999999,
+        "Track 4 Altitude": "4159.8 m",
+        "Track 4 Velocity east": "-5.48 m/s",
+        "Track 4 Velocity north": "-5.93 m/s",
+        "Track 4 Velocity up": "3.3200000000000003 m/s",
+        "Track 4 Position sigma east": "9.34 m",
+        "Track 4 Position sigma north": "8.35 m",
+        "Track 4 Altitude sigma": "14.200000000000001 m",
+        "Track 4 Velocity sigma east": "1.9000000000000001 m/s",
+        "Track 4 Velocity sigma north": "1.68 m/s",
+        "Track 4 RCS": "-9.200000000000001 dBsm",
+        "Track 4 Age": "65535 s",
+        "Track 5 ID": 1185,
+        "Track 5 Classification": "Bird (5)",
+        "Track 5 Confidence": "75 %",
+        "Track 5 Flags": {
+          "Confirmed": 0,
+          "Coasting": 0,
+          "Final update": 0,
+          "Simulated": 1,
+          "Mode 3/A valid": 1,
+          "_raw": 24
+        },
+        "Track 5 Mode 3/A code": 4095,
+        "Track 5 Latitude": 11.8162,
+        "Track 5 Longitude": -55.290699999999994,
+        "Track 5 Altitude": "5193.5 m",
+        "Track 5 Velocity east": "55.65 m/s",
+        "Track 5 Velocity north": "-17.43 m/s",
+        "Track 5 Velocity up": "4.15 m/s",
+        "Track 5 Position sigma east": "11.55 m",
+        "Track 5 Position sigma north": "10.25 m",
+        "Track 5 Altitude sigma": "17.5 m",
+        "Track 5 Velocity sigma east": "2.35 m/s",
+        "Track 5 Velocity sigma north": "2.05 m/s",
+        "Track 5 RCS": "-1.5 dBsm",
+        "Track 5 Age": "615 s",
+        "Track 6 ID": 1222,
+        "Track 6 Classification": "Surface vehicle (6)",
+        "Track 6 Confidence": "84 %",
+        "Track 6 Flags": {
+          "Confirmed": 1,
+          "Coasting": 0,
+          "Final update": 0,
+          "Simulated": 0,
+          "Mode 3/A valid": 1,
+          "_raw": 17
+        },
+        "Track 6 Mode 3/A code": 64,
+        "Track 6 Latitude": 20.9532,
+        "Track 6 Longitude": -96.5907,
+        "Track 6 Altitude": "-12.34 m",
+        "Track 6 Velocity east": "116.78 m/s",
+        "Track 6 Velocity north": "-28.93 m/s",
+        "Track 6 Velocity up": "4.98 m/s",
+        "Track 6 Position sigma east": "13.76 m",
+        "Track 6 Position sigma north": "12.15 m",
+        "Track 6 Altitude sigma": "20.8 m",
+        "Track 6 Velocity sigma east": "2.8000000000000003 m/s",
+        "Track 6 Velocity sigma north": "2.42 m/s",
+        "Track 6 RCS": "6.2 dBsm",
+        "Track 6 Age": "738 s",
+        "Track 7 ID": 1259,
+        "Track 7 Classification": "Clutter (7)",
+        "Track 7 Confidence": "93 %",
+        "Track 7 Flags": {
+          "Confirmed": 0,
+          "Coasting": 1,
+          "Final update": 1,
+          "Simulated": 0,
+          "Mode 3/A valid": 1,
+          "_raw": 22
+        },
+        "Track 7 Mode 3/A code": 1024,
+        "Track 7 Latitude": 30.0902,
+        "Track 7 Longitude": -137.89069999999998,
+        "Track 7 Altitude": "7260.900000000001 m",
+        "Track 7 Velocity east": "177.91 m/s",
+        "Track 7 Velocity north": "-40.43 m/s",
+        "Track 7 Velocity up": "5.8100000000000005 m/s",
+        "Track 7 Position sigma east": "15.97 m",
+        "Track 7 Position sigma north": "14.05 m",
+        "Track 7 Altitude sigma": "24.1 m",
+        "Track 7 Velocity sigma east": "3.25 m/s",
+        "Track 7 Velocity sigma north": "2.79 m/s",
+        "Track 7 RCS": "13.9 dBsm",
+        "Track 7 Age": "861 s"
+      },
+      "translations": {
+        "asterix-cat062": [
+          {
+            "I062/070": {
+              "Time Of Track Information": 5529488
+            },
+            "I062/040": {
+              "Track Number": 1000
+            },
+            "I062/105": {
+              "Latitude": -6313601.925120001,
+              "Longitude": 28187456.525653332
+            },
+            "I062/130": {
+              "Altitude": 13.123359580052494
+            },
+            "I062/185": {
+              "Vx": -1000,
+              "Vy": 160.28
+            },
+            "I062/220": {
+              "Rate": 0
+            },
+            "I062/245": {
+              "Target Identification": "UNKNOWN "
+            },
+            "I062/080": {
+              "CNF": 0,
+              "SIM": 0,
+              "TSE": 0
+            },
+            "I062/500": {
+              "APC": {
+                "APC X": 1,
+                "APC Y": 1.5
+              },
+              "AGA": {
+                "AGA": 0.5249343832020997
+              },
+              "ATV": {
+                "ATV Vx": 0.4,
+                "ATV Vy": 0.8
+              }
+            }
+          },
+          {
+            "I062/070": {
+              "Time Of Track Information": 5529488
+            },
+            "I062/040": {
+              "Track Number": 1037
+            },
+            "I062/105": {
+              "Latitude": -4610341.674097778,
+              "Longitude": 20488578.516764447
+            },
+            "I062/130": {
+              "Altitude": 555.748031496063
+            },
+            "I062/185": {
+              "Vx": -755.48,
+              "Vy": 114.28
+            },
+            "I062/220": {
+              "Rate": 26.14173228346457
+            },
+            "I062/060": {
+              "Mode 3/A code": 640
+            },
+            "I062/245": {
+              "Target Identification": "FIXWING "
+            },
+            "I062/080": {
+              "CNF": 1,
+              "SIM": 0,
+              "TSE": 0
+            },
+            "I062/500": {
+              "APC": {
+                "APC X": 5.42,
+                "APC Y": 5.3
+              },
+              "AGA": {
+                "AGA": 2.2572178477690286
+              },
+              "ATV": {
+                "ATV Vx": 2.2,
+                "ATV Vy": 2.2800000000000002
+              }
+            }
+          },
+          {
+            "I062/070": {
+              "Time Of Track Information": 5529488
+            },
+            "I062/040": {
+              "Track Number": 1074
+            },
+            "I062/105": {
+              "Latitude": -2907081.4230755554,
+              "Longitude": 12789700.507875554
+            },
+            "I062/130": {
+              "Altitude": 1098.3727034120736
+            },
+            "I062/185": {
+              "Vx": -510.96000000000004,
+              "Vy": 68.28
+            },
+            "I062/220": {
+              "Rate": -314.6456692913386
+            },
+            "I062/060": {
+              "Mode 3/A code": 3904
+            },
+            "I062/245": {
+              "Target Identification": "ROTARY  "
+            },
+            "I062/080": {
+              "CNF": 0,
+              "SIM": 0,
+              "TSE": 0
+            },
+            "I062/500": {
+              "APC": {
+                "APC X": 9.84,
+                "APC Y": 9.1
+              },
+              "AGA": {
+                "AGA": 3.989501312335958
+              },
+              "ATV": {
+                "ATV Vx": 4,
+                "ATV Vy": 3.7600000000000002
+              }
+            }
+          },
+          {
+            "I062/070": {
+              "Time Of Track Information": 5529488
+            },
+            "I062/040": {
+              "Track Number": 1111
+            },
+            "I062/105": {
+              "Latitude": 0.055924053333333335,
+              "Longitude": -0.01864135111111111
+            },
+            "I062/130": {
+              "Altitude": 1640.997375328084
+            },
+            "I062/185": {
+              "Vx": -266.44,
+              "Vy": 22.28
+            },
+            "I062/220": {
+              "Rate": 78.4251968503937
+            },
+            "I062/060": {
+              "Mode 3/A code": 1
+            },
+            "I062/245": {
+              "Target Identification": "SUAS    "
+            },
+            "I062/080": {
+              "CNF": 1,
+              "SIM": 0,
+              "TSE": 0
+            },
+            "I062/500": {
+              "APC": {
+                "APC X": 14.26,
+                "APC Y": 12.9
+              },
+              "AGA": {
+                "AGA": 5.721784776902887
+              },
+              "ATV": {
+                "ATV Vx": 5.8,
+                "ATV Vy": 5.24
+              }
+            }
+          },
+          {
+            "I062/070": {
+              "Time Of Track Information": 5529488
+            },
+            "I062/040": {
+              "Track Number": 1148
+            },
+            "I062/105": {
+              "Latitude": 499439.07896888885,
+              "Longitude": -2608055.509902222
+            },
+            "I062/130": {
+              "Altitude": 2183.6220472440946
+            },
+            "I062/185": {
+              "Vx": -21.92,
+              "Vy": -23.72
+            },
+            "I062/220": {
+              "Rate": 104.56692913385828
+            },
+            "I062/245": {
+              "Target Identification": "BALLOON "
+            },
+            "I062/080": {
+              "CNF": 0,
+              "SIM": 0,
+              "TSE": 0
+            },
+            "I062/500": {
+              "APC": {
+                "APC X": 18.68,
+                "APC Y": 16.7
+              },
+              "AGA": {
+                "AGA": 7.454068241469817
+              },
+              "ATV": {
+                "ATV Vx": 7.6000000000000005,
+                "ATV Vy": 6.72
+              }
+            }
+          },
+          {
+            "I062/070": {
+              "Time Of Track Information": 5529488
+            },
+            "I062/040": {
+              "Track Number": 1185
+            },
+            "I062/105": {
+              "Latitude": 2202699.329991111,
+              "Longitude": -10306933.518791111
+            },
+            "I062/130": {
+              "Altitude": 2726.246719160105
+            },
+            "I062/185": {
+              "Vx": 222.6,
+              "Vy": -69.72
+            },
+            "I062/220": {
+              "Rate": 130.70866141732284
+            },
+            "I062/060": {
+              "Mode 3/A code": 4095
+            },
+            "I062/245": {
+              "Target Identification": "BIRD    "
+            },
+            "I062/080": {
+              "CNF": 1,
+              "SIM": 1,
+              "TSE": 0
+            },
+            "I062/500": {
+              "APC": {
+                "APC X": 23.1,
+                "APC Y": 20.5
+              },
+              "AGA": {
+                "AGA": 9.186351706036746
+              },
+              "ATV": {
+                "ATV Vx": 9.4,
+                "ATV Vy": 8.2
+              }
+            }
+          },
+          {
+            "I062/070": {
+              "Time Of Track Information": 5529488
+            },
+            "I062/040": {
+              "Track Number": 1222
+            },
+            "I062/105": {
+              "Latitude": 3905959.581013333,
+              "Longitude": -18005811.527680002
+            },
+            "I062/130": {
+              "Altitude": -6.4776902887139105
+            },
+            "I062/185": {
+              "Vx": 467.12,
+              "Vy": -115.72
+            },
+            "I062/220": {
+              "Rate": 156.8503937007874
+            },
+            "I062/060": {
+              "Mode 3/A code": 64
+            },
+            "I062/245": {
+              "Target Identification": "SURFACE "
+            },
+            "I062/080": {
+              "CNF": 0,
+              "SIM": 0,
+              "TSE": 0
+            },
+            "I062/500": {
+              "APC": {
+                "APC X": 27.52,
+                "APC Y": 24.3
+              },
+              "AGA": {
+                "AGA": 10.918635170603675
+              },
+              "ATV": {
+                "ATV Vx": 11.200000000000001,
+                "ATV Vy": 9.68
+              }
+            }
+          },
+          {
+            "I062/070": {
+              "Time Of Track Information": 5529488
+            },
+            "I062/040": {
+              "Track Number": 1259
+            },
+            "I062/105": {
+              "Latitude": 5609219.8320355555,
+              "Longitude": -25704689.536568888
+            },
+            "I062/130": {
+              "Altitude": 3811.496062992126
+            },
+            "I062/185": {
+              "Vx": 711.64,
+              "Vy": -161.72
+            },
+            "I062/220": {
+              "Rate": 182.992125984252
+            },
+            "I062/060": {
+              "Mode 3/A code": 1024
+            },
+            "I062/245": {
+              "Target Identification": "CLUTTER "
+            },
+            "I062/080": {
+              "CNF": 1,
+              "SIM": 0,
+              "TSE": 1
+            },
+            "I062/500": {
+              "APC": {
+                "APC X": 31.94,
+                "APC Y": 28.1
+              },
+              "AGA": {
+                "AGA": 12.650918635170605
+              },
+              "ATV": {
+                "ATV Vx": 13,
+                "ATV Vy": 11.16
+              }
+            }
+          }
+        ],
+        "cot": [
+          {
+            "time": "2025-10-30T11:59:59.123Z",
+            "uid": "1000",
+            "detail": {
+              "uid": {
+                "tadilj": "1000"
+              },
+              "track": {
+                "speed": 253.19084679348106,
+                "course": 279,
+                "eSpeed": 0.223606797749979
+              }
+            },
+            "type": "a-u-X",
+            "lat": -33.8688,
+            "lon": 151.20929999999998,
+            "hae": 25,
+            "ce": 0.9013878188659973,
+            "le": 1
+          },
+          {
+            "time": "2025-10-30T11:59:59.123Z",
+            "uid": "1037",
+            "detail": {
+              "uid": {
+                "tadilj": "1037"
+              },
+              "track": {
+                "speed": 191.018642545695,
+                "course": 279,
+                "eSpeed": 0.7920858539325142
+              }
+            },
+            "type": "a-u-A-M-F",
+            "lat": -24.7318,
+            "lon": 109.9093,
+            "hae": 1058.7,
+            "ce": 3.7903298009540016,
+            "le": 4.3
+          },
+          {
+            "time": "2025-10-30T11:59:59.123Z",
+            "uid": "1074",
+            "detail": {
+              "uid": {
+                "tadilj": "1074"
+              },
+              "track": {
+                "speed": 128.87549223960312,
+                "course": 278,
+                "eSpeed": 1.372443077143821
+              }
+            },
+            "type": "a-u-A-M-H",
+            "lat": -15.5948,
+            "lon": 68.60929999999999,
+            "hae": 2092.4,
+            "ce": 6.7014102993325215,
+            "le": 7.6000000000000005
+          },
+          {
+            "time": "2025-10-30T11:59:59.123Z",
+            "uid": "1111",
+            "detail": {
+              "uid": {
+                "tadilj": "1111"
+              },
+              "track": {
+                "speed": 66.84247900848682,
+                "course": 275,
+                "eSpeed": 1.9541238445912275
+              }
+            },
+            "type": "a-u-A-M-F-Q",
+            "lat": 3e-7,
+            "lon": -1e-7,
+            "hae": 3126.1,
+            "ce": 9.614541070690791,
+            "le": 10.9
+          },
+          {
+            "time": "2025-10-30T11:59:59.123Z",
+            "uid": "1148",
+            "detail": {
+              "uid": {
+                "tadilj": "1148"
+              },
+              "track": {
+                "speed": 8.074360655804272,
+                "course": 223,
+                "eSpeed": 2.536217656274792
+              }
+            },
+            "type": "a-u-A-M-L",
+            "lat": 2.6792,
+            "lon": -13.990699999999999,
+            "hae": 4159.8,
+            "ce": 12.528291982548938,
+            "le": 14.200000000000001
+          },
+          {
+            "time": "2025-10-30T11:59:59.123Z",
+            "uid": "1185",
+            "detail": {
+              "uid": {
+                "tadilj": "1185"
+              },
+              "track": {
+                "speed": 58.315756018420956,
+                "course": 107,
+                "eSpeed": 3.1184932259025353
+              }
+            },
+            "type": "a-u-A",
+            "lat": 11.8162,
+            "lon": -55.290699999999994,
+            "hae": 5193.5,
+            "ce": 15.442312003064826,
+            "le": 17.5
+          },
+          {
+            "time": "2025-10-30T11:59:59.123Z",
+            "uid": "1222",
+            "detail": {
+              "uid": {
+                "tadilj": "1222"
+              },
+              "track": {
+                "speed": 120.31007148198358,
+                "course": 104,
+                "eSpeed": 3.7008647638085885
+              }
+            },
+            "type": "a-u-G-E-V",
+            "lat": 20.9532,
+            "lon": -96.5907,
+            "hae": -12.34,
+            "ce": 18.356472972769033,
+            "le": 20.8
+          },
+          {
+            "time": "2025-10-30T11:59:59.123Z",
+            "uid": "1259",
+            "detail": {
+              "uid": {
+                "tadilj": "1259"
+              },
+              "track": {
+                "speed": 182.44602763557228,
+                "course": 103,
+                "eSpeed": 4.28329312562192
+              }
+            },
+            "type": "a-u-X",
+            "lat": 30.0902,
+            "lon": -137.89069999999998,
+            "hae": 7260.900000000001,
+            "ce": 21.270716960177907,
+            "le": 24.1
+          }
+        ],
+        "sapient": [
+          {
+            "timestamp": {
+              "seconds": 1761825599,
+              "nanos": 123456000
+            },
+            "detection_report": {
+              "id": "1000",
+              "classification": {
+                "type": "UNKNOWN"
+              },
+              "detection_confidence": 0.3,
+              "location": {
+                "y": -33.8688,
+                "x": 151.20929999999998,
+                "z": 25,
+                "z_error": 1
+              },
+              "enu_velocity": {
+                "east_rate": -250,
+                "north_rate": 40.07,
+                "up_rate": 0,
+                "east_rate_error": 0.1,
+                "north_rate_error": 0.2
+              },
+              "object_info": {
+                "type": "rcs_dbsm",
+                "value": "-40"
+              }
+            }
+          },
+          {
+            "timestamp": {
+              "seconds": 1761825599,
+              "nanos": 123456000
+            },
+            "detection_report": {
+              "id": "1037",
+              "classification": {
+                "type": "AIRCRAFT_FIXEDWING"
+              },
+              "detection_confidence": 0.39,
+              "location": {
+                "y": -24.7318,
+                "x": 109.9093,
+                "z": 1058.7,
+                "z_error": 4.3
+              },
+              "enu_velocity": {
+                "east_rate": -188.87,
+                "north_rate": 28.57,
+                "up_rate": 0.8300000000000001,
+                "east_rate_error": 0.55,
+                "north_rate_error": 0.5700000000000001
+              },
+              "object_info": {
+                "type": "rcs_dbsm",
+                "value": "-32.300000000000004"
+              }
+            }
+          },
+          {
+            "timestamp": {
+              "seconds": 1761825599,
+              "nanos": 123456000
+            },
+            "detection_report": {
+              "id": "1074",
+              "classification": {
+                "type": "AIRCRAFT_ROTARYWING"
+              },
+              "detection_confidence": 0.48,
+              "location": {
+                "y": -15.5948,
+                "x": 68.60929999999999,
+                "z": 2092.4,
+                "z_error": 7.6000000000000005
+              },
+              "enu_velocity": {
+                "east_rate": -127.74000000000001,
+                "north_rate": 17.07,
+                "up_rate": -9.99,
+                "east_rate_error": 1,
+                "north_rate_error": 0.9400000000000001
+              },
+              "object_info": {
+                "type": "rcs_dbsm",
+                "value": "-24.6"
+              }
+            }
+          },
+          {
+            "timestamp": {
+              "seconds": 1761825599,
+              "nanos": 123456000
+            },
+            "detection_report": {
+              "id": "1111",
+              "classification": {
+                "type": "UAV"
+              },
+              "detection_confidence": 0.5700000000000001,
+              "location": {
+                "y": 3e-7,
+                "x": -1e-7,
+                "z": 3126.1,
+                "z_error": 10.9
+              },
+              "enu_velocity": {
+                "east_rate": -66.61,
+                "north_rate": 5.57,
+                "up_rate": 2.49,
+                "east_rate_error": 1.45,
+                "north_rate_error": 1.31
+              },
+              "object_info": {
+                "type": "rcs_dbsm",
+                "value": "-16.900000000000002"
+              }
+            }
+          },
+          {
+            "timestamp": {
+              "seconds": 1761825599,
+              "nanos": 123456000
+            },
+            "detection_report": {
+              "id": "1148",
+              "classification": {
+                "type": "BALLOON"
+              },
+              "detection_confidence": 0.66,
+              "location": {
+                "y": 2.6792,
+                "x": -13.990699999999999,
+                "z": 4159.8,
+                "z_error": 14.200000000000001
+              },
+              "enu_velocity": {
+                "east_rate": -5.48,
+                "north_rate": -5.93,
+                "up_rate": 3.3200000000000003,
+                "east_rate_error": 1.9000000000000001,
+                "north_rate_error": 1.68
+              },
+              "object_info": {
+                "type": "rcs_dbsm",
+                "value": "-9.200000000000001"
+              }
+            }
+          },
+          {
+            "timestamp": {
+              "seconds": 1761825599,
+              "nanos": 123456000
+            },
+            "detection_report": {
+              "id": "1185",
+              "classification": {
+                "type": "BIRD"
+              },
+              "detection_confidence": 0.75,
+              "location": {
+                "y": 11.8162,
+                "x": -55.290699999999994,
+                "z": 5193.5,
+                "z_error": 17.5
+              },
+              "enu_velocity": {
+                "east_rate": 55.65,
+                "north_rate": -17.43,
+                "up_rate": 4.15,
+                "east_rate_error": 2.35,
+                "north_rate_error": 2.05
+              },
+              "object_info": {
+                "type": "rcs_dbsm",
+                "value": "-1.5"
+              }
+            }
+          },
+          {
+            "timestamp": {
+              "seconds": 1761825599,
+              "nanos": 123456000
+            },
+            "detection_report": {
+              "id": "1222",
+              "classification": {
+                "type": "VEHICLE"
+              },
+              "detection_confidence": 0.84,
+              "location": {
+                "y": 20.9532,
+                "x": -96.5907,
+                "z": -12.34,
+                "z_error": 20.8
+              },
+              "enu_velocity": {
+                "east_rate": 116.78,
+                "north_rate": -28.93,
+                "up_rate": 4.98,
+                "east_rate_error": 2.8000000000000003,
+                "north_rate_error": 2.42
+              },
+              "object_info": {
+                "type": "rcs_dbsm",
+                "value": "6.2"
+              }
+            }
+          },
+          {
+            "timestamp": {
+              "seconds": 1761825599,
+              "nanos": 123456000
+            },
+            "detection_report": {
+              "id": "1259",
+              "classification": {
+                "type": "CLUTTER"
+              },
+              "detection_confidence": 0.93,
+              "location": {
+                "y": 30.0902,
+                "x": -137.89069999999998,
+                "z": 7260.900000000001,
+                "z_error": 24.1
+              },
+              "enu_velocity": {
+                "east_rate": 177.91,
+                "north_rate": -40.43,
+                "up_rate": 5.8100000000000005,
+                "east_rate_error": 3.25,
+                "north_rate_error": 2.79
+              },
+              "object_info": {
+                "type": "rcs_dbsm",
+                "value": "13.9"
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

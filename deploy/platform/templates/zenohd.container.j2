@@ -1,0 +1,26 @@
+[Unit]
+Description=Open Billie local Zenoh island
+After=network-online.target
+Wants=network-online.target
+
+[Container]
+Image={{ billie_zenoh_image | default('docker.io/eclipse/zenoh@sha256:157965d71e0bfd0a044d76a985ff0e5c306ad3968929168fb9678cd2a7fec23f') }}
+ContainerName={{ billie_instance_prefix }}-zenohd
+PublishPort=127.0.0.1:{{ billie_local_rest_port }}:8000
+PublishPort=127.0.0.1:{{ billie_local_peer_port }}:7447
+Volume={{ billie_etc_dir }}/zenoh/zenohd.json5:/etc/billie/zenoh/zenohd.json5:ro
+Exec=--rest-http-port=8000 --config=/etc/billie/zenoh/zenohd.json5
+NoNewPrivileges=true
+Notify=healthy
+HealthCmd=/bin/sh -c 'wget -q -O - http://127.0.0.1:8000/@/local/router >/dev/null'
+HealthInterval=30s
+HealthStartPeriod=20s
+HealthRetries=3
+
+[Service]
+Restart=on-failure
+RestartSec=5s
+TimeoutStartSec=120
+
+[Install]
+WantedBy=multi-user.target default.target

@@ -1,0 +1,18 @@
+# Development image for the synthetic OETF kid. Use a fixed Python patch and
+# Debian release; release bundles still resolve and record the OCI digest.
+FROM docker.io/library/python:3.12.10-slim-bookworm
+
+WORKDIR /app
+COPY packages/oetf/python/pyproject.toml /app/python/pyproject.toml
+COPY packages/oetf/python/src /app/python/src
+COPY packages/oetf/shared /app/python/shared
+
+ENV BILLIE_INPUT_BIND=0.0.0.0
+ENV PYTHONPATH=/app/python/src
+ENV OETF_SHARED_DIR=/app/python/shared
+ENV BILLIE_INPUT_PORT=5100
+ENV BILLIE_INPUT_TRANSPORT=udp
+ENV BILLIE_TRANSLATOR_SOCKET=/run/billie/translator.sock
+EXPOSE 5100/udp 5100/tcp
+# Open Billie starts this declared command from billie-kid.yaml.
+CMD ["python", "-m", "billie_oetf.translator_runtime"]

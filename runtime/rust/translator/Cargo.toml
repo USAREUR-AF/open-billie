@@ -1,0 +1,15 @@
+[package]
+name = "billie-translator"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "Shared Rust translation boundary for Open Billie"
+
+[dependencies]
+serde_json = { version = "1", features = ["float_roundtrip"] }
+chrono = { version = "0.4", default-features = false, features = ["std"] }
+getrandom = "=0.2.15"
+libc = "0.2"
+
+[dev-dependencies]
+prost = "=0.13.5"
