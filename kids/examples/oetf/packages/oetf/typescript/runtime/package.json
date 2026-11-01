@@ -5,7 +5,7 @@
   "description": "OETF TypeScript ingress runtime for Open Billie",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit"
+    "typecheck": "pnpm --filter @open-billie/mappings-oetf... build && tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {
     "@open-billie/decoder-oetf": "workspace:*",
