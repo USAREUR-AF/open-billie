@@ -62,7 +62,7 @@ def main() -> int:
     try:
         tar_contents = tar_files(tarball)
         package_paths = deb_files(deb)
-    except (OSError, tarfile.TarError, subprocess.CalledProcessError) as exc:
+    except (OSError, tarfile.TarError, subprocess.CalledProcessError, ValueError) as exc:
         print(f"artifact audit: could not inspect release artifacts: {exc}", file=sys.stderr)
         return 1
     tar_paths = set(tar_contents)

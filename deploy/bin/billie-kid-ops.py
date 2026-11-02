@@ -133,7 +133,10 @@ def verify_external_checksum(bundle_path: Path, checksum_path: Path | None) -> N
             f"external bundle checksum not found: {sidecar}; transfer the .sha256 file produced by billie kid build",
             1,
         )
-    lines = sidecar.read_text(encoding="ascii").splitlines()
+    try:
+        lines = sidecar.read_text(encoding="ascii").splitlines()
+    except (OSError, UnicodeError) as exc:
+        fail(f"external checksum file is unreadable or not ASCII: {sidecar}: {exc}", 1)
     if len(lines) != 1:
         fail("external checksum file must contain one checksum line", 1)
     match = re.fullmatch(r"([a-f0-9]{64})  ([A-Za-z0-9_.+-]+)", lines[0])
@@ -371,6 +374,8 @@ def parse_environment(path: Path, declared: list[str]) -> dict[str, str]:
             fail(f"runtime config variable {name!r} is not declared by this kid", 1)
         if name in BUILTIN_ENV:
             fail(f"{name} is supplied by Billie and cannot be overridden", 1)
+        if name in values:
+            fail(f"runtime config variable {name!r} is duplicated on line {number}", 1)
         if "\x00" in value:
             fail(f"runtime config line {number} contains a NUL byte", 1)
         values[name] = value
@@ -596,6 +601,12 @@ def verify_listener_port_forward(
         else:
             addresses = set()
 
+        # Podman can use either iptables or nftables for Netavark. The
+        # iptables compatibility view is not authoritative on nftables hosts.
+        published = run(["podman", "port", container_name, f"{container_port}/{transport}"], capture=True, check=False)
+        if published.returncode == 0 and f"{bind_address}:{host_port}" in published.stdout:
+            return
+
         if iptables:
             nat = run([iptables, "-t", "nat", "-S"], capture=True, check=False)
             if nat.returncode == 0 and any(
@@ -605,9 +616,6 @@ def verify_listener_port_forward(
                 return
             last_error = nat.stderr.strip() if nat.returncode else ""
         else:
-            published = run(["podman", "port", container_name, f"{container_port}/{transport}"], capture=True, check=False)
-            if published.returncode == 0 and f"{bind_address}:{host_port}" in published.stdout:
-                return
             last_error = "iptables is unavailable; only Podman-reported port configuration could be checked"
         time.sleep(0.25)
 
@@ -871,10 +879,6 @@ def restore_activation_snapshot(kid_id: str, state: dict) -> None:
 
     # Recreate only this kid's managed firewall rules for the restored listener.
     current_path = Path("/etc/billie/kids") / kid_id / "listener.json"
-    try:
-        current = json.loads(current_path.read_text(encoding="utf-8")) if current_path.is_file() else {}
-    except (OSError, json.JSONDecodeError) as exc:
-        fail(f"current kid listener configuration is unreadable: {exc}")
     source_cidr = listener.get("firewall", {}).get("sourceCidr") if isinstance(listener.get("firewall"), dict) else None
     firewall = configure_listener_firewall(
         kid_id, matches[0]["transport"], address, host_port, source_cidr, matches[0]["port"]

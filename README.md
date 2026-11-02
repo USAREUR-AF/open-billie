@@ -18,24 +18,6 @@ Read the [provisioning guide](deploy/README.md) before installing. It lists prer
 
 The target node is **Ubuntu Server 24.04**, `amd64` or `arm64`, with SSH access and non-interactive `sudo`. The wizard checks the selected release, node architecture, SSH access, and prerequisites before installing. For kid image builds, install Podman or Docker Buildx; cross-architecture builds also need image emulation. The provisioning guide has platform-specific setup details.
 
-### Run the guided setup
-
-From the repository root:
-
-**Windows PowerShell**
-
-```powershell
-powershell.exe -ExecutionPolicy Bypass -File .\tools\setup.ps1
-```
-
-**Linux or macOS**
-
-```sh
-bash tools/setup.sh
-```
-
-The wizard builds a local platform release or uses an existing one, verifies it, installs it over SSH, configures node identity and fabric settings, checks the platform, and then offers the kid deployment wizard. It may bootstrap NetBird when enrollment is needed; obtain the one-time setup key from the network administrator. You will need the authorized Zenoh endpoint, key prefix, CA certificate, client certificate, and private key when connecting to a fabric. The wizard accepts a credential folder and does not ask you to paste private-key contents.
-
 ## Build and deploy a kid
 
 A kid package contains a sensor decoder, schema, user-defined mapping and lookups, synthetic conformance vectors, and a runtime adapter. The user mapping converts sensor fields into Billie’s canonical record. The shared Rust translator fills the selected CoT, ASTERIX CAT062, or SAPIENT output format. The Open Billie platform owns local Zenoh, fabric mTLS, routes, and the bridge; kid packages do not need fabric credentials or their own encoders.
@@ -44,7 +26,7 @@ Start with the [kid package authoring guide](docs/KID_PACKAGE_AUTHORING_GUIDE.md
 
 See [upgrade notes](docs/UPGRADING.md) before updating an existing node; platform 0.3.0 requires kids to use the v2 canonical track contract.
 
-The local tools can scan and validate kid sources, build a package for `linux/amd64` or `linux/arm64`, and ask which deployable decoder implementation to use when multiple are available. The guided deployment flow transfers and installs the selected package, lets you choose a declared TCP or UDP listener, configures the node sensor-facing address and host port, and activates the kid. A node address can be set on a dedicated sensor interface before a sensor is connected. One listener is active per kid at a time.
+The local tools can scan and validate kid sources, check that Docker or Podman is running, build a package for `linux/amd64` or `linux/arm64`, and ask which deployable decoder implementation to use when multiple are available. The builder uses the selected implementation's Containerfile automatically. The guided deployment flow transfers and installs the selected package, lets you choose a declared TCP or UDP listener, configures the node sensor-facing address and host port, and activates the kid. A node address can be set on a dedicated sensor interface before a sensor is connected. One listener is active per kid at a time.
 
 Kid bundles are separate from the platform release and are currently unsigned. Their checksums detect file changes but do not authenticate the builder. Do not treat a checksum as a signature.
 

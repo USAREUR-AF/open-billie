@@ -133,6 +133,8 @@ def configure(interface_value: str, address_value: str, assume_yes: bool) -> Non
         fail("only IPv4 static sensor addresses are supported currently")
     if address.ip.is_unspecified or address.ip.is_multicast or address.ip.is_loopback:
         fail("--address must be a unicast IPv4 address")
+    if address.ip == address.network.network_address or address.ip == address.network.broadcast_address:
+        fail("--address must be a usable host address, not the network or broadcast address")
     existing = run(["ip", "-o", "-4", "address", "show"], capture=True).stdout
     for line in existing.splitlines():
         found_dev = re.match(r"\d+:\s+(\S+)", line)

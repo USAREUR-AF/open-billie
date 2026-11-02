@@ -65,9 +65,13 @@ installed_path="/opt/billie/kids/$kid_id/$version"
 if ssh "${ssh_options[@]}" "$target" "sudo -n test -d '$installed_path'"; then
   printf 'Kid %s@%s is already installed; resuming listener configuration without reinstalling it.\n' "$kid_id" "$version"
 else
+  container_check="$(bash tools/check-container-prerequisites.sh kid 2>&1)" || fail "$container_check"
+  printf '\n%s\n' "$container_check"
+  kid_engine="$(printf '%s\n' "$container_check" | sed -n 's/^Selected container engine: //p' | tail -n 1)"
+  [ -n "$kid_engine" ] || fail 'container prerequisite check did not select an engine'
   printf 'The builder will ask which deployable decoder implementation to use when the package offers more than one.\n\n'
   confirm "Validate and build $kid_id for $platform?" || exit 0
-  build_args=("$kid_path" --platform "$platform")
+  build_args=("$kid_path" --platform "$platform" --engine "$kid_engine")
   expected_bundle="$ROOT/dist/kids/billie-kid-${kid_id}_${version}.tar.gz"
   if [ -e "$expected_bundle" ]; then
     confirm "A bundle for $kid_id@$version already exists. Replace it?" || exit 0

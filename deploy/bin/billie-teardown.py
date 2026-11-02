@@ -436,7 +436,11 @@ def main() -> int:
         for name in sorted(container_names):
             run([podman, "rm", "--force", name], check=False)
 
-    netavark_cleanup_residuals = remove_stale_netavark_forwards(managed_listener_bindings, podman)
+    # Only remove forwards for listeners Billie recorded. A full orphan sweep
+    # can delete networking owned by another Podman workload.
+    netavark_cleanup_residuals = remove_stale_netavark_forwards(
+        managed_listener_bindings, podman, all_orphaned=False
+    )
 
     systemd_dir = Path("/etc/systemd/system")
     for path in systemd_dir.glob("billie-kid-*.service"):
@@ -491,7 +495,7 @@ def main() -> int:
     run(["groupdel", "billie-kids"], check=False)
 
     # Purge the Billie package but do not autoremove shared prerequisites.
-    run(["apt-get", "purge", "-y", "billie-platform"])
+    package_purge = run(["apt-get", "purge", "-y", "billie-platform"], check=False)
     for path in (Path("/usr/local/bin/billie"),):
         remove_symlink_if_billie(path)
     for path in (Path("/usr/local/libexec") / f"{prefix}-island-bridge.py", Path("/usr/local/libexec") / f"{prefix}-health"):
@@ -505,6 +509,10 @@ def main() -> int:
             if result.returncode:
                 remaining_images.append(image)
     residuals = list(netavark_cleanup_residuals)
+    if package_purge.returncode:
+        detail = (package_purge.stderr or package_purge.stdout or "").strip()
+        print(f"billie teardown: package purge failed: {detail or package_purge.returncode}", file=sys.stderr)
+        residuals.append("billie-platform package purge failed")
     for path in (Path("/opt/billie"), Path("/var/lib") / prefix, args.runtime_dir, Path("/usr/local/bin/billie"), Path("/usr/local/libexec") / f"{prefix}-island-bridge.py", Path("/usr/local/libexec") / f"{prefix}-health"):
         if path.exists() or path.is_symlink():
             residuals.append(str(path))

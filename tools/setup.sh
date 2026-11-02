@@ -14,10 +14,15 @@ for cmd in ssh scp; do require "$cmd"; done
 
 build_default=1
 if ! command -v dpkg-deb >/dev/null 2>&1; then build_default=2; fi
+mac_platform_engine=""
 if [ "$(uname -s)" = Darwin ]; then
   build_default=2
-  if command -v docker >/dev/null 2>&1 || command -v podman >/dev/null 2>&1; then build_default=1; fi
-  printf 'The platform .deb is built inside a Linux container on macOS. Start Docker Desktop or the Podman machine first.\n'
+  if platform_check="$(bash tools/check-container-prerequisites.sh platform 2>&1)"; then
+    mac_platform_engine="$(printf '%s\n' "$platform_check" | sed -n 's/^Selected container engine: //p' | tail -n 1)"
+    build_default=1
+  fi
+  printf 'The platform .deb is built inside a Linux container on macOS.\n'
+  printf '%s\n' "${platform_check:-No ready container engine was detected.}"
   build_choice="$(ask 'Release source: [1] Build in Linux container [2] Existing' "$build_default")"
 else
   build_choice="$(ask 'Release source: [1] Build [2] Existing' "$build_default")"
@@ -43,7 +48,13 @@ case "$build_choice" in
       *) fail 'choose amd64 or arm64' ;;
     esac
     if [ "$(uname -s)" = Darwin ]; then
-      bash tools/build-platform-release-container.sh --target-triple "$triple"
+      if [ -z "$mac_platform_engine" ]; then
+        platform_check="$(bash tools/check-container-prerequisites.sh platform 2>&1)" || fail "$platform_check"
+        printf '%s\n' "$platform_check"
+        mac_platform_engine="$(printf '%s\n' "$platform_check" | sed -n 's/^Selected container engine: //p' | tail -n 1)"
+      fi
+      [ -n "$mac_platform_engine" ] || fail 'container prerequisite check did not select an engine'
+      BILLIE_CONTAINER_ENGINE="$mac_platform_engine" bash tools/build-platform-release-container.sh --target-triple "$triple"
     elif [ "$target_arch" = "$host_deb" ]; then
       bash tools/build-platform-release.sh
     else

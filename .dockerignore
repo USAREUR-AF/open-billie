@@ -7,3 +7,10 @@ dist
 **/.pytest_cache
 **/.mypy_cache
 **/.ruff_cache
+**/.env
+**/.env.*
+**/*.pem
+**/*.key
+**/host-vars.yml
+**/node.yml
+**/credentials/

@@ -59,6 +59,53 @@ def command_succeeds(command: list[str]) -> bool:
         return False
 
 
+def select_build_engine(requested: str | None, docker_executable: str) -> tuple[str, str]:
+    """Choose an installed, running image engine and validate its build features."""
+    env_engine = os.environ.get("BILLIE_CONTAINER_ENGINE", "").strip()
+    if requested and env_engine and requested != env_engine:
+        fail("--engine conflicts with BILLIE_CONTAINER_ENGINE; use the same engine or unset the environment variable")
+    selected = requested or env_engine
+    podman_executable = shutil.which("podman")
+    docker_installed = shutil.which(docker_executable) is not None
+    podman_ready = bool(podman_executable and command_succeeds([podman_executable, "info"]))
+    docker_ready = bool(docker_installed and command_succeeds([docker_executable, "info"]))
+    docker_buildx = bool(docker_ready and command_succeeds([docker_executable, "buildx", "version"]))
+
+    if selected not in (None, "", "podman", "docker"):
+        fail("container engine must be docker or podman")
+    if not selected:
+        if podman_ready:
+            selected = "podman"
+        elif docker_buildx:
+            selected = "docker"
+        elif docker_ready:
+            fail("Docker is running, but Docker Buildx is unavailable; install or enable the Docker Buildx plugin")
+        elif podman_executable or docker_installed:
+            details = []
+            if podman_executable:
+                details.append("start Podman with 'podman machine start'")
+            if docker_installed:
+                details.append("start Docker Desktop")
+            fail("no installed container engine is responding; " + "; ".join(details))
+        else:
+            fail("no container engine found; install and start Docker Desktop or Podman before building a kid")
+
+    if selected == "podman":
+        if not podman_executable:
+            fail("Podman was selected but is not installed")
+        if not podman_ready:
+            fail("Podman is installed but its engine is not responding; start it with 'podman machine start'")
+        return selected, podman_executable
+
+    if not docker_installed:
+        fail("Docker was selected but its CLI is not installed")
+    if not docker_ready:
+        fail("Docker is installed but its engine is not responding; start Docker Desktop")
+    if not docker_buildx:
+        fail("Docker Buildx is required for kid image builds; install or enable the Docker Buildx plugin")
+    return selected, docker_executable
+
+
 def sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as stream:
@@ -193,13 +240,11 @@ def main() -> int:
         prog="billie kid build",
         description="Build a kid from a local source repository and create a portable bundle.",
     )
-    parser.add_argument("package", type=Path, help="local directory containing billie-kid.yaml and Containerfile")
+    parser.add_argument("package", type=Path, help="local directory containing billie-kid.yaml and its declared decoder Containerfile")
     parser.add_argument("--output", type=Path, help="bundle output directory (default: this checkout's dist/kids)")
     docker_executable = os.environ.get("BILLIE_DOCKER_BIN") or shutil.which("docker.exe") or shutil.which("docker") or "docker"
-    available_engines = [engine for engine in ("podman", "docker") if shutil.which(engine)]
     parser.add_argument(
-        "--engine", choices=("podman", "docker"), default=available_engines[0] if available_engines else None,
-        required=not available_engines,
+        "--engine", choices=("podman", "docker"),
         help="workstation image builder (Podman or Docker Buildx; node runtime remains Podman)",
     )
     host_arch = {"x86_64": "amd64", "amd64": "amd64", "aarch64": "arm64", "arm64": "arm64"}.get(platform.machine().lower())
@@ -216,12 +261,15 @@ def main() -> int:
     )
     args = parser.parse_args()
 
+    engine, selected_executable = select_build_engine(args.engine, docker_executable)
+    print(f"Container build engine: {engine}")
+
     package = args.package.expanduser().resolve()
     if not package.is_dir():
         fail(f"package directory does not exist: {package}")
     manifest_path = package / "billie-kid.yaml"
-    if not manifest_path.is_file() or not (package / "Containerfile").is_file():
-        fail("package must contain billie-kid.yaml and Containerfile")
+    if not manifest_path.is_file():
+        fail("package must contain billie-kid.yaml")
     try:
         manifest = yaml.safe_load(manifest_path.read_text(encoding="utf-8"))
     except (OSError, yaml.YAMLError) as exc:
@@ -243,12 +291,6 @@ def main() -> int:
     decoder_language, decoder_implementation = select_decoder_implementation(
         manifest, package, args.decoder_language
     )
-    selected_executable = "podman" if args.engine == "podman" else docker_executable
-    if shutil.which(selected_executable) is None:
-        fail(f"selected container build engine is not installed: {args.engine}")
-    if args.engine == "docker" and not command_succeeds([docker_executable, "buildx", "version"]):
-        fail("Docker Buildx is required for OCI ARM64 bundle builds; install or enable the Docker Buildx plugin")
-
     output = (args.output or Path(__file__).resolve().parents[2] / "dist" / "kids").expanduser().resolve()
     safe_version = str(version).replace("+", "_build_")
     image_tag = f"localhost/open-billie/{package_id}:{safe_version}"
@@ -262,23 +304,25 @@ def main() -> int:
     with tempfile.TemporaryDirectory(prefix=".billie-kid-build-", dir=output) as temp_name:
         temp = Path(temp_name)
         image_archive = temp / "image.oci.tar"
-        if args.engine == "podman":
+        containerfile = package / decoder_implementation["containerfile"]
+        print(f"Building {args.platform} kid image with {engine} from {containerfile}")
+        if engine == "podman":
             run([
-                "podman", "build", "--pull=missing", "--platform", args.platform,
-                "--file", str(package / decoder_implementation["containerfile"]), "--tag", image_tag, str(package),
+                selected_executable, "build", "--pull=missing", "--platform", args.platform,
+                "--file", str(containerfile), "--tag", image_tag, str(package),
             ])
-            run(["podman", "save", "--format", "oci-archive", "--output", str(image_archive), image_tag])
+            run([selected_executable, "save", "--format", "oci-archive", "--output", str(image_archive), image_tag])
         else:
             run([
-                docker_executable, "buildx", "build", "--pull", "--platform", args.platform,
-                "--file", engine_path(package / decoder_implementation["containerfile"], docker_executable), "--tag", image_tag,
-                "--output", "type=oci,dest=image.oci.tar", engine_path(package, docker_executable),
+                selected_executable, "buildx", "build", "--pull", "--platform", args.platform,
+                "--file", engine_path(containerfile, selected_executable), "--tag", image_tag,
+                "--output", "type=oci,dest=image.oci.tar", engine_path(package, selected_executable),
             ], cwd=temp)
         oci_digest, architecture, image_id = image_manifest_digest(image_archive)
         if architecture != args.platform:
             fail(f"image builder produced {architecture}, but --platform requested {args.platform}")
-        if args.engine == "podman":
-            image_info_result = json.loads(run(["podman", "image", "inspect", image_tag], capture=True))
+        if engine == "podman":
+            image_info_result = json.loads(run([selected_executable, "image", "inspect", image_tag], capture=True))
             image_info = image_info_result[0] if isinstance(image_info_result, list) else image_info_result
             actual_image_id = image_info.get("Id", "") if isinstance(image_info, dict) else ""
             if isinstance(actual_image_id, str) and re.fullmatch(r"[a-f0-9]{64}", actual_image_id):

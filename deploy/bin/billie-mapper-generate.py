@@ -346,6 +346,28 @@ def main() -> int:
         mapping_file = f"{file_stem}.json"
         generated_files.append({"message": message["name"], "path": mapping_file, "document": map_doc})
 
+    stale_mapping_paths: list[Path] = []
+    # When replacing a plan, remove only stale files listed by that plan and
+    # only when it targets the same generated mapping directory.
+    if args.force and output.is_file():
+        try:
+            previous_plan = json.loads(output.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError):
+            previous_plan = {}
+        previous_directory = previous_plan.get("mappingsDirectory") if isinstance(previous_plan, dict) else None
+        previous_files = previous_plan.get("mappingFiles", []) if isinstance(previous_plan, dict) else []
+        if previous_directory and Path(previous_directory).expanduser().resolve() == mappings_dir and isinstance(previous_files, list):
+            current_files = {item["path"] for item in generated_files}
+            for old_name in previous_files:
+                if not isinstance(old_name, str) or old_name in current_files:
+                    continue
+                old_path = (mappings_dir / old_name).resolve()
+                try:
+                    old_path.relative_to(mappings_dir)
+                except ValueError:
+                    continue
+                stale_mapping_paths.append(old_path)
+
     plan = {
         "apiVersion": "billie.dev/mapper-plan/v1",
         "source": {"format": format_name, "schemaPath": str(schema)},
@@ -367,6 +389,11 @@ def main() -> int:
     )
     plan["summary"]["mappedFieldCount"] = target_fields
     plan["summary"]["unmappedFieldCount"] = field_count - target_fields
+    unresolved_fields = sum(
+        1 for message in messages for field in message["fields"]
+        if field["status"] != "resolved"
+    )
+    plan["summary"]["unresolvedFieldCount"] = unresolved_fields
 
     try:
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -379,11 +406,13 @@ def main() -> int:
         output.write_text(json.dumps(plan, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     except OSError as exc:
         return fail(f"cannot write {output}: {exc}", 1)
+    for stale_path in stale_mapping_paths:
+        stale_path.unlink(missing_ok=True)
 
     print(f"Mapper scaffold created: {output}")
     print(f"Mapping-contract files: {mappings_dir}")
     print(f"Source format: {format_name}; target: {args.target}")
-    print(f"Messages: {len(messages)}; fields: {field_count}; target fields selected: {target_fields}; unresolved: {field_count}")
+    print(f"Messages: {len(messages)}; fields: {field_count}; target fields selected: {target_fields}; unresolved: {unresolved_fields}")
     if args.enable_direct:
         print("Direct copies are enabled; verify target semantics before using them in a running kid.")
     else:

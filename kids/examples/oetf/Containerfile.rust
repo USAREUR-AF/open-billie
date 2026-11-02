@@ -5,7 +5,7 @@ FROM docker.io/library/rust:1.85.1-slim-bookworm AS build
 WORKDIR /src
 COPY packages/oetf/rust ./packages/oetf/rust
 COPY packages/oetf/shared ./packages/oetf/shared
-RUN cargo build --release --manifest-path packages/oetf/rust/Cargo.toml --bin billie-oetf-runtime
+RUN cargo build --locked --release --manifest-path packages/oetf/rust/Cargo.toml --bin billie-oetf-runtime
 
 FROM docker.io/library/debian:12.12-slim
 COPY --from=build /src/packages/oetf/rust/target/release/billie-oetf-runtime /usr/local/bin/billie-oetf-runtime

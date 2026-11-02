@@ -166,14 +166,11 @@ def main() -> int:
             roots = [Path(value) for value in configured.split(os.pathsep) if value]
         else:
             local_kids = Path.cwd() / "kids"
-            installed_kids = Path("/opt/billie/kids")
             package_root = Path.cwd()
             if (package_root / MANIFEST_NAME).is_file():
                 roots = [package_root]
             elif local_kids.is_dir():
                 roots = [local_kids]
-            elif installed_kids.is_dir():
-                roots = [installed_kids]
             else:
                 roots = []
 
@@ -245,7 +242,9 @@ def main() -> int:
             print(f"  source: {item['path']}")
             print(f"  next: {item['suggestedAction']}")
 
-    return 1 if root_errors or any(item["validation"] == "invalid" for item in packages) else 0
+    # Keep invalid packages visible in the inventory so a wizard can filter
+    # them and explain the problem without hiding otherwise usable packages.
+    return 1 if root_errors else 0
 
 
 if __name__ == "__main__":

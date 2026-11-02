@@ -143,6 +143,14 @@ release="/opt/billie/platform/releases/$RELEASE_VERSION"
 }
 ln -sfn "\$release" /opt/billie/platform/current
 ln -sfn /opt/billie/platform/current/bin/billie /usr/local/bin/billie
+systemctl daemon-reload
+active_translators="\$(systemctl list-units --type=service --state=active --no-legend | awk '\$1 ~ /-translator\\.service$/ { print \$1 }')"
+for unit in \$active_translators; do
+  exec_start="\$(systemctl show --property=ExecStart --value "\$unit" 2>/dev/null || true)"
+  case "\$exec_start" in
+    *"/opt/billie/platform/current/bin/billie-translator"*) systemctl try-restart "\$unit" ;;
+  esac
+done
 POST
 chmod 0755 "$DEBIAN/postinst"
 

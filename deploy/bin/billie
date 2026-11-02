@@ -48,7 +48,7 @@ platform_version() {
 }
 
 need_identity() {
-  [ -s "$IDENTITY_FILE" ] || die "node is not initialized; run: sudo $CLI_NAME init <node-handle> --supply connected"
+  [ -s "$IDENTITY_FILE" ] || die "node is not initialized; run: sudo $CLI_NAME init <node-handle> --supply connected|airgap"
   need_command ansible-playbook
 }
 
@@ -116,7 +116,7 @@ build_kid() {
   [ "$#" -ge 1 ] || die "usage: billie kid build <package-directory> [--decoder-language python|rust|typescript] [--platform linux/amd64|linux/arm64] [--output <directory>] [--force]"
   need_command python3
   local builder="$SELF_DIR/billie-kid-build.py"
-  [ -r "$builder" ] || die "kid builder is not included in this Billie installation; run billie kid build from an Open Billie source checkout"
+  [ -r "$builder" ] || die "kid builder helper is missing from this Billie installation: $builder"
   run python3 "$builder" "$@"
 }
 
@@ -344,7 +344,7 @@ case "$command_name" in
       validate) validate_kid "$@" ;;
       build) build_kid "$@" ;;
       scan) scan_kids "$@" ;;
-      install|configure|activate|deactivate|remove|status|logs)
+      install|configure|activate|upgrade|rollback|deactivate|remove|status|logs)
         kid_ops "$kid_command" "$@" ;;
       *) die "unknown kid command: $kid_command" ;;
     esac ;;
