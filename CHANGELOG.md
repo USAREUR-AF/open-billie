@@ -31,8 +31,12 @@ release candidate and must be reviewed against the tagged source before release.
 - License, notice, intent, conduct, security and contributing documents follow
   the USAREUR-AF open-source baseline: U.S. Government work under Apache-2.0,
   per-commit DCO sign-off, signed commits, code-owner review, private reporting.
-- `NOTICE` carries the ISC notice for the OETF TypeScript decoder files adapted
-  from Billie Modular; the import record and source matrix name that origin.
+- `NOTICE` lists the OETF TypeScript decoder files adapted from Billie Modular,
+  an earlier U.S. Government project, under the same terms as the rest of Open
+  Billie. The ISC notice naming DesertGOAT is removed; it did not reflect who
+  wrote Billie Modular.
+- `LICENSE` is the verbatim Apache-2.0 text; `INTENT.md` and `CONTRIBUTING.md`
+  carry the Code.mil licensing intent and contribution policy.
 
 ### Fixed
 
