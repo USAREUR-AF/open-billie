@@ -170,13 +170,18 @@ A translation request has this shape:
     "apiVersion": "billie.dev/track-v2",
     "kind": "Track",
     "trackId": "311",
+    "sourceId": "sensor-a",
+    "trackGeneration": "generation-1",
     "observedAt": "2026-10-31T12:00:00Z",
-    "position": { "latitudeDeg": 38.8977, "longitudeDeg": -77.0365 }
+    "testData": false,
+    "headerSimulated": false,
+    "simulated": false,
+    "position": { "latitudeDeg": 0.0, "longitudeDeg": 0.0 }
   }
 }
 ```
 
-outputName and format must match interfaces.outputs in the manifest. The platform exposes only the translator socket to the kid. Do not implement Zenoh in the kid, include fabric credentials, or log secrets or full raw messages.
+outputName and format must match interfaces.outputs in the manifest. The translator rejects a request that omits `testData`, `headerSimulated`, or `simulated`; do not map an unknown source state to false. The platform exposes only the translator socket to the kid. Do not implement Zenoh in the kid, include fabric credentials, or log secrets or full raw messages.
 
 Add synthetic input and expected decoded/canonical output vectors under tests/vectors. Include valid, malformed, truncated, unknown-version, and boundary cases. Test mapper conversions and lookups. If supporting TCP, test fragmentation and multiple frames per connection. If supporting UDP, test datagram handling. Keep real sensor captures in the sensor owner's private repository.
 
@@ -189,6 +194,7 @@ Edit billie-kid.yaml:
 - Declare only implemented listeners. Each input has a name, udp or tcp transport, and container port.
 - Declare logical outputs using supported formats: cot, asterix-cat062, or sapient. SAPIENT output also requires the platform-initialized stable node UUID; the kid must not generate or store a separate fabric identity.
 - Set the runtime command and required environment variables, including BILLIE_TRANSLATOR_SOCKET, BILLIE_INPUT_PORT, and BILLIE_INPUT_TRANSPORT when used.
+- Put the package's license and required third-party notices under `licenses/`; the builder includes this directory in the staged Containerfile context. Copy applicable files into the final runtime image.
 - Add decoderImplementations per language. Mark one deployable only when decoder, mapper, Containerfile, and command implement the full ingress-to-translator path. Otherwise mark it library-only and explain what is missing.
 - The source manifest requires a digest-shaped image reference. During build, Billie replaces that source value in the bundle manifest with the immutable digest of the image just built. The scaffold placeholder is acceptable during development validation, but it produces a warning and is not deployable; strict source validation rejects it.
 

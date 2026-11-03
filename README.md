@@ -2,7 +2,7 @@
 
 Open Billie is a sensor-neutral project intended for open-source distribution for preparing a node, building sensor-specific kid packages, and publishing normalized data through the shared Billie translator and Zenoh path. It follows the single-node provisioning flow from the Billie Modular Golden Path and OctoPod.
 
-A project-level license has not yet been declared. Do not redistribute this repository or bundled third-party material until the project license and required notices are finalized.
+Open Billie-authored project material is licensed under the Apache License 2.0; see [LICENSE](LICENSE) and [INTENT.md](INTENT.md). Third-party material remains under its respective license; review [third-party notices](THIRD_PARTY_NOTICES.md) before redistributing built artifacts.
 
 The node runs Billie locally after installation. Keep proprietary sensor protocols, decoders, mappings, captures, credentials, and deployment-specific endpoint details outside this repository. The in-repository OETF package and sensor simulator use synthetic data.
 

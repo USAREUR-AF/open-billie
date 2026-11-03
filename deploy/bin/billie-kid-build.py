@@ -365,6 +365,19 @@ def main() -> int:
                 shutil.copytree(source, target, dirs_exist_ok=True)
             else:
                 shutil.copy2(source, target)
+        # License texts are package content and may be referenced by the
+        # Containerfile. Preserve them in the staged build context even though
+        # they are not runtime decoder/mapper components.
+        license_dir = package / "licenses"
+        if license_dir.exists():
+            if not license_dir.is_dir() or license_dir.is_symlink():
+                fail("package licenses path must be a directory inside the package")
+            resolved_licenses = license_dir.resolve()
+            try:
+                resolved_licenses.relative_to(package.resolve())
+            except ValueError:
+                fail("package licenses directory escapes the package")
+            shutil.copytree(resolved_licenses, stage / "licenses", dirs_exist_ok=True)
         run([sys.executable, str(validator), str(stage), "--strict"])
 
         manifest_file = temp / "billie-kid.yaml"

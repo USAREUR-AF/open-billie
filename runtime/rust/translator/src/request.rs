@@ -538,9 +538,12 @@ fn parse_track(value: &Value, path: &str) -> Result<CanonicalTrack, ContractErro
         confidence,
         position_uncertainty,
         identifiers,
-        test_data: optional_bool(obj, "testData", path)?.unwrap_or(false),
-        header_simulated: optional_bool(obj, "headerSimulated", path)?.unwrap_or(false),
-        simulated: optional_bool(obj, "simulated", path)?.unwrap_or(false),
+        // These flags affect whether downstream consumers interpret a track
+        // as live. Preserve the canonical schema's optionality, but refuse to
+        // publish when the mapper has not supplied an explicit state.
+        test_data: required_bool(obj, "testData", path)?,
+        header_simulated: required_bool(obj, "headerSimulated", path)?,
+        simulated: required_bool(obj, "simulated", path)?,
         confirmed: optional_bool(obj, "confirmed", path)?,
         coasting: optional_bool(obj, "coasting", path)?.unwrap_or(false),
         final_update: optional_bool(obj, "finalUpdate", path)?.unwrap_or(false),
@@ -563,6 +566,16 @@ fn optional_bool(
             })
         })
         .transpose()
+}
+
+fn required_bool(obj: &Map<String, Value>, key: &str, path: &str) -> Result<bool, ContractError> {
+    optional_bool(obj, key, path)?.ok_or_else(|| {
+        invalid(
+            "missing_required_field",
+            format!("{path}.{key}"),
+            "an explicit true or false is required before publishing this status",
+        )
+    })
 }
 
 fn valid_kid(s: &str) -> bool {
@@ -659,7 +672,8 @@ mod tests {
             "target":{"outputName":"tracks-cot","format":"cot"},
             "record":{
                 "apiVersion":"billie.dev/track-v2", "kind":"Track", "trackId":"311", "sourceId":"sensor-a", "trackGeneration":"generation-1", "observedAt":"2025-10-29T12:00:00.123Z",
-                "position":{"latitudeDeg":38.8977,"longitudeDeg":-77.0365,"altitudeM":152.4},
+                "position":{"latitudeDeg":0.0,"longitudeDeg":0.0,"altitudeM":152.4},
+                "testData":false, "headerSimulated":false, "simulated":false,
                 "velocity":{"eastMps":-12.5,"northMps":4.25,"upMps":1.5},
                 "classification":"uas", "confidence":0.87,
                 "positionUncertainty":{"sigmaEastM":3.2,"sigmaNorthM":2.8,"sigmaUpM":6.1}
@@ -723,7 +737,7 @@ mod tests {
     }
 
     #[test]
-    fn parses_optional_track_status_flags_and_rejects_non_boolean_values() {
+    fn parses_explicit_safety_flags_and_rejects_non_boolean_values() {
         let mut input = valid();
         input["record"]["testData"] = json!(true);
         input["record"]["headerSimulated"] = json!(true);
@@ -739,6 +753,17 @@ mod tests {
         let error = parse_request(&input).unwrap_err();
         assert_eq!(error.code, "invalid_type");
         assert_eq!(error.path, "$.record.coasting");
+    }
+
+    #[test]
+    fn rejects_each_omitted_test_or_simulation_flag_instead_of_assuming_live() {
+        for flag in ["testData", "headerSimulated", "simulated"] {
+            let mut input = valid();
+            input["record"].as_object_mut().unwrap().remove(flag);
+            let error = parse_request(&input).unwrap_err();
+            assert_eq!(error.code, "missing_required_field", "{flag}");
+            assert_eq!(error.path, format!("$.record.{flag}"), "{flag}");
+        }
     }
 
     #[test]

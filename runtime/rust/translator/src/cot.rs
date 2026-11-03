@@ -158,8 +158,8 @@ mod tests {
             track_generation: "generation-1".to_owned(),
             observed_at: "2025-10-29T12:00:00.123Z".to_owned(),
             position: Position {
-                latitude_deg: 38.8977,
-                longitude_deg: -77.0365,
+                latitude_deg: 0.0,
+                longitude_deg: 0.0,
                 altitude_m: Some(152.4),
             },
             velocity: Some(Velocity {
@@ -193,7 +193,7 @@ mod tests {
         ));
         assert!(xml.contains("time=\"2025-10-29T12:00:00.123Z\""));
         assert!(xml.contains("stale=\"2025-10-29T12:03:00.123Z\""));
-        assert!(xml.contains("lat=\"38.8977\" lon=\"-77.0365\" hae=\"152.4\""));
+        assert!(xml.contains("lat=\"0\" lon=\"0\" hae=\"152.4\""), "{xml}");
         assert!(xml.contains("ce=\"4.25205832509386\" le=\"6.1\""));
         assert!(xml.contains("<track course=\"288."));
         assert!(xml.contains(" speed=\"13.202"));

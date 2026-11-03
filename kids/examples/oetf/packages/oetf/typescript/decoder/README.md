@@ -9,7 +9,7 @@ import { OetfDecoder } from '@open-billie/decoder-oetf';
 
 const decoder = new OetfDecoder();
 for (const r of decoder.feed(chunk)) {
-  console.log(r.messageName, r.fields);   // "Track Report", { "Track 0 Latitude": 38.8977, ... }
+  console.log(r.messageName, r.fields);   // "Track Report", { "Track 0 Latitude": 0.0, ... }
 }
 decoder.reset();                          // on disconnect
 const errors = decoder.getRecentErrors(); // drain framing faults

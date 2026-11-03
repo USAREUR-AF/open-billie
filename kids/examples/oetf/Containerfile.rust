@@ -8,6 +8,8 @@ COPY packages/oetf/shared ./packages/oetf/shared
 RUN cargo build --locked --release --manifest-path packages/oetf/rust/Cargo.toml --bin billie-oetf-runtime
 
 FROM docker.io/library/debian:12.12-slim
+COPY licenses/OPEN-BILLIE-LICENSE /licenses/OPEN-BILLIE-LICENSE
+COPY licenses/THIRD_PARTY_NOTICES.md /licenses/THIRD_PARTY_NOTICES.md
 COPY --from=build /src/packages/oetf/rust/target/release/billie-oetf-runtime /usr/local/bin/billie-oetf-runtime
 
 ENV BILLIE_INPUT_BIND=0.0.0.0

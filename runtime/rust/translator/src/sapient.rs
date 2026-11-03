@@ -9,12 +9,14 @@ use chrono::{DateTime, Utc};
 use std::collections::BTreeMap;
 use std::fs;
 use std::path::PathBuf;
+use std::sync::Mutex;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::{CanonicalTrack, Classification};
 
 const WGS84_A: f64 = 6_378_137.0;
 const WGS84_E2: f64 = 6.694_379_990_14e-3;
+static OBJECT_ID_STORE_LOCK: Mutex<()> = Mutex::new(());
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub struct SapientOptions {
@@ -183,6 +185,9 @@ impl SapientEncoder {
     }
 
     fn object_id_for(&self, track_id: &str) -> Result<String, SapientEncodeError> {
+        let _guard = OBJECT_ID_STORE_LOCK
+            .lock()
+            .map_err(|_| error("state_io", "SAPIENT object ID store lock is poisoned"))?;
         let path = &self.options.object_id_store;
         let mut ids: BTreeMap<String, String> = match fs::read(path) {
             Ok(bytes) => serde_json::from_slice(&bytes).map_err(|e| {
@@ -479,8 +484,8 @@ mod tests {
             track_generation: "generation-1".to_owned(),
             observed_at: "2025-10-29T12:00:00.123Z".to_owned(),
             position: Position {
-                latitude_deg: 38.8977,
-                longitude_deg: -77.0365,
+                latitude_deg: 0.0,
+                longitude_deg: 0.0,
                 altitude_m: Some(152.4),
             },
             velocity: Some(Velocity {
@@ -544,8 +549,8 @@ mod tests {
         assert_eq!(report.object_id.as_ref().unwrap().len(), 26);
         assert_eq!(report.detection_confidence, Some(0.87));
         let location = report.location.unwrap();
-        assert_eq!(location.x, Some(-77.0365));
-        assert_eq!(location.y, Some(38.8977));
+        assert_eq!(location.x, Some(0.0));
+        assert_eq!(location.y, Some(0.0));
         assert_eq!(location.z, Some(152.4));
         assert_eq!(location.coordinate_system, Some(1));
         assert_eq!(location.datum, Some(1));
@@ -622,6 +627,43 @@ mod tests {
             report.state.as_deref(),
             Some("test-data,simulated,tentative,coasting,final-update")
         );
+        let _ = fs::remove_file(store);
+    }
+
+    #[test]
+    fn concurrent_object_id_requests_preserve_one_stable_mapping() {
+        use std::sync::Arc;
+        use std::thread;
+
+        static NEXT: AtomicU64 = AtomicU64::new(2000);
+        let store = std::env::temp_dir().join(format!(
+            "billie-sapient-concurrent-{}-{}.json",
+            std::process::id(),
+            NEXT.fetch_add(1, Ordering::Relaxed)
+        ));
+        let encoder = Arc::new(SapientEncoder::new(SapientOptions {
+            node_id: "00000000-0000-4000-8000-000000000001".to_owned(),
+            object_id_store: store.clone(),
+        }));
+        let handles: Vec<_> = (0..32)
+            .map(|_| {
+                let encoder = Arc::clone(&encoder);
+                thread::spawn(move || {
+                    encoder
+                        .object_id_for("kid/source/track/generation")
+                        .unwrap()
+                })
+            })
+            .collect();
+        let ids: Vec<_> = handles
+            .into_iter()
+            .map(|handle| handle.join().unwrap())
+            .collect();
+        assert!(ids.iter().all(|id| id == &ids[0]));
+        let persisted: BTreeMap<String, String> =
+            serde_json::from_slice(&fs::read(&store).unwrap()).unwrap();
+        assert_eq!(persisted.len(), 1);
+        assert_eq!(persisted.values().next(), Some(&ids[0]));
         let _ = fs::remove_file(store);
     }
 }

@@ -85,10 +85,10 @@ See [the source import matrix](SOURCE_IMPORT_MATRIX.md). The platform is impleme
 
 ### Phase 4 - Release readiness
 
-- Add CI checks for CLI behavior, Ansible syntax, package contents, dependency lockfiles/versioned image tags, and provenance metadata. (CI workflow added; validate it on GitHub before marking the gate complete.)
-- Refuse release artifacts containing credentials, node identities, private package references, or sensor-specific data. (The workstation scanner checks current tracked files and release payloads for high-confidence credentials, private registry references, personal workstation paths, packet-capture files, internal product names, and deployment-specific IP literals. The reachable-history scan detects these classes but currently reports older commits; cleaning that history remains a release decision.)
+- Add CI checks for CLI behavior, Ansible syntax, package contents, dependency lockfiles/versioned image tags, and provenance metadata. (CI workflow added; the operator reported GitHub Actions CI passed.)
+- Refuse release artifacts containing credentials, node identities, private package references, or sensor-specific data. (The workstation scanner checks current tracked files and release payloads for high-confidence credentials, private registry references, personal workstation paths, packet-capture files, internal product names, and deployment-specific IP literals. Current-source and locally reachable-history scans passed on 2026-11-03; verify any additional published refs before a tagged release.)
 - Document setup, use, upgrade, rollback, troubleshooting, and recovery from a clean-machine perspective.
-- Establish the project license and third-party redistribution notices before publishing.
+- Apache-2.0 project licensing, Code.mil-style contribution guidance, and third-party artifact-notice guidance are implemented. The initial contributor DCO record is present. Confirm the copyright holder and rights for all project-authored material, and review generated artifact contents before distribution.
 
 ## Initial acceptance criteria
 

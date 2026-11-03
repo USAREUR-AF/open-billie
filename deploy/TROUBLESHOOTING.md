@@ -39,7 +39,7 @@ Apply the baseline, then inspect the service and timer:
     journalctl -u billie-health.service --no-pager -n 50
     sudo billie verify
 
-The health record is ephemeral at `/run/billie/health.json`; the timer also publishes it to local Zenoh at `ops/<node-handle>/health`. When fabric is configured, the bridge forwards it to `<vendor-prefix>/ops/<node-handle>/health`. Confirm local publication with `curl -fsS http://127.0.0.1:8000/ops/<node-handle>/health` and inspect `journalctl -u billie-island-bridge` for a nonzero `forwarded` counter. A running health timer alone does not prove Zenoh publication or remote delivery.
+The health record is ephemeral at `/run/billie/health.json`; it reports `state=degraded` and lists `failed_checks` when core local services or configured fabric services are unavailable. The timer also publishes the record to local Zenoh at `ops/<node-handle>/health`. When fabric is configured, the bridge forwards it to `<vendor-prefix>/ops/<node-handle>/health`. Confirm local publication with `curl -fsS http://127.0.0.1:8000/ops/<node-handle>/health` and inspect `journalctl -u billie-island-bridge` for a nonzero `forwarded` counter. A running health timer alone does not prove remote delivery.
 
 ## The release checksum check fails
 

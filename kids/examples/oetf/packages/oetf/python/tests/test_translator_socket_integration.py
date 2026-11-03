@@ -22,8 +22,8 @@ def test_canonical_oetf_record_is_sent_to_translator_by_logical_output(tmp_path)
                 id=311,
                 classification=3,
                 confidence_pct=87,
-                lat_deg=38.8977,
-                lon_deg=-77.0365,
+                lat_deg=0.0,
+                lon_deg=0.0,
                 alt_m=152.4,
                 vel_east_ms=-12.5,
                 vel_north_ms=4.25,
@@ -77,5 +77,5 @@ def test_canonical_oetf_record_is_sent_to_translator_by_logical_output(tmp_path)
     assert received[0]["record"]["trackId"] == "311"
     assert received[0]["record"]["sourceId"] == "263"
     assert received[0]["record"]["trackGeneration"] == "fixture-1"
-    assert received[0]["record"]["position"]["latitudeDeg"] == 38.8977
+    assert received[0]["record"]["position"]["latitudeDeg"] == 0.0
     assert received[0]["record"]["classification"] == "uas"

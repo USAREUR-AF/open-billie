@@ -27,7 +27,7 @@ The Billie Modular Golden Path branch is a mixed platform and application tree. 
 | Application Builder packages and UI | Boundary reference only | Keep the separation between platform operations and kid/application lifecycle. Current package operations are `billie kid` subcommands; a separate builder UI is out of scope. Do not import private registry assumptions. |
 | Sensor package trees, decoder/mapping examples, capture and analysis tools | Exclude | These contain sensor-specific behavior or data and remain outside this repository. Do not add them as submodules, workspace dependencies, generated artifacts, or CI inputs. |
 | `billie-decoder-oetf` synthetic example | Include as an isolated sample kid | OETF is explicitly described by its source docs as a made-up format not modeled on real sensor interfaces. Its decoder implementations, schemas, maps, lookups, and synthetic conformance vectors live only under `kids/examples/oetf/`; the core release builder does not include this path. See the [OETF import record](provenance/OETF_IMPORT.md). |
-| Licenses, notices, and release workflows | Review independently | Preserve applicable notices for any approved source reuse. Choose Open Billie's project license and verify third-party redistribution rights before publishing artifacts. Do not assume a repository-level license covers every dependency or generated schema. |
+| Licenses, notices, and release workflows | Review independently | Open Billie-authored source is Apache-2.0. Preserve applicable notices for approved source reuse and review generated artifact dependencies before redistribution. The repository license does not cover third-party dependencies or standards text. |
 
 ## Required release allowlist
 
@@ -62,4 +62,4 @@ The first local implementation is intentionally limited to the smallest sensor-n
 3. local Ansible playbook and a minimal generic Podman/Quadlet runtime;
 4. synthetic-only example and package-content checks.
 
-The generic host baseline works without a kid package. The isolated OETF example provides synthetic decoder and mapper fixtures. Generic kid validation, local image build, bundle install, listener configuration, activation, and host-to-Zenoh orchestration are implemented. A second independent kid package is still needed to prove the contract is plug-and-play.
+The generic host baseline works without a kid package. The isolated OETF example provides synthetic decoder and mapper fixtures. Generic kid validation, local image build, bundle install, listener configuration, activation, and host-to-Zenoh orchestration are implemented. The operator reports that a separate, externally sourced kid package for a different sensor was built, installed, and exercised successfully. Its source and sensor identity remain outside this repository; see the validation log for the evidence boundary.

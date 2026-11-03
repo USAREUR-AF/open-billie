@@ -97,17 +97,17 @@ A sensor with more than 8 tracks sends several Track Reports with the same times
 
 ## Example frame
 
-The following is a Track Report with one track: sequence 42, sensor `0x0107`, timestamp 2025-10-29T12:00:00.123456Z. The track is ID 311, Small UAS, 87 % confidence, confirmed, Mode 3/A 7000, at 38.8977 N 77.0365 W and 152.4 m. Its velocity is (−12.5, 4.25, 1.5) m/s, RCS is −18.3 dBsm and age is 74 s. The whole frame is 70 bytes. `buildTrackReport` in `packages/oetf/typescript/decoder/builder.ts` produces it byte for byte.
+The following is a Track Report with one track: sequence 42, sensor `0x0107`, timestamp 2025-10-29T12:00:00.123456Z. The track is ID 311, Small UAS, 87 % confidence, confirmed, Mode 3/A 7000, at 0.0 N 0.0 E and 152.4 m. Its velocity is (−12.5, 4.25, 1.5) m/s, RCS is −18.3 dBsm and age is 74 s. The whole frame is 70 bytes. `buildTrackReport` in `packages/oetf/typescript/decoder/builder.ts` produces it byte for byte.
 
 ```
 4f455446 01 10 4600 2a000000 0701 0000      header: magic, v1, type 16, len 70, seq 42, sensor 0x0107, flags 0
 40d235df4a420600 01 00 0000                 timestamp, track count 1, reserved
 3701 03 57 1100 000e                        ID 311, class 3, conf 87, flags 0x11, Mode 3/A 0o7000
-68512f17 b82915d2 883b0000                  lat, lon, alt (cm)
+00000000 00000000 883b0000                  lat, lon, alt (cm)
 1efb a901 9600                              vel E/N/U (cm/s)
 4001 1801 6202 5a00 4600                    sigmas: pos E/N, alt, vel E/N (cm, cm/s)
 49ff 4a00                                   RCS (0.1 dBsm), age (s)
-37df                                        CRC-16/CCITT-FALSE
+51ee                                        CRC-16/CCITT-FALSE
 ```
 
 ## Mapping to ASTERIX CAT-062, CoT and SAPIENT

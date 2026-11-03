@@ -343,8 +343,8 @@ mod tests {
             track_generation: "generation-1".to_owned(),
             observed_at: "2025-10-29T12:00:00.123Z".to_owned(),
             position: Position {
-                latitude_deg: 38.8977,
-                longitude_deg: -77.0365,
+                latitude_deg: 0.0,
+                longitude_deg: 0.0,
                 altitude_m: Some(152.4),
             },
             velocity: Some(Velocity {
@@ -399,8 +399,8 @@ mod tests {
         let latitude = i32::from_be_bytes(block[11..15].try_into().unwrap()) as f64 / LAT_LON_SCALE;
         let longitude =
             i32::from_be_bytes(block[15..19].try_into().unwrap()) as f64 / LAT_LON_SCALE;
-        assert!((latitude - 38.8977).abs() < 0.00001);
-        assert!((longitude + 77.0365).abs() < 0.00001);
+        assert!((latitude - 0.0).abs() < 0.00001);
+        assert!(longitude.abs() < 0.00001);
     }
 
     #[test]

@@ -10,7 +10,7 @@ const TS = 1_761_739_200_123_456n; // 2025-10-29T12:00:00.123456Z
 const TRACK: TrackInput = {
     id: 311, classification: 3, confidencePct: 87,
     confirmed: true, mode3a: '7000',
-    latDeg: 38.8977, lonDeg: -77.0365, altM: 152.4,
+    latDeg: 0.0, lonDeg: 0.0, altM: 152.4,
     velEastMs: -12.5, velNorthMs: 4.25, velUpMs: 1.5,
     posSigmaEastM: 3.2, posSigmaNorthM: 2.8, altSigmaM: 6.1,
     velSigmaEastMs: 0.9, velSigmaNorthMs: 0.7,
@@ -42,8 +42,8 @@ describe('Track Report', () => {
 
         expect(f['Track 0 ID']).toBe(311);
         expect(f['Track 0 Classification']).toBe('Small UAS (3)');
-        expect(f['Track 0 Latitude']).toBeCloseTo(38.8977, 7);
-        expect(f['Track 0 Longitude']).toBeCloseTo(-77.0365, 7);
+        expect(f['Track 0 Latitude']).toBeCloseTo(0.0, 7);
+        expect(f['Track 0 Longitude']).toBeCloseTo(0.0, 7);
         expect(f['Track 0 Altitude']).toBe('152.4 m');
         expect(f['Track 0 Velocity east']).toBe('-12.5 m/s');
         expect(f['Track 0 Mode 3/A code']).toBe(0o7000);

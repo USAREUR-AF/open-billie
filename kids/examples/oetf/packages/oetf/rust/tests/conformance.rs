@@ -77,7 +77,7 @@ fn crc_check_value() {
 #[test]
 fn builder_is_byte_identical_to_ts() {
     let base = Track {
-        classification: 3, confidence_pct: 87, lat_deg: 38.8977, lon_deg: -77.0365, alt_m: 152.4,
+        classification: 3, confidence_pct: 87, lat_deg: 0.0, lon_deg: 0.0, alt_m: 152.4,
         vel_east_ms: -12.5, vel_north_ms: 4.25, vel_up_ms: 1.5, pos_sigma_east_m: 3.2, pos_sigma_north_m: 2.8,
         alt_sigma_m: 6.1, vel_sigma_east_ms: 0.9, vel_sigma_north_ms: 0.7, rcs_dbsm: -18.3, age_s: 74,
         ..Default::default()

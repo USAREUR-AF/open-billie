@@ -6,8 +6,8 @@
   "trackGeneration": "fixture-1",
   "observedAt": "2025-10-29T12:00:00.123Z",
   "position": {
-    "latitudeDeg": 38.8977,
-    "longitudeDeg": -77.03649999999999,
+    "latitudeDeg": 0.0,
+    "longitudeDeg": 0.0,
     "altitudeM": 152.4
   },
   "velocity": {

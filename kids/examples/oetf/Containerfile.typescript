@@ -1,5 +1,6 @@
-# TypeScript OETF kid runtime; release bundles record the resolved OCI digest.
-FROM docker.io/library/node:22.14.0-bookworm-slim
+# Build the workspace with its compiler and development dependencies, then
+# copy only compiled workspace packages and shared data into the runtime image.
+FROM docker.io/library/node:22.14.0-bookworm-slim AS build
 
 WORKDIR /app
 RUN corepack enable
@@ -12,10 +13,28 @@ COPY packages/oetf/typescript/mappings/src ./packages/oetf/typescript/mappings/s
 COPY packages/oetf/typescript/runtime/package.json packages/oetf/typescript/runtime/tsconfig.json ./packages/oetf/typescript/runtime/
 COPY packages/oetf/typescript/runtime/src ./packages/oetf/typescript/runtime/src
 COPY packages/oetf/shared ./packages/oetf/shared
-RUN pnpm install --frozen-lockfile
-RUN pnpm --filter @open-billie/decoder-oetf build \
+RUN pnpm install --frozen-lockfile \
+    && pnpm --filter @open-billie/decoder-oetf build \
     && pnpm --filter @open-billie/mappings-oetf build \
     && pnpm --filter @open-billie/oetf-runtime-typescript build
+
+FROM docker.io/library/node:22.14.0-bookworm-slim AS runtime
+
+WORKDIR /app
+ENV NODE_ENV=production
+COPY licenses/node-v22.14.0-LICENSE /licenses/node-v22.14.0-LICENSE
+COPY licenses/OPEN-BILLIE-LICENSE /licenses/OPEN-BILLIE-LICENSE
+COPY licenses/THIRD_PARTY_NOTICES.md /licenses/THIRD_PARTY_NOTICES.md
+COPY packages/oetf/typescript/decoder/package.json ./packages/oetf/typescript/decoder/package.json
+COPY packages/oetf/typescript/mappings/package.json ./packages/oetf/typescript/mappings/package.json
+COPY packages/oetf/typescript/runtime/package.json ./packages/oetf/typescript/runtime/package.json
+COPY --from=build /app/packages/oetf/typescript/decoder/dist ./packages/oetf/typescript/decoder/dist
+COPY --from=build /app/packages/oetf/typescript/mappings/dist ./packages/oetf/typescript/mappings/dist
+COPY --from=build /app/packages/oetf/typescript/runtime/dist ./packages/oetf/typescript/runtime/dist
+COPY packages/oetf/shared ./packages/oetf/shared
+RUN mkdir -p node_modules/@open-billie \
+    && ln -s ../../packages/oetf/typescript/decoder node_modules/@open-billie/decoder-oetf \
+    && ln -s ../../packages/oetf/typescript/mappings node_modules/@open-billie/mappings-oetf
 
 ENV BILLIE_INPUT_BIND=0.0.0.0
 ENV BILLIE_INPUT_PORT=5100

@@ -2,7 +2,7 @@
   "name": "track_report_two_tracks",
   "description": "Two tracks: one confirmed with Mode 3/A, one tentative/coasting/final/simulated with no Mode 3/A.",
   "chunks": [
-    "4f45544601106e002a0000000701000040d235df4a42060002000000370103571100000e68512f17b82915d2883b00001efba90196004001180162025a00460049ff4a00380105570e00000068512f17b82915d2883b00001efba90196004001180162025a00460049ff4a005b7a"
+    "4f45544601106e002a0000000701000040d235df4a42060002000000370103571100000e0000000000000000883b00001efba90196004001180162025a00460049ff4a00380105570e0000000000000000000000883b00001efba90196004001180162025a00460049ff4a00c2c7"
   ],
   "errors": [],
   "records": [
@@ -37,8 +37,8 @@
           "_raw": 17
         },
         "Track 0 Mode 3/A code": 3584,
-        "Track 0 Latitude": 38.8977,
-        "Track 0 Longitude": -77.03649999999999,
+        "Track 0 Latitude": 0.0,
+        "Track 0 Longitude": 0.0,
         "Track 0 Altitude": "152.4 m",
         "Track 0 Velocity east": "-12.5 m/s",
         "Track 0 Velocity north": "4.25 m/s",
@@ -62,8 +62,8 @@
           "_raw": 14
         },
         "Track 1 Mode 3/A code": 0,
-        "Track 1 Latitude": 38.8977,
-        "Track 1 Longitude": -77.03649999999999,
+        "Track 1 Latitude": 0.0,
+        "Track 1 Longitude": 0.0,
         "Track 1 Altitude": "152.4 m",
         "Track 1 Velocity east": "-12.5 m/s",
         "Track 1 Velocity north": "4.25 m/s",
@@ -194,8 +194,8 @@
               "Track Number": 311
             },
             "I062/105": {
-              "Latitude": 7251056.831146667,
-              "Longitude": -14360644.44871111
+              "Latitude": 0.0,
+              "Longitude": 0.0
             },
             "I062/130": {
               "Altitude": 80
@@ -240,8 +240,8 @@
               "Track Number": 312
             },
             "I062/105": {
-              "Latitude": 7251056.831146667,
-              "Longitude": -14360644.44871111
+              "Latitude": 0.0,
+              "Longitude": 0.0
             },
             "I062/130": {
               "Altitude": 80
@@ -291,8 +291,8 @@
               }
             },
             "type": "a-u-A-M-F-Q",
-            "lat": 38.8977,
-            "lon": -77.03649999999999,
+            "lat": 0.0,
+            "lon": 0.0,
             "hae": 152.4,
             "ce": 4.25205832509386,
             "le": 6.1000000000000005
@@ -311,8 +311,8 @@
               }
             },
             "type": "a-u-A",
-            "lat": 38.8977,
-            "lon": -77.03649999999999,
+            "lat": 0.0,
+            "lon": 0.0,
             "hae": 152.4,
             "ce": 4.25205832509386,
             "le": 6.1000000000000005
@@ -331,8 +331,8 @@
               },
               "detection_confidence": 0.87,
               "location": {
-                "y": 38.8977,
-                "x": -77.03649999999999,
+                "y": 0.0,
+                "x": 0.0,
                 "z": 152.4,
                 "z_error": 6.1000000000000005
               },
@@ -361,8 +361,8 @@
               },
               "detection_confidence": 0.87,
               "location": {
-                "y": 38.8977,
-                "x": -77.03649999999999,
+                "y": 0.0,
+                "x": 0.0,
                 "z": 152.4,
                 "z_error": 6.1000000000000005
               },

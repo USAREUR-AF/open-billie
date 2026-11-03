@@ -2,11 +2,11 @@
 
 ## Source and disposition
 
-- Source workspace: `billie-decoder-oetf`, supplied in the shared local Projects directory.
+- Source workspace: a separate working directory used to transfer the synthetic example into this repository. The directory name and lack of Git metadata do not identify an upstream author or establish a separate code origin.
 - Source revision: unavailable; the supplied directory had no `.git` metadata when reviewed.
-- Source declaration: the OETF README and wire-format specification describe OETF as a made-up format that is not modeled on any real radar interface.
-- Package license metadata: ISC in the source root and language package manifests.
-- License file: none was present in the source workspace. The imported files remain local project material; confirm the copyright holder and add the required ISC notice before public redistribution.
+- Source declaration: the maintainer states that an AI agent created OETF in response to their instructions as a fictional example format; it is not modeled on a real radar interface and contains no proprietary sensor data. The separate working directory was a transfer location, not an upstream project.
+- Package license metadata: the transfer copy's manifests declared ISC but supplied no corresponding license text. The maintainer directed that the example be released under this repository's Apache-2.0 terms, and the package metadata now matches. The initial ISC metadata is recorded as transfer metadata, not evidence of an ISC-licensed upstream source.
+- License file: the source workspace had no license text. The maintainer confirms the example was generated for this project and authorizes its inclusion under the repository Apache-2.0 license. This records project provenance and maintainer intent; it does not replace any independent legal or organizational review required before public release.
 - Destination: `kids/examples/oetf/`, explicitly a synthetic example kid and excluded from the core platform release allowlist.
 
 ## Imported components

@@ -1,4 +1,4 @@
-FROM docker.io/library/ubuntu:24.04.3
+FROM docker.io/library/ubuntu@sha256:68ee22004a9109b44973313b02ff7b1de250f1de0f5ecb628d73f579aaff33ac
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
     && apt-get install --yes --no-install-recommends bash coreutils dpkg passwd \

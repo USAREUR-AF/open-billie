@@ -62,4 +62,4 @@ The network command assigns a dedicated sensor-interface address without adding 
 
 ## Remaining acceptance
 
-Prior OETF UDP and TCP runs delivered output visible to an authorized subscriber. A later clean ARM64 Pi run with platform 0.2.1 exercised cleanup-before-start and exact active-forward verification; the operator confirmed OETF output through an authorized fabric subscriber. A second independent kid package is still needed to prove the package contract is plug-and-play. See the [validation log](../TESTING.md).
+Prior OETF UDP and TCP runs delivered output visible to an authorized subscriber. A later clean ARM64 Pi run with platform 0.2.1 exercised cleanup-before-start and exact active-forward verification; the operator confirmed OETF output through an authorized fabric subscriber. The operator also reports successful build, install, and exercise of a separate kid package from outside this repository. Its source and sensor data are intentionally excluded. See the [validation log](../TESTING.md) for the evidence boundary.

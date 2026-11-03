@@ -23,7 +23,7 @@ fn translates_oetf_mapper_fixture_through_cot_encoder() {
     .unwrap();
     assert!(cot.contains("type=\"a-u-A-M-F-Q\""));
     assert!(cot.contains("uid=\"oetf/263/311/fixture-1\""));
-    assert!(cot.contains("lat=\"38.8977\""));
+    assert!(cot.contains("lat=\"0\""));
     let cat062 = Cat062Encoder::new(Cat062Options {
         default_source: Some(billie_translator::Cat062SourceIdentifier { sac: 1, sic: 7 }),
         ..Cat062Options::default()

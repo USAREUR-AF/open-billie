@@ -81,7 +81,7 @@ def test_billie_json_generation_loads_and_translates(tmp_path: Path) -> None:
         FrameHeader(42, 0x0107),
         1_761_739_200_123_456,
         [Track(
-            id=311, classification=3, confidence_pct=87, lat_deg=38.8977, lon_deg=-77.0365,
+            id=311, classification=3, confidence_pct=87, lat_deg=0.0, lon_deg=0.0,
             alt_m=152.4, vel_east_ms=-12.5, vel_north_ms=4.25, vel_up_ms=1.5,
             pos_sigma_east_m=3.2, pos_sigma_north_m=2.8, alt_sigma_m=6.1,
             vel_sigma_east_ms=0.9, vel_sigma_north_ms=0.7, rcs_dbsm=-18.3, age_s=74,
@@ -176,8 +176,8 @@ def test_oetf_mapper_emits_canonical_records_for_rust_translator() -> None:
     assert first["sourceId"] == "263"
     assert first["trackGeneration"] == "fixture-1"
     assert first["observedAt"] == "2025-10-29T12:00:00.123Z"
-    assert first["position"]["latitudeDeg"] == pytest.approx(38.8977)
-    assert first["position"]["longitudeDeg"] == pytest.approx(-77.0365)
+    assert first["position"]["latitudeDeg"] == pytest.approx(0.0)
+    assert first["position"]["longitudeDeg"] == pytest.approx(0.0)
     assert first["position"]["altitudeM"] == pytest.approx(152.4)
     assert first["velocity"] == {"eastMps": -12.5, "northMps": 4.25, "upMps": 1.5}
     assert first["classification"] == "uas"

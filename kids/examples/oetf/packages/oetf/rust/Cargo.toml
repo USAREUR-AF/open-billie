@@ -3,7 +3,7 @@ name = "billie-oetf"
 version = "0.1.0"
 edition = "2021"
 publish = false
-license = "ISC"
+license = "Apache-2.0"
 description = "Rust decoder, builder and ASTERIX CAT-062, CoT and SAPIENT mapper for OETF (Open Example Track Format) — a non-proprietary example target wire format."
 
 # The schemas, maps and lookup tables are NOT copied into this crate: build.rs

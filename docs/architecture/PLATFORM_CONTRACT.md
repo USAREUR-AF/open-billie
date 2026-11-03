@@ -22,7 +22,7 @@
 - Active platform release: /opt/billie/platform/current
 - Persistent node identity: /etc/billie/identity/node.yml, mode 0600
 - Persistent platform state: /var/lib/billie
-- Ephemeral health report: /run/billie/health.json; the same JSON is published every minute to local Zenoh at `ops/<node-handle>/health`.
+- Ephemeral health report: /run/billie/health.json; the same JSON is published every minute to local Zenoh at `ops/<node-handle>/health`. It reports degraded status when the local Zenoh router, translator service/socket, or configured fabric client/bridge is unavailable. Kid health is reported separately by its systemd service and status command.
 - Zenoh and fabric configuration: /etc/billie/zenoh; site values are excluded from release artifacts and source control
 - Fabric certificate material: /etc/billie/zenoh/tls; private key mode 0600
 

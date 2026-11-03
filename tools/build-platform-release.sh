@@ -103,6 +103,8 @@ install -m 0755 "$ROOT/deploy/bin/billie-zenoh-config.py" "$RELEASE_TREE/bin/bil
 install -m 0755 "$ROOT/deploy/bin/billie-island-bridge.py" "$RELEASE_TREE/bin/billie-island-bridge.py"
 install -m 0755 "$ROOT/runtime/rust/target/$TARGET_TRIPLE/release/billie-translator" "$RELEASE_TREE/bin/billie-translator"
 install -m 0644 "$ROOT/deploy/VERSION" "$RELEASE_TREE/VERSION"
+install -m 0644 "$ROOT/LICENSE" "$RELEASE_TREE/LICENSE"
+install -m 0644 "$ROOT/THIRD_PARTY_NOTICES.md" "$RELEASE_TREE/THIRD_PARTY_NOTICES.md"
 mkdir -p "$RELEASE_TREE/schemas"
 install -m 0644 "$ROOT/schemas/kid-manifest.schema.json" "$RELEASE_TREE/schemas/kid-manifest.schema.json"
 install -m 0644 "$ROOT/deploy/platform/ansible.cfg" "$RELEASE_TREE/platform/ansible.cfg"
@@ -143,14 +145,16 @@ release="/opt/billie/platform/releases/$RELEASE_VERSION"
 }
 ln -sfn "\$release" /opt/billie/platform/current
 ln -sfn /opt/billie/platform/current/bin/billie /usr/local/bin/billie
-systemctl daemon-reload
-active_translators="\$(systemctl list-units --type=service --state=active --no-legend | awk '\$1 ~ /-translator\\.service$/ { print \$1 }')"
-for unit in \$active_translators; do
-  exec_start="\$(systemctl show --property=ExecStart --value "\$unit" 2>/dev/null || true)"
-  case "\$exec_start" in
-    *"/opt/billie/platform/current/bin/billie-translator"*) systemctl try-restart "\$unit" ;;
-  esac
-done
+if [ -d /run/systemd/system ]; then
+  systemctl daemon-reload
+  active_translators="\$(systemctl list-units --type=service --state=active --no-legend | awk '\$1 ~ /-translator\\.service$/ { print \$1 }')"
+  for unit in \$active_translators; do
+    exec_start="\$(systemctl show --property=ExecStart --value "\$unit" 2>/dev/null || true)"
+    case "\$exec_start" in
+      *"/opt/billie/platform/current/bin/billie-translator"*) systemctl try-restart "\$unit" ;;
+    esac
+  done
+fi
 POST
 chmod 0755 "$DEBIAN/postinst"
 

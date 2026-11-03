@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import ipaddress
 import re
 import subprocess
@@ -21,8 +22,21 @@ RULES: tuple[tuple[str, re.Pattern[bytes]], ...] = (
     ("private package registry", re.compile(rb"(?:npm|yarn)\.pkg\.github\.com|packages\.github\.com", re.IGNORECASE)),
     ("credential assignment", re.compile(rb"(?i)\b(?:api[_-]?key|client[_-]?secret|netbird[_-]?setup[_-]?key|password|access[_-]?token)\b\s*[:=]\s*['\"]?[A-Za-z0-9_./+=-]{24,}")),
     ("personal workstation path", re.compile(rb"(?i)(?:[A-Z]:" + rb"\x5cUsers\x5c" + rb"[^\\<>\" ]+|\x2fmnt\x2f[a-z]\x2fUsers\x2f[^/<>\" ]+|\x2fhome\x2f[^/<>\" ]+)")),
-    ("internal downstream product name", re.compile(rb"(?i)(?:pan" + rb"oscope|ef" + rb"di)")),
 )
+
+# Keep organization-specific denylist entries as SHA-256 digests so the public
+# scanner itself does not disclose the identifiers it is meant to catch.
+PRIVATE_NAME_DIGESTS = {
+    "c70571fc93fa7d4ee1be299777e2fd10f654b0f3c74e7467ffc9cc9914b8ab8c",
+    "56f40dca052dd2129676d637f88271ab0e0e7ff23cdf1b8810763ad6f37cc686",
+}
+
+
+def contains_private_name(data: bytes) -> bool:
+    for token in re.findall(rb"[a-z0-9]+", data.lower()):
+        if hashlib.sha256(token).hexdigest() in PRIVATE_NAME_DIGESTS:
+            return True
+    return False
 
 
 def path_findings(name: str) -> list[str]:
@@ -39,6 +53,8 @@ def path_findings(name: str) -> list[str]:
 
 def content_findings(data: bytes, *, scan_ip_literals: bool = True) -> list[str]:
     findings = [label for label, pattern in RULES if pattern.search(data)]
+    if contains_private_name(data):
+        findings.append("internal downstream product name")
     # Private, link-local, and carrier-grade addresses are commonly deployment
     # facts. Permit RFC 5737 documentation ranges and Podman's default bridge
     # subnet, which appears in generic runtime and firewall fixtures.
@@ -70,14 +86,19 @@ def content_findings(data: bytes, *, scan_ip_literals: bool = True) -> list[str]
     return findings
 
 
-def tracked_files() -> list[str]:
-    result = subprocess.run(["git", "ls-files", "-z"], cwd=ROOT, check=True, capture_output=True)
-    return [value.decode("utf-8", "replace") for value in result.stdout.split(b"\0") if value]
+def source_files() -> list[str]:
+    tracked = subprocess.run(["git", "ls-files", "-z"], cwd=ROOT, check=True, capture_output=True)
+    untracked = subprocess.run(
+        ["git", "ls-files", "--others", "--exclude-standard", "-z"],
+        cwd=ROOT, check=True, capture_output=True,
+    )
+    names = tracked.stdout.split(b"\0") + untracked.stdout.split(b"\0")
+    return sorted({value.decode("utf-8", "replace") for value in names if value})
 
 
 def scan_source() -> list[tuple[str, str]]:
     findings: list[tuple[str, str]] = []
-    for name in tracked_files():
+    for name in source_files():
         for label in path_findings(name):
             findings.append((name, label))
         path = ROOT / name

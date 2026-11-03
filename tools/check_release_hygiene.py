@@ -88,8 +88,8 @@ def check_provenance(errors: list[str]) -> None:
             errors.append(f"{PROVENANCE.as_posix()} is missing required field {field!r}")
     if "Destination: `kids/examples/oetf/`" not in contents:
         errors.append("OETF provenance must state its in-repository synthetic destination")
-    if "License file: none" not in contents:
-        errors.append("OETF provenance must explicitly state the source license-file disposition")
+    if "License file: the source workspace had no license text." not in contents:
+        errors.append("OETF provenance must document the source workspace license and repository license disposition")
 
 
 def main() -> int:

@@ -3,6 +3,8 @@
 FROM docker.io/library/python:3.12.10-slim-bookworm
 
 WORKDIR /app
+COPY licenses/OPEN-BILLIE-LICENSE /licenses/OPEN-BILLIE-LICENSE
+COPY licenses/THIRD_PARTY_NOTICES.md /licenses/THIRD_PARTY_NOTICES.md
 COPY packages/oetf/python/pyproject.toml /app/python/pyproject.toml
 COPY packages/oetf/python/src /app/python/src
 COPY packages/oetf/shared /app/python/shared

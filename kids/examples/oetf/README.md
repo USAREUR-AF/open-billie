@@ -43,4 +43,4 @@ It uses a local socket stub to verify OETF decoding, canonical mapping, logical 
 
 ## Import and licensing note
 
-The source workspace identifies its TypeScript, Python, and Rust packages as ISC-licensed, but it had no `LICENSE` file or Git metadata when imported. See [the import record](../../../docs/provenance/OETF_IMPORT.md). This copy is not a public package release; confirm the copyright holder and include the proper ISC notice before redistributing it publicly.
+The OETF example is fictional synthetic material created for Open Billie and is licensed under Apache-2.0 with the rest of the project. See [the import record](../../../docs/provenance/OETF_IMPORT.md) for its origin and scope.

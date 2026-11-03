@@ -10,3 +10,4 @@
 *.yaml text eol=lf
 *.yml text eol=lf
 deploy/bin/billie text eol=lf
+kids/examples/oetf/licenses/** -text

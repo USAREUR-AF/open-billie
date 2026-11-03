@@ -1,12 +1,44 @@
 #!/usr/bin/env bash
 set -euo pipefail
 node_handle="{{ node_handle }}"
+instance_prefix="{{ billie_instance_prefix }}"
 platform_version="{{ billie_release_version }}"
 observed_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 mkdir -p {{ billie_runtime_dir }}
 temporary={{ billie_runtime_dir }}/health.json.tmp
-printf '{"schema":"billie.health.v1","node_handle":"%s","node":"%s","platform_version":"%s","release":"%s","state":"ready","status":"ok","observed_at":"%s","ts":"%s"}\n' \
-  "$node_handle" "$node_handle" "$platform_version" "$platform_version" "$observed_at" "$observed_at" > "$temporary"
+failed_checks=""
+add_failed_check() {
+  failed_checks="${failed_checks:+$failed_checks,}\"$1\""
+}
+check_unit() {
+  unit="$1"
+  if ! systemctl is-active --quiet "$unit"; then
+    add_failed_check "$unit inactive"
+  fi
+}
+
+check_unit "${instance_prefix}-zenohd.service"
+check_unit "${instance_prefix}-translator.service"
+[ -S {{ billie_runtime_dir }}/translator.sock ] || add_failed_check "translator socket missing"
+if ! curl --fail --silent --show-error --max-time 3 \
+  "http://127.0.0.1:{{ billie_local_rest_port }}/@/local/router" --output /dev/null; then
+  add_failed_check "local Zenoh REST health check failed"
+fi
+
+if [ -f {{ billie_etc_dir }}/zenoh/fabric-client.enabled ]; then
+  check_unit "${instance_prefix}-fabric-client.service"
+  check_unit "${instance_prefix}-island-bridge.service"
+fi
+
+health_state=ready
+health_status=ok
+if [ -n "$failed_checks" ]; then
+  health_state=degraded
+  health_status=error
+fi
+printf '{"schema":"billie.health.v1","node_handle":"%s","node":"%s","platform_version":"%s","release":"%s","state":"%s","status":"%s","failed_checks":[%s],"observed_at":"%s","ts":"%s"}\n' \
+  "$node_handle" "$node_handle" "$platform_version" "$platform_version" \
+  "$health_state" "$health_status" "$failed_checks" "$observed_at" "$observed_at" > "$temporary"
 chmod 0644 "$temporary"
 mv -f "$temporary" {{ billie_runtime_dir }}/health.json
 curl --fail --silent --show-error --max-time 5 \
