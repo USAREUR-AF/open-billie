@@ -25,6 +25,7 @@ ENV NODE_ENV=production
 COPY licenses/node-v22.14.0-LICENSE /licenses/node-v22.14.0-LICENSE
 COPY licenses/OPEN-BILLIE-LICENSE /licenses/OPEN-BILLIE-LICENSE
 COPY licenses/THIRD_PARTY_NOTICES.md /licenses/THIRD_PARTY_NOTICES.md
+COPY licenses/NOTICE /licenses/NOTICE
 COPY packages/oetf/typescript/decoder/package.json ./packages/oetf/typescript/decoder/package.json
 COPY packages/oetf/typescript/mappings/package.json ./packages/oetf/typescript/mappings/package.json
 COPY packages/oetf/typescript/runtime/package.json ./packages/oetf/typescript/runtime/package.json

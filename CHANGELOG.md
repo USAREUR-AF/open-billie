@@ -28,6 +28,8 @@ release candidate and must be reviewed against the tagged source before release.
   third-party notice files.
 - OETF example fixtures use neutral coordinates and its Python package uses a
   setuptools version that supports SPDX license metadata.
+- `NOTICE` carries the ISC notice for the OETF TypeScript decoder files adapted
+  from Billie Modular; the import record and source matrix name that origin.
 
 ### Fixed
 

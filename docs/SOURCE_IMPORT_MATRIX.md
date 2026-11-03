@@ -6,7 +6,7 @@
 - Reference branch: feat/deploy-platform-golden-path
 - Reviewed revision: 45ce20b7ec4ca5996bcbed20059fb0445eb9bf7f
 - Target: Open Billie, a sensor-neutral project
-- Status: initial sensor-neutral platform slice implemented locally; the original synthetic OETF example is now included separately under `kids/examples/oetf/`; no source files were copied wholesale from the Billie Modular Golden Path branch
+- Status: initial sensor-neutral platform slice implemented locally; the original synthetic OETF example is now included separately under `kids/examples/oetf/`; the platform slice was written fresh against the Golden Path branch as a reference; the OETF example's TypeScript decoder files and `tsconfig.base.json` are adapted from Billie Modular and carry its ISC notice in `NOTICE` (see the [OETF import record](provenance/OETF_IMPORT.md))
 
 The Billie Modular Golden Path branch is a mixed platform and application tree. A clean-looking platform directory is not sufficient evidence that its contents are generic: its release builder currently includes the platform tree recursively, and the role contains both reusable host work and optional integration-specific behavior. Reuse is therefore file- and task-level, not branch-level.
 

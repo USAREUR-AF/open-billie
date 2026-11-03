@@ -105,6 +105,7 @@ install -m 0755 "$ROOT/runtime/rust/target/$TARGET_TRIPLE/release/billie-transla
 install -m 0644 "$ROOT/deploy/VERSION" "$RELEASE_TREE/VERSION"
 install -m 0644 "$ROOT/LICENSE" "$RELEASE_TREE/LICENSE"
 install -m 0644 "$ROOT/THIRD_PARTY_NOTICES.md" "$RELEASE_TREE/THIRD_PARTY_NOTICES.md"
+install -m 0644 "$ROOT/NOTICE" "$RELEASE_TREE/NOTICE"
 mkdir -p "$RELEASE_TREE/schemas"
 install -m 0644 "$ROOT/schemas/kid-manifest.schema.json" "$RELEASE_TREE/schemas/kid-manifest.schema.json"
 install -m 0644 "$ROOT/deploy/platform/ansible.cfg" "$RELEASE_TREE/platform/ansible.cfg"
