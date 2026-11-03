@@ -11,16 +11,14 @@ Thanks for your interest in improving Open Billie. Contributions are made under 
 
 ## Development workflow
 
-1. Fork the repository or create a feature branch.
+1. Fork the repository, or branch from `main` if you have write access.
 2. Make a focused change with tests and documentation appropriate to its impact.
 3. Run the relevant checks listed in [docs/TESTING.md](docs/TESTING.md). Include the commands and results in the pull request.
-4. Submit a pull request describing the problem, implementation, compatibility impact, security implications, and validation performed.
-5. Respond to review and CI feedback. Maintainers merge changes after review and passing required checks.
+4. Commit with a DCO sign-off: `git commit -s -m "..."`. Signed commits (SSH or GPG) are required on `main`; set up [commit signing](https://docs.github.com/en/authentication/managing-commit-signature-verification) once.
+5. Open a pull request against `main` describing the problem, implementation, compatibility impact, security implications, and validation performed. One approving review from a code owner merges it, by squash, after the required checks pass.
 
 Do not include secrets or real operational data in issues, pull requests, logs, test fixtures, or screenshots. Do not report suspected vulnerabilities in public issues. Use GitHub private vulnerability reporting if enabled, or contact the repository maintainer directly.
 
 ## Developer Certificate of Origin
 
-Open Billie uses a project-level DCO record modeled on Code.mil's lightweight approach. Before the first public release, maintainers with code contributions should add their own signed declaration to [CONTRIBUTORS.md](CONTRIBUTORS.md), after confirming they have the right to license the work they sign. Future code contributors add their own declaration before their code is accepted. This confirms that the contributor created the work or has the right to submit it under the project license. No DCO declaration is required for issue reports or documentation discussion.
-
-The contributor record is public and retained with the repository history. Contributors should use a name and email address at which they can be contacted. Do not add a declaration on someone else's behalf.
+Every commit carries a sign-off (`git commit -s`). By signing off you certify the [Developer Certificate of Origin 1.1](https://developercertificate.org/): you wrote the change or have the right to submit it under this project's license. There is no contributor license agreement. [CONTRIBUTORS.md](CONTRIBUTORS.md) records the declarations made before per-commit sign-off was adopted. No sign-off is needed for issue reports or discussion.

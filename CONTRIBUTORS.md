@@ -1,6 +1,6 @@
 # Contributors
 
-Before the first public release, maintainers with code contributions should add their own signed entries after checking that they have the right to license the work they sign. Each future code contributor adds their own entry before code acceptance. A DCO entry is not a copyright assignment and must not be added by someone else.
+This file records the project-level declarations made before per-commit sign-off was adopted. New contributions certify the Developer Certificate of Origin on each commit with `git commit -s` (see [CONTRIBUTING.md](CONTRIBUTING.md)); no new entries are added here. A declaration is not a copyright assignment and is never added on someone else's behalf.
 
 ## DCO declaration
 

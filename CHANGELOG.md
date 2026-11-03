@@ -28,6 +28,9 @@ release candidate and must be reviewed against the tagged source before release.
   third-party notice files.
 - OETF example fixtures use neutral coordinates and its Python package uses a
   setuptools version that supports SPDX license metadata.
+- License, notice, intent, conduct, security and contributing documents follow
+  the USAREUR-AF open-source baseline: U.S. Government work under Apache-2.0,
+  per-commit DCO sign-off, signed commits, code-owner review, private reporting.
 - `NOTICE` carries the ISC notice for the OETF TypeScript decoder files adapted
   from Billie Modular; the import record and source matrix name that origin.
 

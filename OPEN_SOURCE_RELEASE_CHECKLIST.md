@@ -4,8 +4,8 @@ This is the maintainer's short list for preparing Open Billie for outside contri
 
 ## Maintainer actions
 
-- [ ] Leave the current copyright line unchanged for the designated external reviewer. Record that review before a public distribution or tagged release; do not claim rights belonging to a contractor, employer, or other party without authorization.
-- [ ] Add a reachable private conduct-report contact route to the repository profile and link it from `CODE_OF_CONDUCT.md` before accepting public contributions.
+- [x] Copyright holder recorded: the U.S. Federal Government (in countries where recognized), stated in `LICENSE`, `NOTICE` and `INTENT.md`, the same statement the other USAREUR-AF open-source repositories carry. Decided by the program lead on 2026-11-03.
+- [x] Conduct and security reports go through GitHub Private Vulnerability Reporting, linked from `CODE_OF_CONDUCT.md` and `SECURITY.md`. GitHub offers it only on public repositories; enable it in *Settings* at the moment the repository is made public.
 - [x] Add your own DCO entry in `CONTRIBUTORS.md` using your preferred public name and a reachable email. The entry is public and retained in Git history; no one should add it on your behalf. The declaration records your attestation that you have the rights described above; maintainers cannot independently establish that authority from the entry alone. This follows Code.mil's one-time project-level declaration approach rather than per-commit sign-offs.
 - [x] Review the source dependency summary in `docs/THIRD_PARTY_INVENTORY.md`, including OETF provenance and the standards-reference/copying boundaries. Artifact dependency and license-text review remains required for any distributed build.
 - [ ] Before distributing a platform or kid artifact, generate and review an SBOM and required license notices for each exact image digest and architecture. `python3 tools/generate_kid_sbom.py <kid-bundle.tar.gz>` now generates SPDX JSON from the bundled image after validating both checksums. Source lockfiles alone do not describe the complete OS/base-image contents.
@@ -22,4 +22,4 @@ This is the maintainer's short list for preparing Open Billie for outside contri
 
 ## Release decision
 
-The maintainer DCO entry and source-level licensing documents are present. Confirm the copyright holder and authority to release every project-authored contribution. Artifact SBOM and notice review remains required before distributing built artifacts; it is separate from submitting the source repository.
+The copyright holder is recorded and the source-level licensing documents are present. Artifact SBOM and notice review remains required before distributing built artifacts; it is separate from submitting the source repository.
