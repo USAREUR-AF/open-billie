@@ -12,4 +12,4 @@ getrandom = "=0.2.15"
 libc = "0.2"
 
 [dev-dependencies]
-prost = "=0.13.5"
+prost = "=0.14.4"
