@@ -23,12 +23,13 @@ acceptable in project spaces.
 
 ## Reporting and enforcement
 
-Report conduct concerns privately to the project maintainers. Do not use a
-public issue for sensitive reports. Before opening public contributions, the
-repository maintainers must publish a reachable private contact route in the
-repository profile and link it here. Maintainers will review reports and may
-remove content or restrict participation when needed to protect project
-participants.
+Report conduct concerns through [GitHub Private Vulnerability Reporting](https://github.com/usareur-af/open-billie/security/advisories/new),
+the same private channel used for security disclosures. Do not use a public
+issue. Reports are read by maintainers and held in confidence; reporters are
+told what action was taken, and respondents are told what was reported and
+given a chance to respond. Maintainers may edit or remove content, restrict
+participation in specific spaces, or remove a participant from the project,
+in proportion to the behavior.
 
 This policy applies to project issues, pull requests, discussions, and other
 spaces where a person represents the project.
