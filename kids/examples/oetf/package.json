@@ -19,7 +19,7 @@
     "@changesets/cli": "^2.27.0",
     "@types/node": "^25.9.1",
     "typescript": "~5.9.3",
-    "vite-node": "^2.1.0",
+    "vite-node": "^6.0.0",
     "vitest": "^2.1.0",
     "yaml": "^2.6.0"
   },
