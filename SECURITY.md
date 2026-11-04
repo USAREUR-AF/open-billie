@@ -4,7 +4,13 @@ Open Billie provisions sensor nodes and bridges their data onto a fabric over mT
 
 ## Reporting a vulnerability
 
-**Do not open a public issue.** Use GitHub Private Vulnerability Reporting on this repository: *Security*, then *Report a vulnerability*. This opens a private advisory visible only to the maintainers.
+**Do not open a public issue or pull request to report a vulnerability.**
+
+**[Report a vulnerability privately](https://github.com/USAREUR-AF/open-billie/security/advisories/new)**
+
+You can also open the reporting form from this repository's *Security* tab by selecting *Report a vulnerability*.
+
+Reports are private and accessible to repository administrators, organization owners, security managers, the reporter, and collaborators explicitly added to the advisory. Being listed in `CODEOWNERS` does not itself grant access. Reports remain private until an authorized maintainer publishes the advisory. See [GitHub's advisory permissions](https://docs.github.com/en/code-security/reference/permissions/repository-security-advisory) for details.
 
 Include a description of the issue and its impact, reproduction steps or a proof of concept, the affected versions or commits, and whether you have shared it elsewhere. Do not include credentials, private keys, real sensor captures, personal data or operational network details; the maintainers will arrange a secure transfer if one is needed.
 
