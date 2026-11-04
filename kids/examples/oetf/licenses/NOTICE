@@ -1,18 +1,21 @@
 Open Billie
 Copyright 2026 U.S. Federal Government (in countries where recognized)
 
-This work was created by the U.S. Government and is released for use by anyone,
-for any purpose, including commercial use. Contributions made after the initial
-release are copyright their contributors and licensed under the same terms.
+Portions of this work written by U.S. Federal government employees within the
+scope of their federal employment are not subject to copyright protection in the
+United States (17 U.S.C. 105) and are in the public domain there. In countries
+where copyright protection is available, those portions are released under the
+Apache License, Version 2.0. Merged contributions from private contributors are
+released under the same License. See INTENT.md.
 
 This product is licensed under the Apache License, Version 2.0 (see LICENSE at
 the root of this repository).
 
-This product includes software from the Billie Modular project, Copyright (c)
-2026 DesertGOAT, licensed under the ISC License. The following files are
-derived from Billie Modular revision 3909b655b1ca2a3bd55406120f0ef471658a6e68
-(packages/rps42/decoder) and 45ce20b7ec4ca5996bcbed20059fb0445eb9bf7f
-(tsconfig.base.json):
+The following files are adapted from Billie Modular, an earlier project also
+written by U.S. Federal government employees, at revision
+3909b655b1ca2a3bd55406120f0ef471658a6e68 (packages/rps42/decoder) and
+45ce20b7ec4ca5996bcbed20059fb0445eb9bf7f (tsconfig.base.json). They are covered
+by the same terms as the rest of this work:
 
   kids/examples/oetf/packages/oetf/typescript/decoder/parser.ts
   kids/examples/oetf/packages/oetf/typescript/decoder/decoder.ts
@@ -22,19 +25,3 @@ derived from Billie Modular revision 3909b655b1ca2a3bd55406120f0ef471658a6e68
 The OETF wire format, schemas, mappings, lookups, conformance vectors and the
 Python and Rust implementations were written for Open Billie and are not
 derived from those files.
-
-ISC License
-
-Copyright (c) 2026 DesertGOAT
-
-Permission to use, copy, modify, and/or distribute this software for any
-purpose with or without fee is hereby granted, provided that the above
-copyright notice and this permission notice appear in all copies.
-
-THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
-WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
-MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
-ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
-WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
-ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
-OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
