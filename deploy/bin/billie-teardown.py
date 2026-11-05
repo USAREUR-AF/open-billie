@@ -48,6 +48,23 @@ def remove_symlink_if_billie(path: Path) -> None:
             path.unlink(missing_ok=True)
 
 
+def managed_sensor_addresses(config: str) -> tuple[str, list[ipaddress.IPv4Interface]] | None:
+    """Read one interface and its static addresses from a Billie Netplan file."""
+    interface_match = re.search(r"^\s{4}([A-Za-z0-9_.-]{1,15}):\s*$", config, re.MULTILINE)
+    if not interface_match:
+        return None
+    interface = interface_match.group(1)
+    addresses: list[ipaddress.IPv4Interface] = []
+    for value in re.findall(r"^\s{8}-\s+((?:\d{1,3}\.){3}\d{1,3}/(?:[0-9]|[12]\d|3[0-2]))\s*$", config, re.MULTILINE):
+        try:
+            address = ipaddress.ip_interface(value)
+        except ValueError:
+            continue
+        if address.version == 4:
+            addresses.append(address)
+    return interface, addresses
+
+
 def remove_listener_firewall(firewall: object) -> None:
     if not isinstance(firewall, dict) or not isinstance(firewall.get("rules"), list):
         return
@@ -460,14 +477,28 @@ def main() -> int:
         run(["systemctl", "reset-failed", unit], check=False)
 
     # Remove only network snippets explicitly created by billie network configure.
+    # Do not run `netplan apply`: it reapplies every interface and can renew the
+    # management DHCP lease, severing the SSH session during teardown.
+    managed_sensor_configs: list[tuple[str, list[ipaddress.IPv4Interface]]] = []
     for path in sensor_configs:
+        try:
+            config = path.read_text(encoding="utf-8")
+        except OSError:
+            config = ""
+        managed = managed_sensor_addresses(config)
+        if managed is not None:
+            managed_sensor_configs.append(managed)
         path.unlink(missing_ok=True)
     if sensor_configs and shutil.which("netplan"):
         generated = run(["netplan", "generate"], check=False)
-        applied = run(["netplan", "apply"], check=False) if generated.returncode == 0 else generated
-        if applied.returncode:
-            detail = (applied.stderr or applied.stdout or "").strip()
-            print(f"billie teardown: removed its Netplan snippets, but could not fully reapply networking: {detail}", file=sys.stderr)
+        if generated.returncode:
+            detail = (generated.stderr or generated.stdout or "").strip()
+            print(f"billie teardown: removed its Netplan snippets, but generation reported an error: {detail}", file=sys.stderr)
+    for interface, addresses in managed_sensor_configs:
+        if not Path("/sys/class/net", interface).exists():
+            continue
+        for address in addresses:
+            run(["ip", "address", "del", str(address), "dev", interface], check=False)
 
     shutil.rmtree(args.etc_dir / "kids", ignore_errors=True)
     shutil.rmtree(kid_root, ignore_errors=True)

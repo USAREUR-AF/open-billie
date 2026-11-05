@@ -188,7 +188,7 @@ Install Xcode command line tools if prompted, and activate the Python virtual en
 
     bash tools/setup.sh
 
-The wizard offers **[1] Build in Linux container** when you want to build locally, or **[2] Existing** for a prebuilt release. Start Docker Desktop or the Podman machine before choosing Build. Select the target node architecture; the wizard leaves the resulting `.deb`, matching tarball, and checksum manifest under `dist/`. Mac Bash 3.2 is sufficient for setup, install, configure, and kid deployment.
+The wizard asks **What would you like to do?** and lists **[1] Build a new image** or **[2] Use an existing image** on separate lines. Build is the default when you press Enter. On macOS, the build runs in a Linux container, so start Docker Desktop or the Podman machine first. Select the target node architecture; the wizard leaves the resulting `.deb`, matching tarball, and checksum manifest under `dist/`. Mac Bash 3.2 is sufficient for setup, install, configure, and kid deployment.
 
 ### Windows 10/11
 
@@ -243,7 +243,7 @@ Configure the dedicated sensor-facing Ethernet interface on the node. First iden
     sudo billie network interfaces
     sudo billie network configure --interface eth0 --address 192.0.2.20/24
 
-The network command asks before applying the change. It creates a Billie-owned Netplan snippet with no gateway or DNS, configures the address even when the port has no cable attached, and refuses the active default-route or SSH interface. Use the interface name reported for the node's sensor port; `eth0` is an example. `192.0.2.20/24` is documentation-only; choose an address and prefix for your sensor network. To undo only this Billie-managed setting, run `sudo billie network clear --interface eth0`.
+The network command asks before applying the change. It creates a Billie-owned Netplan snippet with no gateway or DNS, then applies the address directly to only the selected interface. It deliberately does not run global `netplan apply`, which can renew a different interface's management DHCP lease and drop SSH. The address can be assigned before a sensor cable is attached; Netplan makes it persistent across reboot. Billie refuses the active default-route or SSH interface. Use the interface name reported for the node's sensor port; `eth0` is an example. `192.0.2.20/24` is documentation-only; choose an address and prefix for your sensor network. To undo only this Billie-managed setting, run `sudo billie network clear --interface eth0`.
 
 Install and activate on the node:
 
@@ -297,7 +297,7 @@ Bundles are unsigned. Checksums detect accidental or in-transit changes only whe
 
 ### Credential folder layout
 
-The configurator accepts one directory containing one fabric CA root and one matching client pair. For example:
+Both credential sources provide one fabric CA root and one matching client pair. A local folder uses this layout:
 
     credential-bundle/
       fabric-ca.pem
@@ -308,7 +308,11 @@ The configurator accepts one directory containing one fabric CA root and one mat
 
 The preferred CA root name is `*-ca-root.pem`; if none is present, the configurator accepts one `fabric-ca.pem` or `ca.pem`. Exactly one preferred CA root and one `*-cert.pem` must be present; the matching `<certificate-prefix>-key.pem` is selected automatically. Extra unrelated key files are ignored. An auxiliary onboarding CA or profile file is not the Zenoh router trust root and is not selected by the configurator.
 
-This folder is the current local credential-source interface. The endpoint is still entered at the prompt. A future API integration can fetch or refresh a bundle into a protected local cache and supply the endpoint metadata alongside it; the node configurator can keep consuming the same folder instead of prompting for individual credential files.
+The configurator offers `[1] One-time API bundle URL` (default) or `[2] Local folder`. The API option asks for the complete one-time HTTPS bundle URL returned by machine enrollment, including the host and full path:
+
+    https://<organization-host>/api/bundle/<token>/<bundle-id>.tar.gz
+
+Paste the complete URL at the hidden prompt; the wizard does not add or prefill any part of the URL. The URL is treated as a bearer capability: it is not printed or placed in process arguments. The workstation downloads it over verified HTTPS, refuses redirects, validates archive paths and file types, and extracts into a private temporary directory. The wizard discovers the Zenoh endpoint from the included onboarding markdown or Python examples and asks for confirmation. Extracted files must meet the CA/certificate/key layout above. Temporary files are removed when configuration exits. If a one-time URL was consumed during a failed attempt, request a fresh URL from enrollment. The local-folder option remains available.
 
 ## Manual commands
 
