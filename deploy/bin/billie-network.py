@@ -57,6 +57,57 @@ def render_netplan_config(interface: str, address: ipaddress.IPv4Interface) -> s
     )
 
 
+def managed_ipv4_addresses(config: bytes | None) -> list[ipaddress.IPv4Interface]:
+    """Read addresses from a prior Billie-managed Netplan snippet."""
+    if not config:
+        return []
+    text = config.decode("utf-8")
+    if not text.startswith("# Managed by Open Billie."):
+        fail("refusing to replace a sensor Netplan file not managed by Open Billie")
+    addresses: list[ipaddress.IPv4Interface] = []
+    for value in re.findall(r"^\s*-\s+((?:\d{1,3}\.){3}\d{1,3}/(?:[0-9]|[12]\d|3[0-2]))\s*$", text, re.MULTILINE):
+        try:
+            address = ipaddress.ip_interface(value)
+        except ValueError:
+            fail(f"invalid IPv4 address in the Billie-managed Netplan file: {value}")
+        if address.version == 4:
+            addresses.append(address)
+    return addresses
+
+
+def assigned_ipv4_addresses(interface: str) -> set[ipaddress.IPv4Interface]:
+    output = run(["ip", "-o", "-4", "address", "show", "dev", interface], capture=True).stdout
+    addresses: set[ipaddress.IPv4Interface] = set()
+    for value in re.findall(r"\binet\s+(\d{1,3}(?:\.\d{1,3}){3}/\d{1,2})", output):
+        try:
+            addresses.add(ipaddress.ip_interface(value))
+        except ValueError:
+            continue
+    return addresses
+
+
+def restore_sensor_addresses(
+    interface: str,
+    addresses: list[ipaddress.IPv4Interface],
+    added_address: ipaddress.IPv4Interface | None = None,
+    added_address_preexisted: bool = False,
+) -> None:
+    """Best-effort runtime rollback without reapplying the whole network stack."""
+    if added_address is not None and not added_address_preexisted:
+        subprocess.run(["ip", "address", "del", str(added_address), "dev", interface], check=False)
+    for address in addresses:
+        subprocess.run(["ip", "address", "replace", str(address), "dev", interface], check=False)
+
+
+def apply_sensor_address(interface: str, address: ipaddress.IPv4Interface, previous: list[ipaddress.IPv4Interface]) -> None:
+    """Apply only this interface's runtime address; avoid a global netplan apply."""
+    assigned = assigned_ipv4_addresses(interface)
+    run(["ip", "address", "replace", str(address), "dev", interface])
+    for old_address in previous:
+        if old_address != address and old_address in assigned:
+            run(["ip", "address", "del", str(old_address), "dev", interface])
+
+
 def interfaces() -> None:
     if shutil.which("ip") is None:
         fail("iproute2 is required; install it with apt")
@@ -151,12 +202,16 @@ def configure(interface_value: str, address_value: str, assume_yes: bool) -> Non
     )
     CONFIG_DIR.mkdir(mode=0o755, parents=True, exist_ok=True)
     old_data = path.read_bytes() if path.exists() else None
+    previous_addresses = managed_ipv4_addresses(old_data)
+    address_was_assigned = address in assigned_ipv4_addresses(interface)
     body = render_netplan_config(interface, address)
     path.write_text(body, encoding="utf-8")
     os.chmod(path, 0o600)
+    runtime_updated = False
     try:
         run(["netplan", "generate"])
-        run(["netplan", "apply"])
+        runtime_updated = True
+        apply_sensor_address(interface, address, previous_addresses)
     except SystemExit:
         if old_data is None:
             path.unlink(missing_ok=True)
@@ -164,9 +219,10 @@ def configure(interface_value: str, address_value: str, assume_yes: bool) -> Non
             path.write_bytes(old_data)
             os.chmod(path, 0o600)
         subprocess.run(["netplan", "generate"], check=False)
-        subprocess.run(["netplan", "apply"], check=False)
+        if runtime_updated:
+            restore_sensor_addresses(interface, previous_addresses, address, address_was_assigned)
         raise
-    print(f"Configured {interface} with {address}; no default route was added.")
+    print(f"Configured {interface} with {address}; only this interface was changed, and no default route was added.")
     print(f"Use this bind address for the kid: {address.ip}")
 
 
@@ -177,19 +233,26 @@ def clear(interface_value: str, assume_yes: bool) -> None:
     path = managed_path(interface)
     if not path.is_file():
         fail(f"no Billie-managed sensor network config exists for {interface}", 1)
-    confirm(f"Will remove {path} and reapply the remaining Netplan configuration.", assume_yes)
+    confirm(f"Will remove {path} and only Billie-managed addresses from {interface}; other interfaces will not be reapplied.", assume_yes)
     backup = path.read_bytes()
+    addresses = managed_ipv4_addresses(backup)
+    assigned = assigned_ipv4_addresses(interface)
     path.unlink()
+    runtime_updated = False
     try:
         run(["netplan", "generate"])
-        run(["netplan", "apply"])
+        runtime_updated = True
+        for address in addresses:
+            if address in assigned:
+                run(["ip", "address", "del", str(address), "dev", interface])
     except SystemExit:
         path.write_bytes(backup)
         os.chmod(path, 0o600)
         subprocess.run(["netplan", "generate"], check=False)
-        subprocess.run(["netplan", "apply"], check=False)
+        if runtime_updated:
+            restore_sensor_addresses(interface, addresses)
         raise
-    print(f"Removed Billie-managed static address configuration for {interface}.")
+    print(f"Removed Billie-managed static address configuration for {interface}; other interfaces were not reapplied.")
 
 
 def main() -> int:
