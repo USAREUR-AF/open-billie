@@ -8,7 +8,7 @@ The repository's Apache-2.0 license applies to Open Billie-authored material. It
 
 | Area | Declared dependencies | Scope and current evidence | Inventory status |
 |---|---|---|---|
-| Workstation validation and platform automation | `ansible-core==2.17.14`, `jsonschema==4.23.0`, `PyYAML==6.0.2` | `requirements-ci.txt`; Ansible also runs on the node. Declared CI versions are pinned, but Python transitive dependencies are not locked here. | Direct dependencies identified; transitive lock and license-text capture remain |
+| Workstation validation and platform automation | `ansible-core==2.21.6`, `jsonschema==4.23.0`, `PyYAML==6.0.2` | `requirements-ci.txt`; Ansible also runs on the node. Declared CI versions are pinned, but Python transitive dependencies are not locked here. | Direct dependencies identified; transitive lock and license-text capture remain |
 | Platform Debian package | `bash`, `ansible-core`, `podman`, `systemd`, `python3`, `python3-yaml`, `python3-jsonschema`, `openssl`, `curl` | `tools/build-platform-release.sh` Debian `Depends`; Ubuntu resolves these from its configured APT repositories at install time. | Direct package names identified; resolved Ubuntu package versions/licenses vary by repository state |
 | Rust platform translator | See `runtime/rust/Cargo.toml` and `runtime/rust/Cargo.lock` | The lockfile pins the translator and its crate dependency graph. Cargo.lock does not record SPDX license identifiers or license texts. | Exact versions are locked; crate license data needs generated review |
 | OETF Python decoder | No runtime Python dependencies; `pytest>=8` is a test extra | `kids/examples/oetf/packages/oetf/python/pyproject.toml` | Runtime is dependency-free at Python package level; test dependency is not locked |
