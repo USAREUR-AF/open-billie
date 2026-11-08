@@ -38,6 +38,14 @@ release candidate and must be reviewed against the tagged source before release.
 - `LICENSE` is the verbatim Apache-2.0 text; `INTENT.md` and `CONTRIBUTING.md`
   carry the Code.mil licensing intent and contribution policy.
 
+### Security
+
+- Update the OETF development toolchain to Vitest 4.1.12, Vite 6.4.5,
+  and esbuild 0.25.12, and remove the old vite-node/Tinypool dependency chain.
+- Update the CI Ansible Core pin from 2.17.14 to 2.21.6. This does not
+  upgrade Ubuntu-managed Ansible on deployed nodes. See the
+  [dependency security update notes](docs/UPGRADING.md#dependency-security-updates-2026-11-07).
+
 ### Fixed
 
 - SAPIENT object identity creation is serialized so concurrent requests retain

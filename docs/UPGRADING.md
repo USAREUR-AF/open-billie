@@ -44,3 +44,58 @@ sudo billie kid logs <kid-id>
 ```
 
 Then send representative sensor traffic and verify the expected output with an authorized subscriber. `billie verify` validates platform service health; it does not prove that a sensor is transmitting or that an independent subscriber received data.
+
+## Dependency security updates (2026-11-07)
+
+The source dependency update addresses the 18 open Dependabot alerts observed
+on 2026-11-07. Some advisories appear more than once because both the manifest
+and lockfile, or both Vitest and its mocker package, were affected.
+
+| Dependency | Updated resolution | Published advisories addressed |
+|---|---|---|
+| Vitest / @vitest/mocker | 4.1.12 | [GHSA-5xrq-8626-4rwp](https://github.com/advisories/GHSA-5xrq-8626-4rwp), [GHSA-82fw-gwwq-j7x9](https://github.com/advisories/GHSA-82fw-gwwq-j7x9), [GHSA-qxg6-89mg-rqv8](https://github.com/advisories/GHSA-qxg6-89mg-rqv8) |
+| Tinypool | Removed from the dependency graph | [GHSA-85c8-ppgw-ccpr](https://github.com/advisories/GHSA-85c8-ppgw-ccpr), [GHSA-5gmw-xhrv-c9v3](https://github.com/advisories/GHSA-5gmw-xhrv-c9v3) |
+| Vite | 6.4.5 | [GHSA-4w7w-66w2-5vf9](https://github.com/advisories/GHSA-4w7w-66w2-5vf9), [GHSA-fx2h-pf6j-xcff](https://github.com/advisories/GHSA-fx2h-pf6j-xcff), [GHSA-v6wh-96g9-6wx3](https://github.com/advisories/GHSA-v6wh-96g9-6wx3), [GHSA-698v-4r3x-3vcv](https://github.com/advisories/GHSA-698v-4r3x-3vcv), [GHSA-587h-7wmj-h5pm](https://github.com/advisories/GHSA-587h-7wmj-h5pm), [GHSA-r825-w8mm-5pxw](https://github.com/advisories/GHSA-r825-w8mm-5pxw), [GHSA-rq7h-c2jc-7f22](https://github.com/advisories/GHSA-rq7h-c2jc-7f22), [GHSA-9jrq-w75r-8gcw](https://github.com/advisories/GHSA-9jrq-w75r-8gcw) |
+| esbuild | 0.25.12 | [GHSA-67mh-4wv8-2f99](https://github.com/advisories/GHSA-67mh-4wv8-2f99) |
+| ansible-core (CI) | 2.21.6 | [GHSA-w8p5-mx5w-cpqj / CVE-2026-11332](https://github.com/advisories/GHSA-w8p5-mx5w-cpqj) |
+
+After updating the checkout, reinstall the development dependencies:
+
+```sh
+python -m pip install --requirement requirements-ci.txt
+cd kids/examples/oetf
+pnpm install --frozen-lockfile
+pnpm typecheck
+pnpm test
+pnpm audit
+```
+
+Use Python 3.12 and Node 22 to match CI. The JavaScript changes affect the
+build/test workspace; the current multi-stage TypeScript runtime image does
+not copy its development dependencies into the final stage. Reinstalling the
+workspace does not update old images that were built with other packaging.
+
+The platform Debian package obtains `ansible-core` from the node's configured
+Ubuntu repositories. `requirements-ci.txt` is not used to install or upgrade
+that package. Record the node's installed version with
+`dpkg-query -W ansible-core`, inspect `apt-cache policy ansible-core`, and
+check the applicable Ubuntu security notice and package changelog for
+CVE-2026-11332 before declaring the node remediated. Distribution backports
+cannot be judged from the upstream version number alone. Apply the approved
+vendor security update through the normal node maintenance process; do not
+replace the system Python installation with the CI pip environment.
+
+The reported Ansible issue requires installation of a malicious Galaxy role.
+Billie's tracked automation does not invoke `ansible-galaxy role install`;
+operators should avoid untrusted Galaxy roles while checking their host
+package status. This source update makes no claim that existing nodes or
+previously built artifacts are patched.
+
+On 2026-11-07, the updated workspace passed typechecking and all 30 TypeScript
+tests; `pnpm audit` reported no known vulnerabilities. Python 3.12 platform
+unit tests passed (51 tests), and all four playbooks passed syntax checking
+with Ansible Core 2.21.6. A pip-audit check of the 15 resolved CI packages
+(including transitive dependencies installed on the validation workstation)
+reported no known vulnerabilities. Python transitive dependencies remain
+unlocked, so repeat the audit for the actual CI/deployment environment.
+These checks do not replace the artifact review gates in [SBOM_REVIEW.md](SBOM_REVIEW.md).
