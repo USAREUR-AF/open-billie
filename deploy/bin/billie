@@ -287,7 +287,7 @@ Usage:
 bootstrap installs and starts the NetBird agent without enrolling the node.
 check previews local Ansible changes. apply converges the generic platform baseline.
 verify checks the platform health timer and local runtime prerequisites.
-network configure manages a dedicated sensor-facing static IPv4 address with Netplan and adds no gateway.
+network configure persists a dedicated sensor-facing static IPv4 address with Netplan and applies it only to the selected interface; it does not run global netplan apply or add a gateway.
 It refuses the default-route and current SSH interfaces. Kid configure selects a declared listener, node bind address, and host port. Signing, persistent kid data, and fleet upgrades are not implemented. Kid upgrades retain the previous stateless deployment for rollback.
 CAT062 resolves SAC/SIC in this order: exact kid/sourceId assignment, legacy global assignment until migrated, then the node default. Configure a default with 'cat062 default set' for a single-source setup, or assign unique pairs to every source when sources need distinct identities. Without a match or default, CAT062 requests are rejected. The CLI restarts the translator after configuration changes.
 The local Zenoh island is provisioned by apply. Configure optional fabric mTLS
