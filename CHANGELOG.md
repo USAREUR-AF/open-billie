@@ -20,6 +20,7 @@ release candidate and must be reviewed against the tagged source before release.
 
 ### Changed
 
+- Add pull-request DCO validation, weekly Dependabot updates, and public Scorecard reporting; display the Scorecard badge in the README.
 - Translator requests now require explicit test and simulation flags before
   publication.
 - Platform health reports degraded state when required services, sockets, or
