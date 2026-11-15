@@ -14,6 +14,8 @@ release candidate and must be reviewed against the tagged source before release.
 - `kids/examples/weather-station-bite`: a synthetic Rust kid whose decoder is
   the first-bite `bite` library reading a dictionary shipped as data, with a
   data-driven map to Canonical Track v2.
+- `billie mapper generate --format bite-schema` reads the JSON Schema that
+  `bite schema <dictionary>` prints.
 - TCP and UDP sensor input support and local translator output for CoT,
   ASTERIX CAT-062, and SAPIENT.
 - Kid bundle checksum verification, source-boundary scanning, release hygiene

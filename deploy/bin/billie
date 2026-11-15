@@ -278,7 +278,7 @@ Usage:
   PLATFORM_CLI kid deactivate <id>
   PLATFORM_CLI kid remove <id> [--version <version>] [--remove-config]
   PLATFORM_CLI teardown [--preserve-credentials] [--yes]
-  PLATFORM_CLI mapper generate --schema <path> --target <encoder> [--format auto|billie-json|protobuf]
+  PLATFORM_CLI mapper generate --schema <path> --target <encoder> [--format auto|billie-json|protobuf|bite-schema]
   PLATFORM_CLI zenoh configure --endpoint <proto/host:port> --prefix <key-prefix> --ca-file <path> --client-cert-file <path> --client-key-file <path>
   PLATFORM_CLI zenoh disable
   PLATFORM_CLI version

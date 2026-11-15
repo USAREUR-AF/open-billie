@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Generate a reviewable mapper plan from Billie JSON or protobuf schemas."""
+"""Generate a reviewable mapper plan from Billie JSON, protobuf, or bite JSON Schema input."""
 
 from __future__ import annotations
 
@@ -91,6 +91,76 @@ def json_messages(schema: Path) -> list[dict[str, Any]]:
                 *message["fields"],
             ]
     return body_messages or messages
+
+
+def is_bite_schema(document: Any) -> bool:
+    properties = document.get("properties") if isinstance(document, dict) else None
+    return isinstance(properties, dict) and bool(properties) and all(
+        isinstance(field, dict)
+        and isinstance(field.get("x-bits"), list)
+        and len(field["x-bits"]) == 2
+        and all(isinstance(bit, int) for bit in field["x-bits"])
+        for field in properties.values()
+    )
+
+
+def bite_schema_messages(schema: Path) -> list[dict[str, Any]]:
+    """Read the JSON Schema that `bite schema <dictionary>` prints.
+
+    The file is an object of message schemas keyed `interface/message`; one
+    message schema on its own is accepted too. Each property is a decoded
+    field carrying its bit range (`x-bits`), unit (`x-unit`), and value labels.
+    """
+    files = [schema] if schema.is_file() else sorted(schema.rglob("*.json"))
+    messages = []
+    for path in files:
+        try:
+            if path.stat().st_size > 4 * 1024 * 1024:
+                continue
+            document = json.loads(path.read_text(encoding="utf-8"))
+        except (OSError, UnicodeDecodeError, json.JSONDecodeError) as exc:
+            if schema.is_file():
+                raise ValueError(f"cannot read schema JSON {path}: {exc}") from exc
+            continue
+        if is_bite_schema(document):
+            candidates = [document]
+        elif isinstance(document, dict):
+            candidates = [value for value in document.values() if is_bite_schema(value)]
+        else:
+            candidates = []
+        for message in candidates:
+            fields = []
+            ordered = sorted(message["properties"].items(), key=lambda item: (item[1]["x-bits"], item[0]))
+            for name, definition in ordered:
+                alternatives = [item for item in definition.get("anyOf", []) if isinstance(item, dict)]
+                source_type = next(
+                    (item["type"] for item in alternatives if item.get("type") not in (None, "null")), "unknown"
+                )
+                source = {"name": name, "type": source_type, "bits": definition["x-bits"]}
+                if "x-unit" in definition:
+                    source["units"] = definition["x-unit"]
+                labels = next((item["enum"] for item in alternatives if "enum" in item), None)
+                if labels:
+                    source["values"] = labels
+                if "description" in definition:
+                    source["description"] = definition["description"]
+                fields.append({
+                    "sourcePath": name,
+                    "sourceType": source_type,
+                    "cardinality": "single",
+                    "source": source,
+                })
+            identifier = str(message.get("$id", ""))
+            messages.append({
+                "name": message.get("title") or identifier.rsplit("/", 1)[-1] or path.stem,
+                "messageId": None,
+                "schemaFile": str(path),
+                **({"schemaId": identifier} if identifier else {}),
+                "fields": fields,
+            })
+    if not messages:
+        raise ValueError(f"no bite JSON Schema (the output of `bite schema <dictionary>`) found under {schema}")
+    return messages
 
 
 def protobuf_messages(schema: Path, proto_paths: list[Path]) -> list[dict[str, Any]]:
@@ -217,7 +287,10 @@ def main() -> int:
         description="Create an Open Billie mapping plan and mapping-contract files from local decode schemas.",
     )
     parser.add_argument("--schema", required=True, type=Path, help="schema file or directory")
-    parser.add_argument("--format", choices=("auto", "billie-json", "protobuf"), default="auto")
+    parser.add_argument(
+        "--format", choices=("auto", "billie-json", "protobuf", "bite-schema"), default="auto",
+        help="schema format; auto chooses between billie-json and protobuf, so name bite-schema explicitly",
+    )
     parser.add_argument("--source-protocol", help="source protocol ID; inferred from a nearby kid manifest when available")
     parser.add_argument("--target", required=True, help="target encoder or output format name")
     parser.add_argument("--target-message", help="target message name; defaults to each source message name")
@@ -260,6 +333,9 @@ def main() -> int:
         if input_format == "billie-json":
             messages = json_messages(schema)
             format_name = "billie-json-byte-offset/v1"
+        elif input_format == "bite-schema":
+            messages = bite_schema_messages(schema)
+            format_name = "bite-json-schema/v1"
         else:
             messages = protobuf_messages(schema, args.proto_path)
             format_name = "protobuf-descriptor/v1"

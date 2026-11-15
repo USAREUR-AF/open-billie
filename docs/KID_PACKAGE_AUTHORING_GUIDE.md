@@ -103,6 +103,7 @@ Store source schemas under the package's schemas directory. The mapper generator
 
 - Open Billie byte-offset JSON decode schemas.
 - Protocol Buffers .proto files, using protoc and the Python protobuf descriptor module.
+- The JSON Schema that first-bite's `bite schema <dictionary>` prints, with `--format bite-schema`.
 
 When every message of the sensor has a fixed layout, the source schema can be a first-bite dictionary and the decoder can be the `bite` library, with no decoder code in the kid. [`kids/examples/weather-station-bite`](../kids/examples/weather-station-bite/README.md) is a working example and lists the limits of that approach.
 
