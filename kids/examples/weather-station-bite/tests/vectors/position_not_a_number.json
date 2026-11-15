@@ -1,0 +1,22 @@
+{
+  "name": "position_not_a_number",
+  "description": "Malformed input: the latitude bits are an IEEE 754 NaN, which has no JSON form. No track is sent.",
+  "interface": "WX",
+  "datagramHex": "03001b4b5837007ff8000000000000c06276ecbfb15b5743088000",
+  "receivedAt": "2026-01-01T00:00:00.000Z",
+  "decoded": {
+    "message": "Position",
+    "fields": {
+      "message_type": "Position",
+      "message_length": 27,
+      "station_id": "KX7",
+      "latitude": null,
+      "longitude": -147.7164,
+      "altitude": 136.5
+    }
+  },
+  "track": null,
+  "missing": [
+    "position.latitudeDeg"
+  ]
+}

@@ -1,0 +1,17 @@
+{
+    "interface": "WX",
+    "payload_hex": "01000c4b5837000001518060",
+    "expect": {
+        "message_type": "Heartbeat",
+        "fields": {
+            "message_type": "Heartbeat",
+            "message_length": "12",
+            "station_id": "KX7",
+            "uptime": "86400",
+            "battery_low": "false",
+            "sensor_fault": "true",
+            "mode": "Calibrating",
+            "reserved": "0"
+        }
+    }
+}

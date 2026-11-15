@@ -1,0 +1,11 @@
+{
+  "name": "empty",
+  "description": "Malformed input: an empty datagram cannot hold the message type.",
+  "interface": "WX",
+  "datagramHex": "",
+  "receivedAt": "2026-01-01T00:00:00.000Z",
+  "decodeError": "too short to hold the message type",
+  "decoded": null,
+  "track": null,
+  "missing": []
+}

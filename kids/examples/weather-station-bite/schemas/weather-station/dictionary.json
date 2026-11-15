@@ -1,0 +1,26 @@
+{
+    "name": "weather-station",
+    "version": "1.0.0",
+    "description": "Synthetic example: a weather station that reports over UDP. Exercises signed, scaled, float, boolean, text, little-endian and non-byte-aligned fields.",
+    "lint": {
+        "allow": [
+            {
+                "rule": "N004",
+                "at": "WX/Heartbeat/reserved",
+                "reason": "Named before the spare_<start bit> convention; renaming it would change the published record."
+            },
+            {
+                "rule": "P001",
+                "reason": "Synthetic example: there is no source document to cite."
+            },
+            {
+                "rule": "P002",
+                "reason": "Synthetic example: there is no source document to cite."
+            },
+            {
+                "rule": "V002",
+                "reason": "Synthetic example: there is no source document to cite."
+            }
+        ]
+    }
+}

@@ -104,6 +104,8 @@ Store source schemas under the package's schemas directory. The mapper generator
 - Open Billie byte-offset JSON decode schemas.
 - Protocol Buffers .proto files, using protoc and the Python protobuf descriptor module.
 
+When every message of the sensor has a fixed layout, the source schema can be a first-bite dictionary and the decoder can be the `bite` library, with no decoder code in the kid. [`kids/examples/weather-station-bite`](../kids/examples/weather-station-bite/README.md) is a working example and lists the limits of that approach.
+
 A JSON decode schema should describe message identifiers, offsets, wire types, signedness, scale, units, enums, and repetition. A protobuf schema should preserve field numbers, types, cardinality, nested messages, oneofs, and enum domains. Also keep a JSON Schema for the decoder's normalized decoded-record structure under schemas: the current package validator checks JSON data files there, while mapper generation reads the .proto descriptor. Run protoc and test each schema against synthetic input; the package validator does not compile .proto files.
 
 The shared translator consumes billie.dev/track-v2 canonical records. It does not consume raw sensor schemas or infer sensor meaning. Required fields are a stable trackId, sourceId, trackGeneration, observedAt as RFC 3339, and WGS-84 latitude and longitude. Optional canonical fields have defined units and semantics. Omit measurements and status fields the sensor does not provide; do not invent them.

@@ -1,0 +1,22 @@
+{
+  "name": "position_no_station",
+  "description": "Malformed input: the station identifier is four NUL bytes, so there is no track identifier. No track is sent.",
+  "interface": "WX",
+  "datagramHex": "03001b000000004050359e83e425afc06276ecbfb15b5743088000",
+  "receivedAt": "2026-01-01T00:00:00.000Z",
+  "decoded": {
+    "message": "Position",
+    "fields": {
+      "message_type": "Position",
+      "message_length": 27,
+      "station_id": "",
+      "latitude": 64.8378,
+      "longitude": -147.7164,
+      "altitude": 136.5
+    }
+  },
+  "track": null,
+  "missing": [
+    "trackId"
+  ]
+}

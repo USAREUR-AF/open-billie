@@ -1,0 +1,23 @@
+{
+  "name": "observation",
+  "description": "A message with signed, scaled, 20-bit, little-endian and byte-string fields and no position: decoded, no track.",
+  "interface": "WX",
+  "datagramHex": "0200174b583700fb2e18bcda9b4236000004030201beef",
+  "receivedAt": "2026-01-01T00:00:00.000Z",
+  "decoded": {
+    "message": "Observation",
+    "fields": {
+      "message_type": "Observation",
+      "message_length": 23,
+      "station_id": "KX7",
+      "temperature": -12.34,
+      "pressure": 101325,
+      "wind_direction": 271.5,
+      "humidity": 45.5,
+      "sample_serial": 16909060,
+      "checksum": "beef"
+    }
+  },
+  "track": null,
+  "missing": []
+}

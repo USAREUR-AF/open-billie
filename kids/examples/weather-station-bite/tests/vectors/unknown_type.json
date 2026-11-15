@@ -1,0 +1,13 @@
+{
+  "name": "unknown_type",
+  "description": "A message type the interface does not name: identified by its code, no fields, no track.",
+  "interface": "WX",
+  "datagramHex": "2a0003",
+  "receivedAt": "2026-01-01T00:00:00.000Z",
+  "decoded": {
+    "message": "42",
+    "fields": {}
+  },
+  "track": null,
+  "missing": []
+}

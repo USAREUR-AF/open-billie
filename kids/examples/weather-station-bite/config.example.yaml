@@ -1,0 +1,6 @@
+# Safe example only. This kid needs no per-node runtime values: the listener
+# address and port come from `billie kid configure`, and the dictionary,
+# mapping and outputs are fixed in the image.
+kid:
+  id: weather-station-bite
+  listener: wx-udp

@@ -25,3 +25,9 @@ by the same terms as the rest of this work:
 The OETF wire format, schemas, mappings, lookups, conformance vectors and the
 Python and Rust implementations were written for Open Billie and are not
 derived from those files.
+
+The files under kids/examples/weather-station-bite/schemas/weather-station/
+are the synthetic "weather-station" example dictionary of first-bite
+(https://github.com/USAREUR-AF/first-bite, Apache License 2.0), copied unchanged
+from commit b7bc25898a28bc449dd11bb1876a9645bde43cb3. first-bite's licence and
+notice are in kids/examples/weather-station-bite/licenses/.

@@ -1,0 +1,48 @@
+apiVersion: billie.dev/v1
+kind: KidPackage
+metadata:
+  id: weather-station-bite
+  version: 0.1.0
+  displayName: Weather station kid decoded by a bite dictionary
+  description: Synthetic example. The decoder is the first-bite bite library reading the weather-station dictionary under schemas/; the package holds no decoder code for the message set.
+
+runtime:
+  # Placeholder. `billie kid build` records the built image digest in the bundle.
+  image: registry.example.invalid/open-billie/weather-station-bite@sha256:0000000000000000000000000000000000000000000000000000000000000000
+  command: ["/usr/local/bin/billie-bite-kid"]
+  environment:
+    - BILLIE_TRANSLATOR_SOCKET
+    - BILLIE_INPUT_PORT
+    - BILLIE_INPUT_BIND
+    - BILLIE_INPUT_TRANSPORT
+  persistentPaths: []
+
+decoderImplementations:
+  rust:
+    status: deployable
+    decoder: src/decoder.rs
+    mapper: src/mapper.rs
+    containerfile: Containerfile
+    command: ["/usr/local/bin/billie-bite-kid"]
+
+components:
+  decoder: src/decoder.rs
+  mapper: src/mapper.rs
+  schemas: schemas
+  mappings: mappings
+  lookups: lookups
+  vectors: tests/vectors
+
+interfaces:
+  inputs:
+    # The port the dictionary gives the WX interface (schemas/weather-station/WX/metadata.json).
+    - name: wx-udp
+      transport: udp
+      port: 40100
+  outputs:
+    # Keep in step with BITE_KID_OUTPUTS in the Containerfile.
+    - name: tracks-cot
+      format: cot
+    - name: tracks-sapient
+      format: sapient
+  requires: []

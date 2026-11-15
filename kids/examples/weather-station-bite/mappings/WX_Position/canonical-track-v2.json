@@ -1,0 +1,98 @@
+{
+  "mapVersion": 1,
+  "source": {
+    "protocol": "weather-station-bite",
+    "interface": "WX",
+    "message": "Position"
+  },
+  "target": {
+    "protocol": "billie-canonical",
+    "message": "Track"
+  },
+  "direction": "inbound",
+  "enabled": true,
+  "preserveRaw": false,
+  "mappings": [
+    {
+      "value": "billie.dev/track-v2",
+      "to": "apiVersion"
+    },
+    {
+      "value": "Track",
+      "to": "kind"
+    },
+    {
+      "from": "station_id",
+      "to": "trackId",
+      "notes": "The station is the tracked object: one record per station."
+    },
+    {
+      "from": "$interface",
+      "to": "sourceId",
+      "notes": "Station identifiers are unique within the WX interface."
+    },
+    {
+      "value": "1",
+      "to": "trackGeneration",
+      "notes": "This synthetic message set does not reuse station identifiers. A message set that recycles identifiers needs a field that advances with each lifetime."
+    },
+    {
+      "from": "$receivedAt",
+      "to": "observedAt",
+      "notes": "The Position message carries no time; the time the datagram arrived is used."
+    },
+    {
+      "value": true,
+      "to": "testData",
+      "notes": "The weather-station message set is synthetic and has no status flags, so every report is marked as test data."
+    },
+    {
+      "value": false,
+      "to": "headerSimulated",
+      "notes": "The message set has no simulation flag."
+    },
+    {
+      "value": false,
+      "to": "simulated",
+      "notes": "The message set has no simulation flag."
+    },
+    {
+      "from": "latitude",
+      "to": "position.latitudeDeg",
+      "notes": "Dictionary unit deg, WGS 84, positive north: no conversion."
+    },
+    {
+      "from": "longitude",
+      "to": "position.longitudeDeg",
+      "notes": "Dictionary unit deg, WGS 84, positive east: no conversion."
+    },
+    {
+      "from": "altitude",
+      "to": "position.altitudeM",
+      "notes": "Dictionary unit m above the WGS 84 ellipsoid: no conversion."
+    },
+    {
+      "from": "$message",
+      "to": "classification",
+      "via": [
+        {
+          "conversion": "lookup",
+          "params": {
+            "table": "WX_message_classification"
+          }
+        }
+      ],
+      "notes": "The message set has no classification field. The table gives the class of the object each message reports: a Position message reports the station itself."
+    }
+  ],
+  "unmapped": [
+    {
+      "from": "message_type",
+      "reason": "framing data is not part of the canonical track record"
+    },
+    {
+      "from": "message_length",
+      "reason": "framing data is not part of the canonical track record"
+    }
+  ]
+}

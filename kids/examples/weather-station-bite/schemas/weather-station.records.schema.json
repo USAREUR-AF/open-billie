@@ -1,0 +1,428 @@
+{
+  "WX/Heartbeat": {
+    "$id": "weather-station/WX/Heartbeat",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false,
+    "description": "Sent every ten seconds while the station is powered.",
+    "properties": {
+      "battery_low": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          88,
+          89
+        ]
+      },
+      "message_length": {
+        "anyOf": [
+          {
+            "maximum": 65535,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          8,
+          24
+        ],
+        "x-unit": "bytes"
+      },
+      "message_type": {
+        "anyOf": [
+          {
+            "enum": [
+              "Heartbeat",
+              "Observation"
+            ]
+          },
+          {
+            "maximum": 255,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          0,
+          8
+        ]
+      },
+      "mode": {
+        "anyOf": [
+          {
+            "enum": [
+              "Calibrating",
+              "Idle",
+              "Sampling"
+            ]
+          },
+          {
+            "maximum": 3,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          90,
+          92
+        ]
+      },
+      "reserved": {
+        "anyOf": [
+          {
+            "maximum": 15,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          92,
+          96
+        ]
+      },
+      "sensor_fault": {
+        "anyOf": [
+          {
+            "type": "boolean"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          89,
+          90
+        ]
+      },
+      "station_id": {
+        "anyOf": [
+          {
+            "maxLength": 4,
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "Four-character station identifier, NUL padded.",
+        "x-bits": [
+          24,
+          56
+        ]
+      },
+      "uptime": {
+        "anyOf": [
+          {
+            "maximum": 4294967295,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          56,
+          88
+        ],
+        "x-unit": "s"
+      }
+    },
+    "title": "Heartbeat",
+    "type": "object",
+    "x-dictionary-version": "1.0.0"
+  },
+  "WX/Observation": {
+    "$id": "weather-station/WX/Observation",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false,
+    "description": "One set of readings.",
+    "properties": {
+      "checksum": {
+        "anyOf": [
+          {
+            "maxLength": 4,
+            "pattern": "^[0-9a-f]*$",
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          168,
+          184
+        ]
+      },
+      "humidity": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          104,
+          136
+        ],
+        "x-unit": "%"
+      },
+      "message_length": {
+        "anyOf": [
+          {
+            "maximum": 65535,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          8,
+          24
+        ],
+        "x-unit": "bytes"
+      },
+      "message_type": {
+        "anyOf": [
+          {
+            "enum": [
+              "Heartbeat",
+              "Observation"
+            ]
+          },
+          {
+            "maximum": 255,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          0,
+          8
+        ]
+      },
+      "pressure": {
+        "anyOf": [
+          {
+            "maximum": 1048575,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "20 bits, not byte-aligned.",
+        "x-bits": [
+          72,
+          92
+        ],
+        "x-unit": "Pa"
+      },
+      "sample_serial": {
+        "anyOf": [
+          {
+            "maximum": 4294967295,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          136,
+          168
+        ]
+      },
+      "station_id": {
+        "anyOf": [
+          {
+            "maxLength": 4,
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "Four-character station identifier, NUL padded.",
+        "x-bits": [
+          24,
+          56
+        ]
+      },
+      "temperature": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          56,
+          72
+        ],
+        "x-unit": "degC"
+      },
+      "wind_direction": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          92,
+          104
+        ],
+        "x-unit": "deg"
+      }
+    },
+    "title": "Observation",
+    "type": "object",
+    "x-dictionary-version": "1.0.0"
+  },
+  "WX/Position": {
+    "$id": "weather-station/WX/Position",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "additionalProperties": false,
+    "description": "Where the station is. Sent at power-on and whenever the station is moved.",
+    "properties": {
+      "altitude": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "Height above the WGS 84 ellipsoid.",
+        "x-bits": [
+          184,
+          216
+        ],
+        "x-unit": "m"
+      },
+      "latitude": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "WGS 84, positive north.",
+        "x-bits": [
+          56,
+          120
+        ],
+        "x-unit": "deg"
+      },
+      "longitude": {
+        "anyOf": [
+          {
+            "type": "number"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "WGS 84, positive east.",
+        "x-bits": [
+          120,
+          184
+        ],
+        "x-unit": "deg"
+      },
+      "message_length": {
+        "anyOf": [
+          {
+            "maximum": 65535,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          8,
+          24
+        ],
+        "x-unit": "bytes"
+      },
+      "message_type": {
+        "anyOf": [
+          {
+            "enum": [
+              "Heartbeat",
+              "Observation",
+              "Position"
+            ]
+          },
+          {
+            "maximum": 255,
+            "minimum": 0,
+            "type": "integer"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "x-bits": [
+          0,
+          8
+        ]
+      },
+      "station_id": {
+        "anyOf": [
+          {
+            "maxLength": 4,
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "description": "Four-character station identifier, NUL padded.",
+        "x-bits": [
+          24,
+          56
+        ]
+      }
+    },
+    "title": "Position",
+    "type": "object",
+    "x-dictionary-version": "1.0.0"
+  }
+}

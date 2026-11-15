@@ -13,6 +13,7 @@ Open Billie prepares a node, builds sensor-specific packages (called kids), and 
 | `deploy/` | the `billie` command (`deploy/bin/billie`), the Ansible playbooks (`deploy/platform/`), the provisioning guide |
 | `runtime/rust/` | the translator workspace |
 | `kids/_template/`, `kids/examples/oetf/` | the kid package template and the synthetic example, in Python, Rust and TypeScript |
+| `kids/examples/weather-station-bite/` | a synthetic kid whose decoder is the first-bite `bite` library and a dictionary |
 | `tools/` | setup, build and deploy scripts, the release and boundary checks, and the platform unit tests (`test_*.py`) |
 | `schemas/` | schemas |
 | `docs/` | guides, architecture, and `TESTING.md` |
@@ -31,7 +32,7 @@ cargo fmt --manifest-path runtime/rust/Cargo.toml --all -- --check
 cargo test --locked --workspace --manifest-path runtime/rust/Cargo.toml
 ```
 
-For a change under `kids/examples/oetf/`, the workflow also runs that package's Python, Rust and TypeScript tests; copy the commands from it. Include the commands that you ran and their results in the pull request.
+For a change under `kids/examples/oetf/`, the workflow also runs that package's Python, Rust and TypeScript tests; for a change under `kids/examples/weather-station-bite/`, its Rust format check and tests. Copy the commands from it. Include the commands that you ran and their results in the pull request.
 
 ## Rules
 

@@ -1,0 +1,15 @@
+{
+    "interface": "WX",
+    "payload_hex": "03001b4b5837004050359e83e425afc06276ecbfb15b5743088000",
+    "expect": {
+        "message_type": "Position",
+        "fields": {
+            "message_type": "Position",
+            "message_length": "27",
+            "station_id": "KX7",
+            "latitude": "64.8378",
+            "longitude": "-147.7164",
+            "altitude": "136.5"
+        }
+    }
+}

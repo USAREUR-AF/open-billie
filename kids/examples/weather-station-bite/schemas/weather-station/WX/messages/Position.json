@@ -1,0 +1,46 @@
+{
+    "description": "Where the station is. Sent at power-on and whenever the station is moved.",
+    "fields": {
+        "message_type": {
+            "start": 0,
+            "stop": 8,
+            "values": {
+                "1": "Heartbeat",
+                "2": "Observation",
+                "3": "Position"
+            }
+        },
+        "message_length": {
+            "start": 8,
+            "stop": 24,
+            "unit": "bytes"
+        },
+        "station_id": {
+            "start": 24,
+            "stop": 56,
+            "type": "ascii",
+            "description": "Four-character station identifier, NUL padded."
+        },
+        "latitude": {
+            "start": 56,
+            "stop": 120,
+            "type": "float",
+            "unit": "deg",
+            "description": "WGS 84, positive north."
+        },
+        "longitude": {
+            "start": 120,
+            "stop": 184,
+            "type": "float",
+            "unit": "deg",
+            "description": "WGS 84, positive east."
+        },
+        "altitude": {
+            "start": 184,
+            "stop": 216,
+            "type": "float",
+            "unit": "m",
+            "description": "Height above the WGS 84 ellipsoid."
+        }
+    }
+}

@@ -64,6 +64,10 @@ jobs:
         run: cargo test --locked --workspace --manifest-path runtime/rust/Cargo.toml
       - name: Test OETF Rust decoder
         run: cargo test --locked --manifest-path kids/examples/oetf/packages/oetf/rust/Cargo.toml
+      - name: Check weather-station-bite kid formatting
+        run: cargo fmt --manifest-path kids/examples/weather-station-bite/Cargo.toml -- --check
+      - name: Test weather-station-bite kid
+        run: cargo test --locked --manifest-path kids/examples/weather-station-bite/Cargo.toml
 
   typescript:
     runs-on: ubuntu-24.04

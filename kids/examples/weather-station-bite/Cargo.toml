@@ -1,0 +1,16 @@
+[package]
+name = "billie-bite-kid"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "Apache-2.0"
+description = "Open Billie kid runtime whose decoder is the first-bite `bite` library and a dictionary shipped as data."
+
+[dependencies]
+# The decoder. `default-features = false` builds the library without its
+# command line. Pinned to a commit of the public first-bite repository; the
+# dictionary under schemas/ was copied from the same commit.
+bite = { git = "https://github.com/USAREUR-AF/first-bite", rev = "b7bc25898a28bc449dd11bb1876a9645bde43cb3", default-features = false }
+# float_roundtrip: parse JSON numbers (dictionary scales, mapping factors)
+# with correct rounding.
+serde_json = { version = "1", features = ["float_roundtrip"] }
