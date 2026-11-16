@@ -598,6 +598,16 @@ fn same_value(a: &str, b: &str) -> bool {
     }
 }
 
+/// Two finite numbers no more than two units in the last place apart.
+fn last_digit_apart(a: &str, b: &str) -> bool {
+    match (a.parse::<f64>(), b.parse::<f64>()) {
+        (Ok(x), Ok(y)) if x.is_finite() && y.is_finite() => {
+            (x - y).abs() <= 2.0 * f64::EPSILON * x.abs().max(y.abs())
+        }
+        _ => false,
+    }
+}
+
 /// (field, kind of difference, native value, library value)
 type Diff = (String, &'static str, String, String);
 
@@ -612,6 +622,10 @@ fn compare(native: &Fields, library: &Fields) -> Vec<Diff> {
             (Some(n), Some(l)) if key.ends_with(".report_id") && is_ulid(n) && is_ulid(l) => {
                 continue
             }
+            // The native encoders call the platform `hypot`; the library
+            // computes sqrt(a*a + b*b). The two can differ in the last digit,
+            // on some platforms only, so such a pair counts as equal.
+            (Some(n), Some(l)) if last_digit_apart(n, l) => continue,
             (Some(n), Some(l)) if same_value(n, l) => "same value, different text",
             (Some(_), Some(_)) => "different value",
             (Some(_), None) => "not written by the library",

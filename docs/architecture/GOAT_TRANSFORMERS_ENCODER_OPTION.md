@@ -44,7 +44,7 @@ To switch one format on a node, add a systemd drop-in for the translator unit wi
 
 ## What is identical and what differs
 
-The comparison test encodes 33 inputs through both encoders for each format: the schema examples, the example request of the runtime contract, the tracks of the translator's unit tests, and the ten tracks the OETF example produces from its conformance vectors. It parses both outputs and compares them field by field.
+The comparison test encodes 33 inputs through both encoders for each format: the schema examples, the example request of the runtime contract, the tracks of the translator's unit tests, and the ten tracks the OETF example produces from its conformance vectors. It parses both outputs and compares them field by field. Two numbers no more than two units in the last place apart count as equal: the native encoders compute the CoT `ce` and `speed` with the platform `hypot`, the library computes `sqrt(a*a + b*b)`, and on Linux the two differ in the last digit on 3 of the 594 CoT fields (`ce` on 2 inputs, `speed` on 1). Those inputs are not among the 17 byte-identical ones.
 
 | Format | Encoded by both | Refused by both | One path refuses | Byte-identical | Fields equal |
 |---|---|---|---|---|---|
