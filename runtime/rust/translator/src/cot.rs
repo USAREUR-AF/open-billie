@@ -42,11 +42,18 @@ impl CotEncoder {
         self.encode_for_kid(track, "local")
     }
 
-    pub fn encode_for_kid(
+    /// CoT `how` value from node configuration.
+    #[cfg(feature = "goat-transformers")]
+    pub(crate) fn how(&self) -> &str {
+        &self.options.how
+    }
+
+    /// Validate the node options and return the observation time and the
+    /// stale time (observation time plus the configured duration).
+    pub(crate) fn event_times(
         &self,
         track: &CanonicalTrack,
-        kid: &str,
-    ) -> Result<Vec<u8>, CotEncodeError> {
+    ) -> Result<(DateTime<Utc>, DateTime<Utc>), CotEncodeError> {
         if self.options.stale_after_seconds <= 0 {
             return Err(CotEncodeError {
                 code: "invalid_configuration",
@@ -66,6 +73,15 @@ impl CotEncoder {
             })?;
         let observed = observed.with_timezone(&Utc);
         let stale = observed + Duration::seconds(self.options.stale_after_seconds);
+        Ok((observed, stale))
+    }
+
+    pub fn encode_for_kid(
+        &self,
+        track: &CanonicalTrack,
+        kid: &str,
+    ) -> Result<Vec<u8>, CotEncodeError> {
+        let (observed, stale) = self.event_times(track)?;
         let timestamp = observed.to_rfc3339_opts(SecondsFormat::AutoSi, true);
         let stale = stale.to_rfc3339_opts(SecondsFormat::AutoSi, true);
 

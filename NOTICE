@@ -22,6 +22,12 @@ by the same terms as the rest of this work:
   kids/examples/oetf/packages/oetf/typescript/decoder/index.ts
   kids/examples/oetf/tsconfig.base.json
 
+The files under runtime/rust/translator/goat-transformers/ are copied unchanged
+from goat-transformers (https://github.com/USAREUR-AF/goat-transformers,
+Apache License, Version 2.0) at the commit named in that directory's COMMIT
+file. Its NOTICE file is kept beside them and states the third-party sources
+those definitions were written from.
+
 The OETF wire format, schemas, mappings, lookups, conformance vectors and the
 Python and Rust implementations were written for Open Billie and are not
 derived from those files.

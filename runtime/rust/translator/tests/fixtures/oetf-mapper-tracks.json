@@ -1,0 +1,372 @@
+{
+ "oetf-vector:track_report_eight_tracks#0": {
+  "apiVersion": "billie.dev/track-v2",
+  "kind": "Track",
+  "trackId": "1000",
+  "sourceId": "263",
+  "trackGeneration": "fixture-1",
+  "testData": true,
+  "headerSimulated": false,
+  "confirmed": true,
+  "coasting": false,
+  "finalUpdate": false,
+  "simulated": false,
+  "observedAt": "2025-10-30T11:59:59.123Z",
+  "position": {
+   "latitudeDeg": -33.8688,
+   "longitudeDeg": 151.20929999999998,
+   "altitudeM": 25
+  },
+  "velocity": {
+   "eastMps": -250,
+   "northMps": 40.07,
+   "upMps": 0
+  },
+  "classification": "unknown",
+  "confidence": 0.3,
+  "positionUncertainty": {
+   "sigmaEastM": 0.5,
+   "sigmaNorthM": 0.75,
+   "sigmaUpM": 1
+  },
+  "identifiers": [
+   {
+    "scheme": "sapient-object-info",
+    "value": "-40"
+   }
+  ]
+ },
+ "oetf-vector:track_report_eight_tracks#1": {
+  "apiVersion": "billie.dev/track-v2",
+  "kind": "Track",
+  "trackId": "1037",
+  "sourceId": "263",
+  "trackGeneration": "fixture-1",
+  "testData": true,
+  "headerSimulated": false,
+  "confirmed": false,
+  "coasting": true,
+  "finalUpdate": false,
+  "simulated": false,
+  "observedAt": "2025-10-30T11:59:59.123Z",
+  "position": {
+   "latitudeDeg": -24.7318,
+   "longitudeDeg": 109.9093,
+   "altitudeM": 1058.7
+  },
+  "velocity": {
+   "eastMps": -188.87,
+   "northMps": 28.57,
+   "upMps": 0.8300000000000001
+  },
+  "classification": "fixed-wing-aircraft",
+  "confidence": 0.39,
+  "positionUncertainty": {
+   "sigmaEastM": 2.71,
+   "sigmaNorthM": 2.65,
+   "sigmaUpM": 4.3
+  },
+  "identifiers": [
+   {
+    "scheme": "sapient-object-info",
+    "value": "-32.300000000000004"
+   }
+  ]
+ },
+ "oetf-vector:track_report_eight_tracks#2": {
+  "apiVersion": "billie.dev/track-v2",
+  "kind": "Track",
+  "trackId": "1074",
+  "sourceId": "263",
+  "trackGeneration": "fixture-1",
+  "testData": true,
+  "headerSimulated": false,
+  "confirmed": true,
+  "coasting": false,
+  "finalUpdate": false,
+  "simulated": false,
+  "observedAt": "2025-10-30T11:59:59.123Z",
+  "position": {
+   "latitudeDeg": -15.5948,
+   "longitudeDeg": 68.60929999999999,
+   "altitudeM": 2092.4
+  },
+  "velocity": {
+   "eastMps": -127.74000000000001,
+   "northMps": 17.07,
+   "upMps": -9.99
+  },
+  "classification": "rotary-wing-aircraft",
+  "confidence": 0.48,
+  "positionUncertainty": {
+   "sigmaEastM": 4.92,
+   "sigmaNorthM": 4.55,
+   "sigmaUpM": 7.6000000000000005
+  },
+  "identifiers": [
+   {
+    "scheme": "sapient-object-info",
+    "value": "-24.6"
+   }
+  ]
+ },
+ "oetf-vector:track_report_eight_tracks#3": {
+  "apiVersion": "billie.dev/track-v2",
+  "kind": "Track",
+  "trackId": "1111",
+  "sourceId": "263",
+  "trackGeneration": "fixture-1",
+  "testData": true,
+  "headerSimulated": false,
+  "confirmed": false,
+  "coasting": false,
+  "finalUpdate": false,
+  "simulated": false,
+  "observedAt": "2025-10-30T11:59:59.123Z",
+  "position": {
+   "latitudeDeg": 3e-07,
+   "longitudeDeg": -1e-07,
+   "altitudeM": 3126.1
+  },
+  "velocity": {
+   "eastMps": -66.61,
+   "northMps": 5.57,
+   "upMps": 2.49
+  },
+  "classification": "uas",
+  "confidence": 0.5700000000000001,
+  "positionUncertainty": {
+   "sigmaEastM": 7.13,
+   "sigmaNorthM": 6.45,
+   "sigmaUpM": 10.9
+  },
+  "identifiers": [
+   {
+    "scheme": "sapient-object-info",
+    "value": "-16.900000000000002"
+   }
+  ]
+ },
+ "oetf-vector:track_report_eight_tracks#4": {
+  "apiVersion": "billie.dev/track-v2",
+  "kind": "Track",
+  "trackId": "1148",
+  "sourceId": "263",
+  "trackGeneration": "fixture-1",
+  "testData": true,
+  "headerSimulated": false,
+  "confirmed": true,
+  "coasting": true,
+  "finalUpdate": false,
+  "simulated": false,
+  "observedAt": "2025-10-30T11:59:59.123Z",
+  "position": {
+   "latitudeDeg": 2.6792,
+   "longitudeDeg": -13.990699999999999,
+   "altitudeM": 4159.8
+  },
+  "velocity": {
+   "eastMps": -5.48,
+   "northMps": -5.93,
+   "upMps": 3.3200000000000003
+  },
+  "classification": "balloon",
+  "confidence": 0.66,
+  "positionUncertainty": {
+   "sigmaEastM": 9.34,
+   "sigmaNorthM": 8.35,
+   "sigmaUpM": 14.200000000000001
+  },
+  "identifiers": [
+   {
+    "scheme": "sapient-object-info",
+    "value": "-9.200000000000001"
+   }
+  ]
+ },
+ "oetf-vector:track_report_eight_tracks#5": {
+  "apiVersion": "billie.dev/track-v2",
+  "kind": "Track",
+  "trackId": "1185",
+  "sourceId": "263",
+  "trackGeneration": "fixture-1",
+  "testData": true,
+  "headerSimulated": false,
+  "confirmed": false,
+  "coasting": false,
+  "finalUpdate": false,
+  "simulated": true,
+  "observedAt": "2025-10-30T11:59:59.123Z",
+  "position": {
+   "latitudeDeg": 11.8162,
+   "longitudeDeg": -55.290699999999994,
+   "altitudeM": 5193.5
+  },
+  "velocity": {
+   "eastMps": 55.65,
+   "northMps": -17.43,
+   "upMps": 4.15
+  },
+  "classification": "bird",
+  "confidence": 0.75,
+  "positionUncertainty": {
+   "sigmaEastM": 11.55,
+   "sigmaNorthM": 10.25,
+   "sigmaUpM": 17.5
+  },
+  "identifiers": [
+   {
+    "scheme": "sapient-object-info",
+    "value": "-1.5"
+   }
+  ]
+ },
+ "oetf-vector:track_report_eight_tracks#6": {
+  "apiVersion": "billie.dev/track-v2",
+  "kind": "Track",
+  "trackId": "1222",
+  "sourceId": "263",
+  "trackGeneration": "fixture-1",
+  "testData": true,
+  "headerSimulated": false,
+  "confirmed": true,
+  "coasting": false,
+  "finalUpdate": false,
+  "simulated": false,
+  "observedAt": "2025-10-30T11:59:59.123Z",
+  "position": {
+   "latitudeDeg": 20.9532,
+   "longitudeDeg": -96.5907,
+   "altitudeM": -12.34
+  },
+  "velocity": {
+   "eastMps": 116.78,
+   "northMps": -28.93,
+   "upMps": 4.98
+  },
+  "classification": "vehicle",
+  "confidence": 0.84,
+  "positionUncertainty": {
+   "sigmaEastM": 13.76,
+   "sigmaNorthM": 12.15,
+   "sigmaUpM": 20.8
+  },
+  "identifiers": [
+   {
+    "scheme": "sapient-object-info",
+    "value": "6.2"
+   }
+  ]
+ },
+ "oetf-vector:track_report_eight_tracks#7": {
+  "apiVersion": "billie.dev/track-v2",
+  "kind": "Track",
+  "trackId": "1259",
+  "sourceId": "263",
+  "trackGeneration": "fixture-1",
+  "testData": true,
+  "headerSimulated": false,
+  "confirmed": false,
+  "coasting": true,
+  "finalUpdate": true,
+  "simulated": false,
+  "observedAt": "2025-10-30T11:59:59.123Z",
+  "position": {
+   "latitudeDeg": 30.0902,
+   "longitudeDeg": -137.89069999999998,
+   "altitudeM": 7260.900000000001
+  },
+  "velocity": {
+   "eastMps": 177.91,
+   "northMps": -40.43,
+   "upMps": 5.8100000000000005
+  },
+  "classification": "clutter",
+  "confidence": 0.93,
+  "positionUncertainty": {
+   "sigmaEastM": 15.97,
+   "sigmaNorthM": 14.05,
+   "sigmaUpM": 24.1
+  },
+  "identifiers": [
+   {
+    "scheme": "sapient-object-info",
+    "value": "13.9"
+   }
+  ]
+ },
+ "oetf-vector:track_report_two_tracks#0": {
+  "apiVersion": "billie.dev/track-v2",
+  "kind": "Track",
+  "trackId": "311",
+  "sourceId": "263",
+  "trackGeneration": "fixture-1",
+  "testData": false,
+  "headerSimulated": false,
+  "confirmed": true,
+  "coasting": false,
+  "finalUpdate": false,
+  "simulated": false,
+  "observedAt": "2025-10-29T12:00:00.123Z",
+  "position": {
+   "latitudeDeg": 0.0,
+   "longitudeDeg": 0.0,
+   "altitudeM": 152.4
+  },
+  "velocity": {
+   "eastMps": -12.5,
+   "northMps": 4.25,
+   "upMps": 1.5
+  },
+  "classification": "uas",
+  "confidence": 0.87,
+  "positionUncertainty": {
+   "sigmaEastM": 3.2,
+   "sigmaNorthM": 2.8000000000000003,
+   "sigmaUpM": 6.1000000000000005
+  },
+  "identifiers": [
+   {
+    "scheme": "sapient-object-info",
+    "value": "-18.3"
+   }
+  ]
+ },
+ "oetf-vector:track_report_two_tracks#1": {
+  "apiVersion": "billie.dev/track-v2",
+  "kind": "Track",
+  "trackId": "312",
+  "sourceId": "263",
+  "trackGeneration": "fixture-1",
+  "testData": false,
+  "headerSimulated": false,
+  "confirmed": false,
+  "coasting": true,
+  "finalUpdate": true,
+  "simulated": true,
+  "observedAt": "2025-10-29T12:00:00.123Z",
+  "position": {
+   "latitudeDeg": 0.0,
+   "longitudeDeg": 0.0,
+   "altitudeM": 152.4
+  },
+  "velocity": {
+   "eastMps": -12.5,
+   "northMps": 4.25,
+   "upMps": 1.5
+  },
+  "classification": "bird",
+  "confidence": 0.87,
+  "positionUncertainty": {
+   "sigmaEastM": 3.2,
+   "sigmaNorthM": 2.8000000000000003,
+   "sigmaUpM": 6.1000000000000005
+  },
+  "identifiers": [
+   {
+    "scheme": "sapient-object-info",
+    "value": "-18.3"
+   }
+  ]
+ }
+}
