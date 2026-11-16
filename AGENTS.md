@@ -29,6 +29,8 @@ python tools/check_release_hygiene.py
 python tools/check_public_boundary.py
 cargo fmt --manifest-path runtime/rust/Cargo.toml --all -- --check
 cargo test --locked --workspace --manifest-path runtime/rust/Cargo.toml
+cargo test --locked --features goat-transformers --manifest-path runtime/rust/translator/Cargo.toml
+python3 tools/sync_goat_transformers_packs.py --check
 ```
 
 For a change under `kids/examples/oetf/`, the workflow also runs that package's Python, Rust and TypeScript tests; copy the commands from it. Include the commands that you ran and their results in the pull request.

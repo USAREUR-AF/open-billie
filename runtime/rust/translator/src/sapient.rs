@@ -58,11 +58,9 @@ impl SapientEncoder {
         self.encode_for_kid(track, "local")
     }
 
-    pub fn encode_for_kid(
-        &self,
-        track: &CanonicalTrack,
-        kid: &str,
-    ) -> Result<Vec<u8>, SapientEncodeError> {
+    /// Validate the configured node UUID and return it in the lowercase form
+    /// written to `SapientMessage.node_id`.
+    pub(crate) fn node_id(&self) -> Result<String, SapientEncodeError> {
         if self.options.node_id.is_empty() {
             return Err(error(
                 "invalid_configuration",
@@ -75,7 +73,28 @@ impl SapientEncoder {
                 "SAPIENT node_id must be a UUID",
             ));
         }
+        Ok(self.options.node_id.to_ascii_lowercase())
+    }
 
+    /// Allocate the identifiers of one report: a fresh report ULID, the
+    /// persisted object ULID of the scoped identity, and the scoped identity.
+    pub(crate) fn identifiers(
+        &self,
+        track: &CanonicalTrack,
+        kid: &str,
+    ) -> Result<(String, String, String), SapientEncodeError> {
+        let report_id = new_ulid()?;
+        let scoped_identity = track.scoped_identity(kid);
+        let object_id = self.object_id_for(&scoped_identity)?;
+        Ok((report_id, object_id, scoped_identity))
+    }
+
+    /// The time the node stamps on `SapientMessage.timestamp`: the observation
+    /// time as whole seconds and the nanoseconds within the second.
+    pub(crate) fn message_time(
+        &self,
+        track: &CanonicalTrack,
+    ) -> Result<(i64, u32), SapientEncodeError> {
         let observed = DateTime::parse_from_rfc3339(&track.observed_at)
             .map_err(|e| {
                 error(
@@ -84,12 +103,18 @@ impl SapientEncoder {
                 )
             })?
             .with_timezone(&Utc);
-        let seconds = observed.timestamp();
-        let nanos = observed.timestamp_subsec_nanos();
+        Ok((observed.timestamp(), observed.timestamp_subsec_nanos()))
+    }
 
-        let report_id = new_ulid()?;
-        let scoped_identity = track.scoped_identity(kid);
-        let object_id = self.object_id_for(&scoped_identity)?;
+    pub fn encode_for_kid(
+        &self,
+        track: &CanonicalTrack,
+        kid: &str,
+    ) -> Result<Vec<u8>, SapientEncodeError> {
+        let node_id = self.node_id()?;
+        let (seconds, nanos) = self.message_time(track)?;
+
+        let (report_id, object_id, scoped_identity) = self.identifiers(track, kid)?;
         let mut report = Vec::new();
         put_string(&mut report, 1, &report_id);
         put_string(&mut report, 2, &object_id);
@@ -179,7 +204,7 @@ impl SapientEncoder {
         }
         let mut envelope = Vec::new();
         put_message(&mut envelope, 1, &timestamp);
-        put_string(&mut envelope, 2, &self.options.node_id.to_ascii_lowercase());
+        put_string(&mut envelope, 2, &node_id);
         put_message(&mut envelope, 7, &report);
         Ok(envelope)
     }

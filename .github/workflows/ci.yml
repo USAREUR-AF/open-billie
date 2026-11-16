@@ -62,6 +62,10 @@ jobs:
         run: cargo fmt --manifest-path runtime/rust/Cargo.toml --all -- --check
       - name: Test translator
         run: cargo test --locked --workspace --manifest-path runtime/rust/Cargo.toml
+      - name: Test translator with the goat-transformers encoder path
+        run: cargo test --locked --features goat-transformers --manifest-path runtime/rust/translator/Cargo.toml
+      - name: Check embedded goat-transformers definitions against the pinned commit
+        run: python3 tools/sync_goat_transformers_packs.py --check
       - name: Test OETF Rust decoder
         run: cargo test --locked --manifest-path kids/examples/oetf/packages/oetf/rust/Cargo.toml
 

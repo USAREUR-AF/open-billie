@@ -9,6 +9,129 @@ pub struct EncodeOptions {
     pub cot: CotOptions,
     pub cat062: Cat062Options,
     pub sapient: SapientOptions,
+    /// Which encoder writes each output format. Native for every format
+    /// unless node configuration selects otherwise.
+    pub encoders: EncoderSelection,
+}
+
+/// The encoder that writes one output format.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub enum EncoderPath {
+    /// The encoder written in this crate.
+    #[default]
+    Native,
+    /// The goat-transformers library with the packs embedded in this crate.
+    /// Present only in a build with the cargo feature `goat-transformers`.
+    GoatTransformers,
+}
+
+impl EncoderPath {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::Native => "native",
+            Self::GoatTransformers => "goat-transformers",
+        }
+    }
+
+    pub fn parse(value: &str) -> Option<Self> {
+        match value {
+            "native" => Some(Self::Native),
+            "goat-transformers" => Some(Self::GoatTransformers),
+            _ => None,
+        }
+    }
+}
+
+/// Per-format encoder selection, read from node configuration.
+#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+pub struct EncoderSelection {
+    pub cot: EncoderPath,
+    pub cat062: EncoderPath,
+    pub sapient: EncoderPath,
+}
+
+impl EncoderSelection {
+    /// Environment variable that selects the encoder of each output format.
+    pub const VARIABLES: [(EncoderFormat, &'static str); 3] = [
+        (EncoderFormat::Cot, "BILLIE_COT_ENCODER"),
+        (EncoderFormat::AsterixCat062, "BILLIE_CAT062_ENCODER"),
+        (EncoderFormat::Sapient, "BILLIE_SAPIENT_ENCODER"),
+    ];
+
+    pub fn path(&self, format: EncoderFormat) -> EncoderPath {
+        match format {
+            EncoderFormat::Cot => self.cot,
+            EncoderFormat::AsterixCat062 => self.cat062,
+            EncoderFormat::Sapient => self.sapient,
+        }
+    }
+
+    /// Read the selection from the service environment. An unset or empty
+    /// variable selects the native encoder.
+    pub fn from_env() -> Result<Self, String> {
+        Self::from_lookup(|name| std::env::var(name).ok())
+    }
+
+    /// Read the selection through `lookup`, which returns the value of a
+    /// named variable. A value other than `native` or `goat-transformers`
+    /// is an error, and so is `goat-transformers` in a build without it.
+    pub fn from_lookup(lookup: impl Fn(&str) -> Option<String>) -> Result<Self, String> {
+        let mut selection = Self::default();
+        for (format, variable) in Self::VARIABLES {
+            let Some(value) = lookup(variable).filter(|value| !value.is_empty()) else {
+                continue;
+            };
+            let path = EncoderPath::parse(&value).ok_or_else(|| {
+                format!("{variable} must be 'native' or 'goat-transformers', not '{value}'")
+            })?;
+            match format {
+                EncoderFormat::Cot => selection.cot = path,
+                EncoderFormat::AsterixCat062 => selection.cat062 = path,
+                EncoderFormat::Sapient => selection.sapient = path,
+            }
+        }
+        selection.check()?;
+        Ok(selection)
+    }
+
+    /// Confirm this build can run the selection: the library is compiled in
+    /// and its embedded packs load.
+    pub fn check(&self) -> Result<(), String> {
+        if Self::VARIABLES
+            .iter()
+            .all(|(format, _)| self.path(*format) == EncoderPath::Native)
+        {
+            return Ok(());
+        }
+        library_check()
+    }
+}
+
+#[cfg(feature = "goat-transformers")]
+fn library_check() -> Result<(), String> {
+    crate::goat_path::check().map_err(|error| error.message)
+}
+
+#[cfg(not(feature = "goat-transformers"))]
+fn library_check() -> Result<(), String> {
+    Err(LibraryEncodeError::not_built().message)
+}
+
+/// A failure of the goat-transformers encoder path.
+#[derive(Clone, Debug, Eq, PartialEq)]
+pub struct LibraryEncodeError {
+    pub code: &'static str,
+    pub message: String,
+}
+
+impl LibraryEncodeError {
+    #[cfg(not(feature = "goat-transformers"))]
+    fn not_built() -> Self {
+        Self {
+            code: "encoder_unavailable",
+            message: "the goat-transformers encoder is selected, but this translator was built without the cargo feature 'goat-transformers'".to_owned(),
+        }
+    }
 }
 
 impl Default for Cat062Options {
@@ -36,6 +159,8 @@ pub enum EncodeDispatchError {
     Cat062(Cat062EncodeError),
     Sapient(SapientEncodeError),
     UnsupportedFormat(EncoderFormat),
+    /// The goat-transformers encoder path could not produce the output.
+    Library(LibraryEncodeError),
 }
 
 /// Select and run the shared encoder requested by a validated translation request.
@@ -43,6 +168,12 @@ pub fn encode_request(
     request: &TranslateRequest,
     options: &EncodeOptions,
 ) -> Result<EncodedPayload, EncodeDispatchError> {
+    if options.encoders.path(request.format) == EncoderPath::GoatTransformers {
+        #[cfg(feature = "goat-transformers")]
+        return crate::goat_path::encode_request(request, options);
+        #[cfg(not(feature = "goat-transformers"))]
+        return Err(EncodeDispatchError::Library(LibraryEncodeError::not_built()));
+    }
     match request.format {
         EncoderFormat::Cot => CotEncoder::new(options.cot.clone())
             .encode_for_kid(&request.record, &request.kid)
@@ -147,6 +278,49 @@ mod tests {
         request.kid = "another-kid".to_owned();
         let encoded = encode_request(&request, &options).unwrap();
         assert_eq!(&encoded.bytes[6..8], &[2, 7]);
+    }
+
+    #[test]
+    fn selects_native_encoders_unless_configured_per_format() {
+        assert_eq!(
+            EncoderSelection::from_lookup(|_| None).unwrap(),
+            EncoderSelection::default()
+        );
+        assert_eq!(EncoderSelection::default().cot, EncoderPath::Native);
+        let explicit = EncoderSelection::from_lookup(|name| {
+            (name == "BILLIE_SAPIENT_ENCODER").then(|| "native".to_owned())
+        })
+        .unwrap();
+        assert_eq!(explicit, EncoderSelection::default());
+        let error = EncoderSelection::from_lookup(|name| {
+            (name == "BILLIE_COT_ENCODER").then(|| "fastest".to_owned())
+        })
+        .unwrap_err();
+        assert_eq!(
+            error,
+            "BILLIE_COT_ENCODER must be 'native' or 'goat-transformers', not 'fastest'"
+        );
+    }
+
+    #[cfg(not(feature = "goat-transformers"))]
+    #[test]
+    fn refuses_the_library_encoder_in_a_build_without_it() {
+        let error = EncoderSelection::from_lookup(|name| {
+            (name == "BILLIE_CAT062_ENCODER").then(|| "goat-transformers".to_owned())
+        })
+        .unwrap_err();
+        assert!(error.contains("built without the cargo feature 'goat-transformers'"));
+        let options = EncodeOptions {
+            encoders: EncoderSelection {
+                cot: EncoderPath::GoatTransformers,
+                ..EncoderSelection::default()
+            },
+            ..EncodeOptions::default()
+        };
+        match encode_request(&request_for("cot"), &options).unwrap_err() {
+            EncodeDispatchError::Library(error) => assert_eq!(error.code, "encoder_unavailable"),
+            other => panic!("unexpected error: {other:?}"),
+        }
     }
 
     #[test]

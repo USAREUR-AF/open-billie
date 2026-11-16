@@ -13,3 +13,21 @@ libc = "0.2"
 
 [dev-dependencies]
 prost = "=0.13.5"
+roxmltree = "=0.20.0"
+
+# Optional encoder path through the goat-transformers library. Off by default.
+# The revision is a commit of the public repository; the pack and model files
+# under translator/goat-transformers/ are copied from the same commit
+# (tools/sync_goat_transformers_packs.py).
+[dependencies.goat-transformers]
+git = "https://github.com/USAREUR-AF/goat-transformers"
+rev = "0be9fc9cf926139d7c188465e56f0320f348657a"
+optional = true
+
+[features]
+default = []
+goat-transformers = ["dep:goat-transformers"]
+
+[[test]]
+name = "goat_transformers_compare"
+required-features = ["goat-transformers"]

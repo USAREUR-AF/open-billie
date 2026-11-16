@@ -11,3 +11,4 @@
 *.yml text eol=lf
 deploy/bin/billie text eol=lf
 kids/examples/oetf/licenses/** -text
+runtime/rust/translator/goat-transformers/** -text
