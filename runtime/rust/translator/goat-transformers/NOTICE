@@ -428,6 +428,12 @@ Packs ros2-tier4-*; modules ros2tier4*
   TIER IV Autoware messages, https://github.com/tier4/tier4_autoware_msgs.
   Apache License 2.0, Copyright TIER IV, Inc. Message field names and types.
 
+Packs sds-*; modules sds*
+  Space Data Standards JSON Schemas (lib/fbjson/*/main.fb.schema.json),
+  https://github.com/DigitalArsenal/spacedatastandards.org commit 0a61c131.
+  Copyright 2026 Edgesource Corporation. Apache License, Version 2.0. The
+  packs restate each schema's structure and are not endorsed by the publisher.
+
 Pack remote-id; module rid
   opendroneid-core-c, the reference implementation of ASTM F3411 message
   contents. https://github.com/opendroneid/opendroneid-core-c
@@ -461,6 +467,13 @@ Pack misb-st0601; module misb0601
   for public use, or fair use of copyright material; the document carries no
   distribution statement and no license text. Item tags, types, sizes,
   ranges and scale factors only; no text, table, figure or example.
+
+Pack ais; module ais
+  gpsd, "AIVDM/AIVDO protocol decoding", v1.58, Eric S. Raymond, file
+  www/AIVDM.adoc of https://gitlab.com/gpsd/gpsd at commit
+  c59fc6de479d06620c8b2ba395b728e10a71527b. Compilation copyright is held by
+  the GPSD project. BSD-2-Clause (gpsd COPYING). Bit positions, widths, units
+  and code meanings only; no text, table or example message.
 
 Pack geojson
   IETF RFC 7946, The GeoJSON Format.
