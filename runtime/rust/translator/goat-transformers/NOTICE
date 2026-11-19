@@ -62,7 +62,11 @@ Pack canonical-track-v2; module track
   Canonical Track v2 schema, https://github.com/USAREUR-AF/open-billie
   Apache License, Version 2.0.
 
-Pack nmea2000; module n2k
+Pack geo-track-v1; module geotrack
+  GeoTrackV1 schema, https://github.com/USAREUR-AF/goatstuff
+  Apache License, Version 2.0.
+
+Packs nmea2000, nmea2000-seq; module n2k
   CANboat database (docs/canboat.json), version 9.2.0.
   https://github.com/canboat/canboat
   (C) 2009-2026, Kees Verruijt, Harlingen, The Netherlands. Apache License,
@@ -76,6 +80,240 @@ Pack mavlink2; module mavlink
   license. The XML files carry no license header. Message names and ids, field
   names, types, array lengths, units and enumeration values only; no
   description text.
+
+Pack sparkplug-b; module sparkplug
+  Sparkplug B payload definition sparkplug_b.proto, from
+  https://github.com/eclipse-tahu/tahu. Copyright (c) 2015, 2018 Cirrus Link
+  Solutions and others; Eclipse Public License 2.0. Field numbers, names and
+  types only.
+
+Packs gtfs-realtime, gtfs-realtime-entity; module gtfsrt
+  GTFS Realtime protocol definition gtfs-realtime.proto, from
+  https://github.com/google/transit. Copyright 2015 The GTFS Specifications
+  Authors; Apache License, Version 2.0. Field numbers, names and types only.
+
+Pack meshtastic; module meshtastic
+  Meshtastic protobuf definitions, from https://github.com/meshtastic/protobufs.
+  The repository's LICENSE is the GNU General Public License, Version 3; the
+  .proto files carry no license or copyright header. Field numbers, names and
+  types only.
+
+Packs ccsds-space-packet, ccsds-tm-frame, ccsds-tc-frame, ccsds-aos-frame,
+ccsds-clcw; modules ccsdssp, ccsdstm, ccsdstc, ccsdsaos, ccsdsclcw
+  CCSDS 133.0-B-2 Space Packet Protocol; CCSDS 132.0-B-3 TM Space Data Link
+  Protocol; CCSDS 232.0-B-4 TC Space Data Link Protocol; CCSDS 732.0-B-4 AOS
+  Space Data Link Protocol. Consultative Committee for Space Data Systems,
+  https://ccsds.org/publications/ Reused with attribution under the CCSDS
+  Reproduction Permission Statement for Publications. Field positions, widths
+  and values only; no text, table or figure.
+
+Pack ccsds-ndm-xml; module ccsdsndm
+  CCSDS Navigation Data Messages XML schema set 4.0.0 (CCSDS 505.0-B-3),
+  https://sanaregistry.org/r/ndmxml_unqualified; keyword meanings from CCSDS
+  502.0-B-3 and 504.0-B-2. Reused with attribution under the CCSDS
+  Reproduction Permission Statement for Publications. Element and attribute
+  names and types only.
+
+Packs ros2-builtin-interfaces, ros2-std-msgs, ros2-geometry-msgs,
+ros2-sensor-msgs, ros2-nav-msgs, ros2-diagnostic-msgs, ros2-shape-msgs,
+ros2-trajectory-msgs, ros2-visualization-msgs, ros2-stereo-msgs,
+ros2-actionlib-msgs; modules ros2builtin, ros2std, ros2geometry, ros2sensor,
+ros2nav, ros2diagnostic, ros2shape, ros2trajectory, ros2visualization,
+ros2stereo, ros2actionlib
+  ROS 2 message definitions (.msg), https://github.com/ros2/common_interfaces
+  (tag 5.3.8) and https://github.com/ros2/rcl_interfaces (tag 2.0.4, package
+  builtin_interfaces). Apache License, Version 2.0. Field names, types, array
+  forms and constant names only; no comment text.
+  rosbridge v2.1.0 protocol specification,
+  https://github.com/RobotWebTools/rosbridge_suite (branch jazzy). Copyright
+  (c) The Rosbridge Authors. BSD 3-Clause License. The JSON form of a message
+  and of the publish operation; no text.
+
+Packs mavlink2-ardupilotmega, mavlink2-asluav, mavlink2-avssuas,
+mavlink2-csairlink, mavlink2-cubepilot, mavlink2-development, mavlink2-icarous,
+mavlink2-loweheiser, mavlink2-marsh, mavlink2-paparazzi, mavlink2-stemstudios,
+mavlink2-storm32, mavlink2-uavionix; modules mavlink<dialect>
+  MAVLink dialect message definitions (message_definitions/v1.0/<dialect>.xml).
+  https://github.com/mavlink/mavlink
+  The same repository and license statement as pack mavlink2. The dialect
+  files carry no license header. Message names and ids, field names, types,
+  array lengths, units and enumeration values only; no description text.
+
+Pack uci-2.5; module uci25
+  Universal Command and Control Interface (UCI) Schema 2.5 (OAC-STD-002 Rev E,
+  schema 002.5.0; the OMS 2.5 message set), U.S. Air Force,
+  https://github.com/open-arsenal/uci tag v2.5. Distribution Statement A:
+  approved for public release, distribution is unlimited.
+
+Pack cap; module cap
+  OASIS Common Alerting Protocol Version 1.2 (OASIS Standard, 1 July 2010) and
+  its schema CAP-v1.2.xsd. Copyright OASIS Open 2010.
+  http://docs.oasis-open.org/emergency/cap/v1.2/
+  Element names, types and value constraints only; no text.
+
+Packs readsb-aircraft, readsb-aircraft-json; module readsb
+  The JSON output format documented in readsb README-json.md
+  (https://github.com/wiedehopf/readsb, GPL-3.0-or-later) and dump1090-fa
+  README-json.md (https://github.com/flightaware/dump1090, GPL-2.0-or-later).
+  Member names, types and units only; no program code.
+
+Packs dronecan-* (133); modules dc<namespace> (41)
+  DroneCAN DSDL data type definitions, https://github.com/dronecan/DSDL.
+  MIT License, Copyright (c) 2014-2015 Pavel Kirienko. Type names, field
+  names, types and array forms only.
+
+Pack mds; module mds
+  Mobility Data Specification 2.0 data models, Open Mobility Foundation,
+  https://github.com/openmobilityfoundation/mds-openapi. Creative Commons
+  Attribution 4.0. The pack restates their structure and is not endorsed by
+  the Open Mobility Foundation.
+
+Pack stac-item; module stac
+  SpatioTemporal Asset Catalog (STAC) 1.1.0 Item JSON Schema,
+  https://github.com/radiantearth/stac-spec. Apache License, Version 2.0.
+
+Pack wzdx-device; module wzdx
+  Work Zone Data Exchange (WZDx) 4.2 schemas, U.S. Department of
+  Transportation ITS JPO, https://github.com/usdot-jpo-ode/wzdx. CC0 1.0.
+
+Pack adsb-df18, and the type code 28 subtype 2 kinds of pack adsb; module adsb
+  pyModeS, https://github.com/junzis/pyModeS, GNU General Public License,
+  Version 3. Field layouts restated from its decoders, and published test
+  messages with their decoded values; no code.
+
+Pack gdl90; module gdl90
+  Stratux, https://github.com/cyoung/stratux. Copyright (c) 2015-2016
+  Christopher Young. BSD 3-Clause License. Message layouts restated from its
+  GDL 90 and ForeFlight message builders; no code.
+
+Pack foxglove-location-fix; module foxglove
+  Foxglove schemas (LocationFix, LocationFixes, Color, KeyValuePair, Vector3), protobuf, from
+  https://github.com/foxglove/foxglove-sdk. MIT License, Copyright (c) Foxglove
+  Technologies Inc. Field numbers, names and types only.
+
+Packs osm-pbf-blob-header, osm-pbf-header, osm-pbf-primitive; module osmpbf
+  OpenStreetMap PBF definitions fileformat.proto and osmformat.proto, from
+  https://github.com/openstreetmap/OSM-binary. MIT License (Copyright (c) 2010
+  Scott A. Crosby; Copyright (c) OpenStreetMap developers). Field numbers,
+  names and types only.
+
+Pack mvt; module mvt
+  Mapbox Vector Tile specification 2.1, vector_tile.proto, from
+  https://github.com/mapbox/vector-tile-spec. Creative Commons Attribution 3.0.
+  Field numbers, names and types only.
+
+Pack valhalla; module valhalla
+  Valhalla protobuf definitions (proto/), from
+  https://github.com/valhalla/valhalla. MIT License, Copyright (c) 2018 Valhalla
+  contributors, Copyright (c) 2015-2017 Mapillary AB, Mapzen. Field numbers,
+  names and types only.
+
+Pack tesla-fleet-telemetry; module teslafleet
+  Tesla Fleet Telemetry vehicle_data.proto, from
+  https://github.com/teslamotors/fleet-telemetry. Apache License, Version 2.0.
+  Field numbers, names and types only.
+
+Packs of further ROS 2 message packages (field names, types, array forms and
+constant names only; no comment text):
+  ros2-tf2-msgs; module ros2tf2. https://github.com/ros2/geometry2, BSD
+  3-Clause, Copyright (c) 2008 Willow Garage, Inc.
+  ros2-unique-identifier-msgs; module ros2uuid.
+  https://github.com/ros2/unique_identifier_msgs, BSD 3-Clause, Copyright (C)
+  2012 Jack O'Quin.
+  ros2-rcl-interfaces, ros2-rosgraph-msgs, ros2-statistics-msgs,
+  ros2-lifecycle-msgs; modules ros2rcl, ros2rosgraph, ros2statistics,
+  ros2lifecycle. https://github.com/ros2/rcl_interfaces, Apache License 2.0.
+  ros2-vision-msgs; module ros2vision.
+  https://github.com/ros-perception/vision_msgs, Apache License 2.0.
+  ros2-radar-msgs; module ros2radar. https://github.com/ros-perception/radar_msgs,
+  Apache License 2.0.
+  ros2-ackermann-msgs; module ros2ackermann.
+  https://github.com/ros-drivers/ackermann_msgs, BSD.
+  ros2-gps-msgs; module ros2gps. https://github.com/swri-robotics/gps_umd, BSD,
+  Copyright 2023 Ken Tossell.
+  ros2-geographic-msgs; module ros2geographic.
+  https://github.com/ros-geographic-info/geographic_info, BSD (package.xml).
+  ros2-marine-acoustic-msgs, ros2-marine-sensor-msgs; modules
+  ros2marineacoustic, ros2marinesensor.
+  https://github.com/apl-ocean-engineering/marine_msgs, BSD 3-Clause, Copyright
+  (c) 2020-2022 University of Washington Applied Physics Laboratory.
+  ros2-mavros-msgs; module ros2mavros. https://github.com/mavlink/mavros, taken
+  under BSD (the package is licensed BSD, GPLv3 or LGPLv3), Copyright (c)
+  2013-2021 Vladimir Ermakov.
+
+ROS 2 message packages, batch 3 (field names, types, array forms and
+constant names only; no comment text):
+  navigation2 (nav2_msgs: Apache License 2.0; nav_2d_msgs, dwb_msgs: BSD
+  3-Clause), https://github.com/ros-navigation/navigation2.
+  control_msgs, https://github.com/ros-controls/control_msgs, BSD 3-Clause,
+  Copyright 2025 ros2_control Development Team.
+  controller_manager_msgs, https://github.com/ros-controls/ros2_control, BSD
+  (package.xml; repository LICENSE Apache License 2.0).
+  moveit_msgs, https://github.com/moveit/moveit_msgs, BSD.
+  octomap_msgs, https://github.com/OctoMap/octomap_msgs, BSD (package.xml).
+  object_recognition_msgs, https://github.com/wg-perception/object_recognition_msgs,
+  BSD (package.xml).
+  px4_msgs, https://github.com/PX4/px4_msgs, BSD 3-Clause, Copyright (c) 2019
+  PX4 Development Team.
+  autoware_msgs, https://github.com/autowarefoundation/autoware_msgs, Apache
+  License 2.0.
+  ublox_msgs, https://github.com/KumarRobotics/ublox, BSD, Copyright (c) 2012
+  Johannes Meyer, TU Darmstadt.
+  novatel_gps_msgs, https://github.com/swri-robotics/novatel_gps_driver, BSD
+  3-Clause, Copyright (c) 2017-2019 Southwest Research Institute.
+  foxglove_msgs, https://github.com/foxglove/schemas, MIT, Copyright (c)
+  Foxglove Technologies Inc.
+  velodyne_msgs, https://github.com/ros-drivers/velodyne, Modified BSD,
+  Copyright (C) 2010-2013 Austin Robot Technology, and others.
+  ouster_msgs, https://github.com/ros-drivers/ros2_ouster_drivers, Apache
+  License 2.0.
+  ouster_sensor_msgs, https://github.com/ouster-lidar/ouster-ros, BSD
+  3-Clause, Copyright 2018-2023 Ouster, Inc.
+  realsense2_camera_msgs, https://github.com/IntelRealSense/realsense-ros,
+  Apache License 2.0.
+  rmf_*_msgs, https://github.com/open-rmf/rmf_internal_msgs and
+  rmf_building_map_msgs, Apache License 2.0.
+
+Packs cyphal-* (250); modules cy<namespace> (77)
+  Cyphal public regulated DSDL data types,
+  https://github.com/OpenCyphal/public_regulated_data_types. MIT License,
+  Copyright (c) 2014-2019 UAVCAN Development Team. Type names, field names,
+  types and array forms only.
+
+Packs netex-service-frame, netex-site-frame, netex-timetable-frame,
+netex-service-calendar-frame; modules netexservice, netexsite,
+netextimetable, netexcalendar
+  NeTEx XML schema (CEN/TS 16614 series), https://github.com/NeTEx-CEN/NeTEx
+  commit 11d40b5e. (C) 2009-2026 NeTEx, CEN, Crown Copyright. GNU General
+  Public License, Version 3. Element and attribute names, types and value
+  ranges only.
+
+Packs sdm-*; modules sdm<model>
+  FIWARE Smart Data Models, https://github.com/smart-data-models: data models
+  of the subjects Transportation, Device, Environment, Weather, UrbanMobility,
+  PointOfInterest, Aeronautics and MarineTransport. Creative Commons
+  Attribution 4.0; APDSObservation (c) 2022-2023 APDS (Alliance for Parking
+  Data Standards) under an MIT-form license. The packs restate each model's
+  structure and are not endorsed by the Smart Data Models program.
+
+Packs apollo-*; modules apollo*
+  Apollo common message definitions (modules/common_msgs), from
+  https://github.com/ApolloAuto/apollo. Apache License, Version 2.0,
+  Copyright (c) 2018 Apollo Authors and The Apollo Authors. Field numbers,
+  names and types only.
+
+Packs kuksa-val-v1-*, kuksa-val-v2-*; modules kuksaval*
+  Eclipse KUKSA.val API definitions (kuksa/val/v1, kuksa/val/v2), from
+  https://github.com/eclipse-kuksa/kuksa-proto. Apache License 2.0, Copyright
+  (c) Contributors to the Eclipse Foundation. Field numbers, names and types
+  only.
+
+Packs tesla-fleet-alerts, tesla-fleet-connectivity, tesla-fleet-errors,
+tesla-fleet-metrics; modules teslafleet*
+  Tesla Fleet Telemetry record definitions (vehicle_alert,
+  vehicle_connectivity, vehicle_error, vehicle_metric), from
+  https://github.com/teslamotors/fleet-telemetry. Apache License, Version 2.0.
+  Field numbers, names and types only.
 
 Pack remote-id; module rid
   opendroneid-core-c, the reference implementation of ASTM F3411 message
@@ -91,11 +329,31 @@ Pack adsb; module adsb
   pyModeS, https://github.com/junzis/pyModeS  GNU General Public License,
   Version 3. Published test messages and their decoded values; no code.
 
+Pack nmea0183; module nmea0183
+  "NMEA Revealed" (www/NMEA.adoc), Eric S. Raymond and the gpsd project.
+  https://gitlab.com/gpsd/gpsd  Compilation copyright is held by the GPSD
+  project. BSD-2-Clause (the repository's COPYING file). The document states
+  that it was written without consulting the NMEA 0183 standard. Sentence
+  layouts, field positions, units and fixed letters only; no text, table or
+  example sentence.
+
 Pack geojson
   IETF RFC 7946, The GeoJSON Format.
 
 Pack nvg
   NATO Vector Graphics 1.5 XML schema, NATO Allied Command Transformation.
+
+Pack gpx; module gpx
+  GPX 1.1 schema (GPS Exchange Format), TopoGrafix.
+  https://www.topografix.com/GPX/1/1/gpx.xsd
+  Published as an open standard; element and attribute names, types and
+  ranges only.
+
+Pack kml; module kml
+  OGC KML 2.2.0 (OGC 07-147r2) and its schema ogckml22.xsd. Copyright 2007,
+  2008 Open Geospatial Consortium, Inc., used under the OGC Document License
+  Agreement. Not approved or adopted by the OGC.
+  https://www.ogc.org/about/policies/document-license-agreement/
 
 The packs named conformance*, demo-* and the module probe describe synthetic
 formats written for this project and have no external source.

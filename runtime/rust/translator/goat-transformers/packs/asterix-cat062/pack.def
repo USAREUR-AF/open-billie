@@ -24,7 +24,7 @@
 # CST 0, so the item always has its first part and three extents. The other
 # status bits are `pad`: dropped on decode, written 0.
 format     asterix-cat062
-version    0.2.0
+version    0.3.0
 distribution public
 source  "EUROCONTROL-SPEC-0149-9, Specification for Surveillance Data Exchange ASTERIX Part 9 Category 062, SDPS Track Messages, Edition 1.21, 5 June 2025, https://www.eurocontrol.int/sites/default/files/2025-06/asterix-cat062-system-track-data-p9-ed1-21.pdf"
 source  "USAREUR-AF/open-billie runtime/rust/translator/src/cat062.rs (Apache-2.0): which items its encoder writes, and the blocks it produces, used as vectors"
@@ -42,6 +42,8 @@ when    8  62                                # CAT
 # and `uid` (model/cat062.def); CNF has no default, so the flag is required.
 requires cat062.sac cat062.sic cat062.time_of_day_s cat062.track_number track.confirmed
 default cat062.mon          1
+default cat062.mrh          0
+default cat062.src          0
 default track.simulated     0
 default track.final_update  0
 default track.coasting      0
@@ -50,6 +52,9 @@ presence fspec fx
 if fspec.1                                   # FRN 1, I062/010 Data Source Identifier
   field  cat062.sac  8  uint
   field  cat062.sic  8  uint
+end
+if fspec.3                                   # FRN 3, I062/015 Service Identification
+  field  cat062.service_id  8  uint
 end
 if fspec.4                                   # FRN 4, I062/070 Time Of Track Information, 1/128 s
   field  cat062.time_of_day_s  24  uscale:1/128
@@ -68,7 +73,9 @@ end
 if fspec.13                                  # FRN 13, I062/080 Track Status
   chain
     field  cat062.mon  1  uint                  # MON
-    pad    5                                    # SPI, MRH, SRC
+    pad    1                                    # SPI
+    field  cat062.mrh  1  uint                  # MRH: 1 = geometric height more reliable
+    field  cat062.src  3  uint                  # SRC: source of the I062/130 altitude, 0 none, 1 GNSS
     field  cat062.cnf  1  uint                  # CNF: 0 = confirmed, 1 = tentative
     also   track.confirmed  via cnf
     fx
@@ -94,4 +101,12 @@ if fspec.13                                  # FRN 13, I062/080 Track Status
 end
 if fspec.18                                  # FRN 18, I062/130 Calculated Track Geometric Altitude, 6.25 ft
   field  hae  16  sscale:381/200
+end
+if fspec.34                                  # FRN 34, I062/RE Reserved Expansion Field
+  length 8 bytes plus 1                      # the length octet counts itself; the content is not mapped
+  end
+end
+if fspec.35                                  # FRN 35, I062/SP Special Purpose Field
+  length 8 bytes plus 1                      # the length octet counts itself; the content is not mapped
+  end
 end

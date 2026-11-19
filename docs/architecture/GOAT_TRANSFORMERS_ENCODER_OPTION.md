@@ -56,7 +56,7 @@ A SAPIENT report ULID is new for every message on both paths, so two SAPIENT mes
 
 ### ASTERIX CAT062
 
-Every block both encoders write is the same, octet for octet. Both refuse a record without `confirmed` (5 inputs) and a `trackId` that is not a decimal number (2 inputs).
+Every block both encoders write is the same, octet for octet. Both refuse a record without `confirmed` (5 inputs) and a `trackId` that is not a decimal number (2 inputs). The pack writes the I062/080 MRH and SRC bits from the context keys `cat062.mrh` and `cat062.src`, 0 when absent; the translator passes neither, so both paths write 0, as the native encoder does.
 
 | Difference | Inputs | Cause |
 |---|---|---|
@@ -71,7 +71,7 @@ Every block both encoders write is the same, octet for octet. Both refuse a reco
 | `event/@time`, `@start`, `@stale` | 2 | same instant, different text | The native encoder omits a zero fraction of a second (`2026-01-01T00:00:00Z`); the library always writes milliseconds (`2026-01-01T00:00:00.000Z`). |
 | `event/detail` | 2 | not written by the library | The native encoder always writes a `detail` element, empty when it has no child. |
 
-The `uid` (the scoped identity), type, position, altitude, circular and linear error, the unknown-value sentinels, `how`, the stale instant, course and speed are equal on all 33 inputs. The 17 inputs that have none of the differences in the table are the same octets on both paths.
+The `uid` (the scoped identity), type, position, altitude, circular and linear error, the unknown-value sentinels, `how`, the stale instant, course and speed are equal on all 33 inputs. The 17 inputs that have none of the differences in the table are the same octets on both paths. The pack reads `9999999` in `hae`, `ce` and `le` as no value when it decodes CoT; it still writes `9999999` when it encodes a record without the value.
 
 A receiver sees the same track identity on both paths. From the library path it does not receive `opex="s"` or the status remarks, so it cannot tell a simulated, test, tentative, coasting or final track from the event.
 
