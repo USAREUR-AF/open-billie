@@ -6,7 +6,7 @@
 # The derive lines fill what another format's track does not hold as CAT062
 # wants it: the time of day from the instant, the track number from an
 # identifier that is a decimal number, and SIM from the three flags of `track`
-# that each say the data is not live.
+# that each say the data is not live, and MRH from whether an altitude is sent.
 module        cat062
 version       0.2.0
 distribution  public
@@ -27,3 +27,4 @@ key  cst            int    -  "I062/080 CST: 1 = age of the last received track 
 derive  cat062.time_of_day_s  day_seconds  time_ms
 derive  cat062.track_number   parse_int    uid
 derive  cat062.sim            any          track.simulated  track.header_simulated  track.test_data
+derive  cat062.mrh            present      hae

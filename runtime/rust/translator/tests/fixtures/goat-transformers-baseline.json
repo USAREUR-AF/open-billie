@@ -1,6 +1,6 @@
 {
   "asterix-cat062": {
-    "bytesIdentical": 25,
+    "bytesIdentical": 1,
     "differences": [
       {
         "cause": "The native encoder refuses a longitude of 180 degrees, a track number above 4095 and an altitude outside -1500 to 150000 ft. The pack writes any value the field holds; longitude 180 is written as 2^25.",
@@ -8,12 +8,19 @@
         "example": "refused: out_of_range | encoded",
         "field": "(outcome)",
         "inputs": 1
+      },
+      {
+        "cause": "MRH. goat-transformers sets MRH to 1 when I062/130 is written (derive cat062.mrh present hae, its spec 0.12, goat-transformers#105); the native encoder writes 0. The 24 inputs are the encoded tracks with an altitude.",
+        "difference": "different value",
+        "example": "0x81 | 0xa1",
+        "field": "I062/080 octet 1",
+        "inputs": 24
       }
     ],
     "encodedByBoth": 25,
     "fieldsCompared": 397,
-    "fieldsEqual": 397,
-    "fieldsIdentical": 25,
+    "fieldsEqual": 373,
+    "fieldsIdentical": 1,
     "inputs": 33,
     "refusedByBoth": 7
   },

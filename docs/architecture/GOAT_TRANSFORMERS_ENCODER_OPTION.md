@@ -48,7 +48,7 @@ The comparison test encodes 33 inputs through both encoders for each format: the
 
 | Format | Encoded by both | Refused by both | One path refuses | Byte-identical | Fields equal |
 |---|---|---|---|---|---|
-| ASTERIX CAT062 | 25 | 7 | 1 | 25 of 25 | 397 of 397 |
+| ASTERIX CAT062 | 25 | 7 | 1 | 1 of 25 | 373 of 397 |
 | CoT | 33 | 0 | 0 | 17 of 33 | 547 of 594 |
 | SAPIENT | 33 | 0 | 0 | 0 of 33 | 579 of 717 |
 
@@ -56,10 +56,11 @@ A SAPIENT report ULID is new for every message on both paths, so two SAPIENT mes
 
 ### ASTERIX CAT062
 
-Every block both encoders write is the same, octet for octet. Both refuse a record without `confirmed` (5 inputs) and a `trackId` that is not a decimal number (2 inputs). The pack writes the I062/080 MRH and SRC bits from the context keys `cat062.mrh` and `cat062.src`, 0 when absent; the translator passes neither, so both paths write 0, as the native encoder does.
+The blocks both encoders write differ only in the I062/080 MRH bit, on the 24 tracks with an altitude. Both refuse a record without `confirmed` (5 inputs) and a `trackId` that is not a decimal number (2 inputs). The library sets MRH to 1 when it writes I062/130 (its spec 0.12, goat-transformers#105); the native encoder writes 0. Whether the native encoder follows is this repository's decision; until then the row stays in the baseline. SRC comes from the context key `cat062.src`, 0 when absent; the translator does not pass it, so both paths write 0.
 
 | Difference | Inputs | Cause |
 |---|---|---|
+| I062/080 octet 1: MRH 1 from the library, 0 from the native encoder (`0xa1` against `0x81`) | 24 | The library sets MRH when I062/130 is written (`derive cat062.mrh present hae`). |
 | The library encodes a record the native encoder refuses | 1 | The native encoder refuses a longitude of 180 degrees, a track number above 4095 and an altitude outside -1500 to 150000 ft. The pack writes any value the field holds; a longitude of 180 is written as 2^25. |
 
 ### CoT

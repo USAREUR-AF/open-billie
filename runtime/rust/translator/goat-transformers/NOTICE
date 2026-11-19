@@ -172,8 +172,8 @@ Pack stac-item; module stac
   SpatioTemporal Asset Catalog (STAC) 1.1.0 Item JSON Schema,
   https://github.com/radiantearth/stac-spec. Apache License, Version 2.0.
 
-Pack wzdx-device; module wzdx
-  Work Zone Data Exchange (WZDx) 4.2 schemas, U.S. Department of
+Packs wzdx-device, wzdx-device-4.0, wzdx-device-4.1 and the wzdx-*-feed packs; module wzdx
+  Work Zone Data Exchange (WZDx) 4.0, 4.1 and 4.2 schemas (tag v4.2), U.S. Department of
   Transportation ITS JPO, https://github.com/usdot-jpo-ode/wzdx. CC0 1.0.
 
 Pack adsb-df18, and the type code 28 subtype 2 kinds of pack adsb; module adsb
@@ -297,7 +297,8 @@ Packs sdm-*; modules sdm<model>
   structure and are not endorsed by the Smart Data Models program.
 
 Packs apollo-*; modules apollo*
-  Apollo common message definitions (modules/common_msgs), from
+  Apollo message definitions (modules/common_msgs, modules/canbus_vehicle,
+  modules/drivers/gnss, modules/perception/common, modules/map), from
   https://github.com/ApolloAuto/apollo. Apache License, Version 2.0,
   Copyright (c) 2018 Apollo Authors and The Apollo Authors. Field numbers,
   names and types only.
@@ -314,6 +315,118 @@ tesla-fleet-metrics; modules teslafleet*
   vehicle_connectivity, vehicle_error, vehicle_metric), from
   https://github.com/teslamotors/fleet-telemetry. Apache License, Version 2.0.
   Field numbers, names and types only.
+
+Packs gtfs-agency, gtfs-stops, gtfs-routes, gtfs-trips, gtfs-stop-times,
+gtfs-calendar, gtfs-calendar-dates, gtfs-shapes, gtfs-frequencies,
+gtfs-transfers, gtfs-pathways, gtfs-levels, gtfs-feed-info, gtfs-attributions;
+module gtfs
+  GTFS Schedule Reference, https://github.com/google/transit. Apache License,
+  Version 2.0. Column names, order and types; no text.
+  The same source covers the 17 further packs gtfs-fare-attributes …
+  gtfs-translations (fares, areas, networks, Flex groups, translations).
+
+Pack drip; module drip
+  IETF RFC 9575, DRIP Entity Tag (DET) Authentication Formats and Protocols
+  for Broadcast Remote Identification (RID), with RFC 9374 and RFC 9434 for
+  context. Copyright (c) 2024 IETF Trust and the persons identified as the
+  document authors; subject to BCP 78 and the IETF Trust's Legal Provisions
+  Relating to IETF Documents (https://trustee.ietf.org/license-info). Layouts
+  restated in packs/drip.
+
+Packs nitf-file-header, nitf-image-subheader; module nitf
+  MIL-STD-2500C, National Imagery Transmission Format Version 2.1, Department
+  of Defense, Distribution Statement A. Field order, sizes and types; no text.
+
+Packs nitf-tre-* (30); module nitftre
+  GDAL frmts/nitf/data/nitf_spec.xml, https://github.com/OSGeo/gdal.
+  Copyright (c) 2011 Even Rouault. MIT License. TRE field names, lengths and
+  order; no code.
+
+Pack gpsd-json; module gpsd
+  gpsd_json(5), the gpsd JSON protocol, https://gitlab.com/gpsd/gpsd commit
+  a9266948. Copyright the GPSD project. BSD 2-Clause License. Member names,
+  types and units; no text or example message.
+
+Packs gbfs-*; modules gbfs*
+  General Bikeshare Feed Specification (GBFS) JSON Schemas, MobilityData,
+  https://github.com/MobilityData/gbfs-json-schema. Apache License, Version
+  2.0. They describe the GBFS specification, https://github.com/MobilityData/gbfs
+  (Creative Commons Attribution 3.0). The packs restate the schemas' structure
+  and are not endorsed by MobilityData.
+
+Packs dbc-* (90); modules dbc<file>
+  CAN DBC files of opendbc, https://github.com/commaai/opendbc. MIT License,
+  Copyright (c) 2020 Comma.ai, Inc. Message and signal names, layouts, scales
+  and value tables; no code. The SocketCAN can_frame layout restated from the
+  Linux UAPI header include/uapi/linux/can.h (GPL-2.0 WITH Linux-syscall-note).
+  Test inputs only: four DBC files of cantools, https://github.com/cantools/cantools,
+  MIT License, Copyright (c) 2015-2019 Erik Moqvist.
+
+Packs px4-ulog-*; module px4ulog
+  PX4 uORB message definitions, https://github.com/PX4/PX4-Autopilot tag
+  v1.17.0. BSD 3-Clause License, Copyright (c) 2012-2023 PX4 Development Team.
+  Field names, types and array lengths only. The layout rule follows PX4's
+  Tools/msg uORB generator (BSD) and the ULog file format document (CC BY
+  4.0), restated.
+
+Packs meshtastic-position, -user, -telemetry, -waypoint, -tak-packet,
+-neighbor-info, -route-discovery, -routing, -store-and-forward, -paxcount,
+-map-report; modules meshtastic*
+  Meshtastic protobuf definitions, https://github.com/meshtastic/protobufs.
+  The repository's LICENSE is the GNU General Public License, Version 3; the
+  .proto files carry no license or copyright header. Field numbers, names and
+  types only.
+
+Packs otlp-*; modules otlp*
+  OpenTelemetry protocol (OTLP) definitions,
+  https://github.com/open-telemetry/opentelemetry-proto. Apache License,
+  Version 2.0, Copyright The OpenTelemetry Authors. Field numbers, names and
+  types only.
+
+Packs gnmi-*; modules gnmi*
+  gNMI protobuf definitions, https://github.com/openconfig/gnmi. Apache
+  License, Version 2.0, Copyright Google Inc. Field numbers, names and types
+  only.
+
+Pack openxc-vehicle-message; module openxc
+  OpenXC message format openxc.proto, https://github.com/openxc/openxc-message-format.
+  BSD 3-Clause License, Copyright (c) 2012 Ford Motor Company. Field numbers,
+  names and types only.
+
+Pack geobuf; module geobuf
+  geobuf.proto, https://github.com/mapbox/geobuf. ISC License, Copyright (c)
+  Mapbox. Field numbers, names and types only.
+
+Packs waymo-frame, waymo-scenario; modules waymoframe, waymoscenario
+  Waymo Open Dataset protobuf definitions (src/waymo_open_dataset, excluding
+  wdl_limited), https://github.com/waymo-research/waymo-open-dataset. Apache
+  License, Version 2.0, Copyright Waymo LLC and The Waymo Open Dataset Authors.
+  Field numbers, names and types only; no data of the dataset.
+
+Packs nws-*; modules nws*
+  The National Weather Service weather.gov API OpenAPI document,
+  https://api.weather.gov/openapi.json (version 3.12.2, copy of 2026-11-19),
+  a work of the United States Government in the public domain. Not official
+  NWS material; no endorsement by NOAA or the NWS is implied.
+
+Packs ardupilot-log-*; module aplog
+  ArduPilot log message definitions (log structure tables and Write calls),
+  https://github.com/ArduPilot/ardupilot tag Copter-4.6.2. GNU General Public
+  License, version 3. Message names, format strings, labels, units and
+  multipliers only.
+
+Pack dbc-tesla-model3; module dbcteslamodel3
+  Tesla Model 3 / Model Y CAN DBC, https://github.com/joshwardell/model3dbc.
+  MIT License, Copyright (c) 2019 Josh Wardell.
+
+Packs ipv4-header, ipv6-header, udp-header, tcp-header, icmp-header,
+ntp-header, dns-header; module inet
+  IETF RFC 791, 768, 792, 1035, 5905, 8200 and 9293, https://www.rfc-editor.org/
+  (IETF Trust, BCP 78, where the document states it). Field layouts restated.
+
+Packs ros2-tier4-*; modules ros2tier4*
+  TIER IV Autoware messages, https://github.com/tier4/tier4_autoware_msgs.
+  Apache License 2.0, Copyright TIER IV, Inc. Message field names and types.
 
 Pack remote-id; module rid
   opendroneid-core-c, the reference implementation of ASTM F3411 message
@@ -336,6 +449,18 @@ Pack nmea0183; module nmea0183
   that it was written without consulting the NMEA 0183 standard. Sentence
   layouts, field positions, units and fixed letters only; no text, table or
   example sentence.
+  The fifteen sentences added after the first eight: pynmea2,
+  https://github.com/Knio/pynmea2, MIT License, for field order; gpsd
+  drivers/driver_nmea0183.c, BSD 2-Clause License, Copyright the GPSD project,
+  for units and meanings. No code, text or example sentences.
+
+Pack misb-st0601; module misb0601
+  MISB ST 0601.19, UAS Datalink Local Set, Motion Imagery Standards Board.
+  NSG Registry public document store, doc/view?i=5471. The registry states
+  that materials in its public portions are in the public domain, released
+  for public use, or fair use of copyright material; the document carries no
+  distribution statement and no license text. Item tags, types, sizes,
+  ranges and scale factors only; no text, table, figure or example.
 
 Pack geojson
   IETF RFC 7946, The GeoJSON Format.
@@ -354,6 +479,12 @@ Pack kml; module kml
   2008 Open Geospatial Consortium, Inc., used under the OGC Document License
   Agreement. Not approved or adopted by the OGC.
   https://www.ogc.org/about/policies/document-license-agreement/
+
+Pack c2sim; module c2sim
+  C2SIM_SMX_LOX.xsd, OpenC2SIM/C2SIMArtifacts, commit 947d8b5. Copyright (c)
+  2022 OpenC2SIM Project, MIT License. Schema of SISO-STD-019-2020 (C2SIM).
+  https://github.com/OpenC2SIM/C2SIMArtifacts
+  Element names, types and units only.
 
 The packs named conformance*, demo-* and the module probe describe synthetic
 formats written for this project and have no external source.
