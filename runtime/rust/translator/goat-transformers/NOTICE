@@ -107,6 +107,26 @@ ccsds-clcw; modules ccsdssp, ccsdstm, ccsdstc, ccsdsaos, ccsdsclcw
   Reproduction Permission Statement for Publications. Field positions, widths
   and values only; no text, table or figure.
 
+Packs ccsds-uslp-frame, ccsds-cfdp-pdu, ccsds-prox1-frame; modules ccsdsuslp,
+ccsdscfdp, ccsdsprox1
+  CCSDS 732.1-B-3 Unified Space Data Link Protocol (June 2024, EC 1),
+  https://ccsds.org/Pubs/732x1b3e1.pdf; CCSDS 727.0-B-5 CCSDS File Delivery
+  Protocol (July 2020, EC 1), https://ccsds.org/Pubs/727x0b5e1.pdf; CCSDS
+  211.0-B-6 Proximity-1 Space Link Protocol, Data Link Layer (July 2020, EC 1),
+  https://ccsds.org/Pubs/211x0b6e1.pdf. Consultative Committee for Space Data
+  Systems. Reused with attribution under the CCSDS Reproduction Permission
+  Statement for Publications. Field positions, widths and values only; no
+  text, table or figure.
+
+Packs ccsds-cuc-time, ccsds-cds-time, ccsds-ccs-time, ccsds-encap-packet;
+modules ccsdstime, ccsdsep
+  CCSDS 301.0-B-4 Time Code Formats (November 2010, EC 1),
+  https://ccsds.org/Pubs/301x0b4e1.pdf; CCSDS 133.1-B-3 Encapsulation Packet
+  Protocol (May 2020, EC 1), https://ccsds.org/Pubs/133x1b3e1.pdf.
+  Consultative Committee for Space Data Systems. Reused with attribution under
+  the CCSDS Reproduction Permission Statement for Publications. Field
+  positions, widths and values only; no text, table or figure.
+
 Pack ccsds-ndm-xml; module ccsdsndm
   CCSDS Navigation Data Messages XML schema set 4.0.0 (CCSDS 505.0-B-3),
   https://sanaregistry.org/r/ndmxml_unqualified; keyword meanings from CCSDS
@@ -393,6 +413,25 @@ Packs gnmi-*; modules gnmi*
   License, Version 2.0, Copyright Google Inc. Field numbers, names and types
   only.
 
+Packs yang-ietf-*; modules yangietf*
+  IETF YANG modules as published in RFCs, read from
+  https://github.com/YangModels/yang (standard/ietf/RFC and standard/iana,
+  commit e13b05c4ddcbfab9170e60dddbbe9eaf6a831964). Copyright (c) the IETF
+  Trust and the persons identified as authors of the code. All rights
+  reserved. Each module is licensed under the Simplified BSD License or the
+  Revised BSD License set forth in Section 4.c of the IETF Trust's Legal
+  Provisions Relating to IETF Documents (https://trustee.ietf.org/license-info),
+  as the module states; RFC 8575 states it for ietf-ptp. Node names, types and
+  value ranges only, restated under the Apache License 2.0; each pack's
+  PROVENANCE.md quotes the statement of every module read.
+
+Packs openconfig-*; modules openconfig*
+  OpenConfig data models, https://github.com/openconfig/public tag v5.11.0
+  (commit 160da73440205de252066233b1ee0f3085d51d2d), release/models and
+  third_party/ietf. Apache License, Version 2.0; the IETF modules under
+  third_party/ietf carry the IETF Trust copyright and the Simplified or Revised
+  BSD License as above. Node names, types and value ranges only.
+
 Pack openxc-vehicle-message; module openxc
   OpenXC message format openxc.proto, https://github.com/openxc/openxc-message-format.
   BSD 3-Clause License, Copyright (c) 2012 Ford Motor Company. Field numbers,
@@ -494,6 +533,35 @@ Packs ais, ais-binary; modules ais, aisbin
   c59fc6de479d06620c8b2ba395b728e10a71527b. Compilation copyright is held by
   the GPSD project. BSD-2-Clause (gpsd COPYING). Bit positions, widths, units
   and code meanings only; no text, table or example message.
+
+Pack etsi-cam; module etsicam
+  ETSI ASN.1 modules CAM-PDU-Descriptions (ETSI EN 302 637-2 v1.4.1),
+  https://forge.etsi.org/rep/ITS/asn1/cam_en302637_2, and ITS-Container
+  (ETSI TS 102 894-2 v1.3.1), https://forge.etsi.org/rep/ITS/asn1/cdd_ts102894_2.
+  BSD-3-Clause:
+    Copyright 2019 ETSI
+
+    Redistribution and use in source and binary forms, with or without
+    modification, are permitted provided that the following conditions are met:
+    1. Redistributions of source code must retain the above copyright notice,
+       this list of conditions and the following disclaimer.
+    2. Redistributions in binary form must reproduce the above copyright notice,
+       this list of conditions and the following disclaimer in the documentation
+       and/or other materials provided with the distribution.
+    3. Neither the name of the copyright holder nor the names of its contributors
+       may be used to endorse or promote products derived from this software without
+       specific prior written permission.
+
+    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+    ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+    IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT,
+    INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING,
+    BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+    DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+    LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE
+    OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED
+    OF THE POSSIBILITY OF SUCH DAMAGE.
 
 Pack geojson
   IETF RFC 7946, The GeoJSON Format.
@@ -625,3 +693,46 @@ Packs sbf-*; modules sbf, sbf<group>
   Copyright (c) 2020 semuadmin (Steve Smith). Block names and numbers, field
   names, types, scales and bit widths only; read from the definition files,
   which are not run.
+
+Pack unicore; module unicore
+  Unicore UNI binary message definitions of pyunigps,
+  https://github.com/semuconsulting/pyunigps v1.0.1. BSD 3-Clause License,
+  Copyright (c) 2020 semuadin (Steve Smith) (the upstream spelling). Message
+  names and IDs, field names, types, scales and bit widths only; read from the
+  definition files, which are not run.
+
+Packs overture-*; modules overture*
+  Overture Maps schema, https://github.com/OvertureMaps/schema tag v2.0.0
+  (schema/). Overture Maps Foundation. Creative Commons Attribution 4.0
+  International (CC BY 4.0). The packs are derived from the schema, restating
+  its structure, and are not endorsed by the Overture Maps Foundation.
+
+Packs gz-msgs-*; modules gzmsgs*
+  Gazebo messages (gz-msgs), release gz-msgs12_12.0.0, protobuf definitions,
+  https://github.com/gazebosim/gz-msgs. Apache License, Version 2.0, Copyright
+  Open Source Robotics Foundation and others. Field numbers, names and types
+  only.
+
+Packs awc-*; modules awc*
+  AviationWeather.gov Data API OpenAPI document,
+  https://aviationweather.gov/data/schema/openapi.yaml, version v4.0, copy of
+  2026-11-20. A work of the United States Government (NOAA/NWS Aviation
+  Weather Center) in the public domain; no endorsement by NOAA or the NWS is
+  implied.
+
+Packs usgs-earthquake, usgs-earthquake-feed; module usgsquake
+  USGS Earthquake Hazards Program GeoJSON summary feed documentation and ComCat
+  event terms (earthquake.usgs.gov). Works of the U.S. Geological Survey in the
+  U.S. public domain.
+
+Pack vss-vehicle; module vssvehicle
+  COVESA Vehicle Signal Specification v6.1,
+  https://github.com/COVESA/vehicle_signal_specification tag v6.1. Copyright
+  (c) 2016 Contributors to COVESA. Mozilla Public License 2.0. The pack
+  restates the signal tree's structure.
+
+Pack gmti-segment (observed vectors)
+  Segment samples from the tests of pentlandedge/s4607,
+  https://github.com/pentlandedge/s4607 commit be131209. Copyright 2016-2018
+  Pentland Edge Ltd. Apache License 2.0. Segment bodies only, used as test
+  inputs; no code copied or run.
