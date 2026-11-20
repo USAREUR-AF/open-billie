@@ -15,7 +15,8 @@ libc = "0.2"
 prost = "=0.13.5"
 roxmltree = "=0.20.0"
 
-# Optional encoder path through the goat-transformers library. Off by default.
+# Encoder path through the goat-transformers library. On by default (the cargo
+# feature below); CoT and CAT062 use it unless configured, SAPIENT does not.
 # The revision is a commit of the public repository; the pack and model files
 # under translator/goat-transformers/ are copied from the same commit
 # (tools/sync_goat_transformers_packs.py).
@@ -25,7 +26,7 @@ rev = "9e951e9df8a212077cf7dcbc532aeadcdcbf88e5"
 optional = true
 
 [features]
-default = []
+default = ["goat-transformers"]
 goat-transformers = ["dep:goat-transformers"]
 
 [[test]]

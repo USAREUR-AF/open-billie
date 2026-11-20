@@ -43,11 +43,33 @@ impl EncoderPath {
 }
 
 /// Per-format encoder selection, read from node configuration.
-#[derive(Clone, Copy, Debug, Default, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct EncoderSelection {
     pub cot: EncoderPath,
     pub cat062: EncoderPath,
     pub sapient: EncoderPath,
+}
+
+/// The encoders used when node configuration names none. In a build with the cargo
+/// feature `goat-transformers`, CoT and ASTERIX CAT062 use the library: its output is
+/// the native encoders' octet for octet on every CAT062 input of the comparison test,
+/// and on CoT differs only in the time text at a whole second (the same instant).
+/// SAPIENT stays native: the library does not yet write `object_info`
+/// (docs/architecture/GOAT_TRANSFORMERS_ENCODER_OPTION.md). A build without the
+/// feature uses the native encoders for every format.
+impl Default for EncoderSelection {
+    fn default() -> Self {
+        let library = if cfg!(feature = "goat-transformers") {
+            EncoderPath::GoatTransformers
+        } else {
+            EncoderPath::Native
+        };
+        Self {
+            cot: library,
+            cat062: library,
+            sapient: EncoderPath::Native,
+        }
+    }
 }
 
 impl EncoderSelection {
@@ -67,7 +89,7 @@ impl EncoderSelection {
     }
 
     /// Read the selection from the service environment. An unset or empty
-    /// variable selects the native encoder.
+    /// variable selects the default of [`EncoderSelection::default`].
     pub fn from_env() -> Result<Self, String> {
         Self::from_lookup(|name| std::env::var(name).ok())
     }
@@ -281,12 +303,19 @@ mod tests {
     }
 
     #[test]
-    fn selects_native_encoders_unless_configured_per_format() {
+    fn selects_the_default_encoders_unless_configured_per_format() {
         assert_eq!(
             EncoderSelection::from_lookup(|_| None).unwrap(),
             EncoderSelection::default()
         );
-        assert_eq!(EncoderSelection::default().cot, EncoderPath::Native);
+        let library = if cfg!(feature = "goat-transformers") {
+            EncoderPath::GoatTransformers
+        } else {
+            EncoderPath::Native
+        };
+        assert_eq!(EncoderSelection::default().cot, library);
+        assert_eq!(EncoderSelection::default().cat062, library);
+        assert_eq!(EncoderSelection::default().sapient, EncoderPath::Native);
         let explicit = EncoderSelection::from_lookup(|name| {
             (name == "BILLIE_SAPIENT_ENCODER").then(|| "native".to_owned())
         })

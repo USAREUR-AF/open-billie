@@ -32,6 +32,10 @@ release candidate and must be reviewed against the tagged source before release.
 
 ### Changed
 
+- The goat-transformers encoder path is on by default (cargo feature
+  `goat-transformers`): CoT and ASTERIX CAT-062 use it unless
+  `BILLIE_COT_ENCODER` or `BILLIE_CAT062_ENCODER` says `native`; SAPIENT stays
+  native. A `--no-default-features` build is native only.
 - Translator requests now require explicit test and simulation flags before
   publication.
 - Platform health reports degraded state when required services, sockets, or
