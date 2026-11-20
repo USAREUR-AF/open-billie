@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open Billie</title>
+<meta name="description" content="Open Billie prepares a node, builds sensor-specific kid packages, and publishes normalized data as CoT, ASTERIX CAT062 or SAPIENT through Zenoh.">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<style>
+:root {
+  --bg: #f7f5f0; --bg2: #efebe2; --panel: #fffdf9; --ink: #1d1b2e; --quiet: #57536b; --rule: #d6d1c4;
+  --accent: #4b3fc4; --on-accent: #ffffff; --accent-ink: #4b3fc4; --hi: #c2410c; --hi-bg: rgba(194, 65, 12, .14);
+  --code-bg: #1d1b2e; --code-ink: #ecebf5; --code-hi: #ffb08f; --code-key: #b9b0ff; --bgcode: rgba(29, 27, 46, .07);
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #12111c; --bg2: #1a1828; --panel: #1a1928; --ink: #ecebf5; --quiet: #a9a5bf; --rule: #322f47;
+    --accent: #a99cff; --on-accent: #16132e; --accent-ink: #b9b0ff; --hi: #ff8f6b; --hi-bg: rgba(255, 143, 107, .2);
+    --code-bg: #0d0c15; --bgcode: rgba(185, 176, 255, .075);
+    color-scheme: dark;
+  }
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 17px/1.6 var(--sans); }
+a { color: var(--accent-ink); }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--hi); outline-offset: 3px; }
+code, pre { font-family: var(--mono); }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 0 24px; width: 100%; }
+
+.top { position: absolute; top: 0; left: 0; right: 0; z-index: 3; }
+.top .wrap { display: flex; align-items: center; justify-content: space-between; height: 72px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--ink); text-decoration: none; font: 700 17px var(--mono); }
+.brand svg { width: 28px; height: 28px; }
+.top nav { display: flex; gap: 26px; font: 15px var(--mono); }
+.top nav a { color: var(--ink); text-decoration: none; }
+.top nav a:hover { color: var(--accent-ink); }
+
+.hero { position: relative; min-height: max(660px, 88vh); display: flex; flex-direction: column; overflow: hidden;
+  background: radial-gradient(900px 600px at 80% 35%, var(--bg2), var(--bg) 70%); }
+.bgcode { position: absolute; top: 74px; left: 45%; margin: 0; font: 15px/1.55 var(--mono); color: var(--bgcode); white-space: pre; pointer-events: none; user-select: none; }
+.hero-main { position: relative; z-index: 1; flex: 1; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 44px; align-items: center; padding-top: 84px; padding-bottom: 24px; }
+.prompt { font: 600 15px var(--mono); color: var(--hi); margin: 0 0 4px; }
+.cursor { display: inline-block; width: .6em; height: 1.05em; vertical-align: -3px; background: var(--accent); margin-left: 6px; animation: blink 1.06s steps(1) infinite; }
+@keyframes blink { 50% { opacity: 0; } }
+.wordmark { font: 900 84px/1 var(--mono); letter-spacing: -.045em; margin: 0; }
+.tagline { font: 700 23px/1.35 var(--sans); color: var(--accent-ink); margin: 14px 0 10px; }
+.lede { color: var(--quiet); margin: 0 0 24px; max-width: 34em; }
+.buttons { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 18px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 11px 18px; border-radius: 999px; border: 1.5px solid var(--rule);
+  color: var(--ink); background: var(--panel); text-decoration: none; font: 700 15px var(--sans); }
+.btn svg { width: 18px; height: 18px; }
+.btn.star { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn:hover { border-color: var(--accent); }
+.cmd { display: flex; align-items: stretch; border: 1.5px solid var(--rule); border-radius: 10px; overflow: hidden; background: var(--code-bg); color: var(--code-ink); max-width: 600px; }
+.cmd pre { flex: 1; margin: 0; padding: 12px 14px; font-size: 13.5px; line-height: 1.55; white-space: pre-wrap; word-break: break-word; }
+.cmd .p, .term .p { color: var(--code-hi); user-select: none; }
+.copy { border: 0; border-left: 1.5px solid #3a3754; background: transparent; color: var(--code-hi); font: 700 13px var(--mono); padding: 0 14px; cursor: pointer; }
+.cmd-note { font-size: 14px; color: var(--quiet); margin: 8px 0 0; }
+
+/* the decode bench */
+.bench { background: var(--panel); border: 1.5px solid var(--rule); border-radius: 14px; padding: 14px 16px 12px; font-family: var(--mono); }
+.stage { font: 700 12px var(--mono); text-transform: uppercase; letter-spacing: .07em; color: var(--quiet); display: flex; justify-content: space-between; gap: 8px; margin: 0 0 6px; }
+.stage b { color: var(--hi); font-weight: 700; }
+.hex { display: grid; grid-template-columns: repeat(16, minmax(0, 1fr)); gap: 1px 0; font-size: 12.5px; line-height: 1.5; color: var(--quiet); margin-bottom: 8px; }
+.hex span { text-align: center; border-radius: 3px; }
+.hex span.on { background: var(--hi-bg); color: var(--hi); font-weight: 700; }
+.hex span.done { color: var(--ink); }
+.field { min-height: 1.5em; font-size: 13px; color: var(--ink); margin-bottom: 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.field .k { color: var(--quiet); }
+.field .v { color: var(--hi); font-weight: 700; }
+.panes { display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: 10px; }
+.pane { background: var(--code-bg); color: var(--code-ink); border-radius: 8px; padding: 10px 12px; font-size: 12px; line-height: 1.5; height: 196px; overflow: hidden; }
+.pane .k { color: var(--code-key); }
+.pane .s { color: var(--code-hi); }
+.pane pre { margin: 0; font: inherit; white-space: pre-wrap; word-break: break-all; }
+.pane .lbl { font-weight: 700; color: #9e99b8; margin-bottom: 4px; }
+.caption { font-size: 13.5px; color: var(--quiet); margin: 10px 2px 0; line-height: 1.45; font-family: var(--sans); }
+.caption a { color: inherit; }
+
+.numbers { position: relative; z-index: 1; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border: 1.5px solid var(--rule); border-radius: 14px; background: var(--panel); }
+.numbers > div { padding: 16px 20px; border-left: 1.5px solid var(--rule); }
+.numbers > div:first-child { border-left: 0; }
+.numbers b { display: block; font: 800 30px/1.1 var(--mono); color: var(--hi); white-space: nowrap; }
+.numbers > div > span { display: block; font-weight: 700; font-size: 15px; }
+.numbers code { display: block; font-size: 12px; color: var(--quiet); margin-top: 4px; overflow-wrap: anywhere; }
+
+section { padding: 84px 0 0; }
+h2 { font: 800 32px/1.2 var(--mono); letter-spacing: -.02em; margin: 0 0 10px; }
+h3 { font: 700 19px/1.3 var(--sans); margin: 0 0 8px; }
+.sub { color: var(--quiet); margin: 0 0 30px; max-width: 46em; }
+.cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+.card { background: var(--panel); border: 1.5px solid var(--rule); border-radius: 14px; padding: 22px; }
+.card p { margin: 0; color: var(--quiet); font-size: 16px; }
+.card .k { font: 700 13px var(--mono); color: var(--hi); text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
+.two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 32px; align-items: start; }
+figure { margin: 0; }
+figure img { width: 100%; height: auto; display: block; border-radius: 14px; border: 1.5px solid var(--rule); background: var(--panel); }
+figcaption { font-size: 13.5px; color: var(--quiet); margin-top: 8px; }
+.term { background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 16px 18px; font: 13.5px/1.6 var(--mono); overflow-x: auto; white-space: pre; margin: 0 0 12px; }
+table { border-collapse: collapse; width: 100%; font-size: 15.5px; background: var(--panel); border: 1.5px solid var(--rule); }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
+th { font: 700 13px var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--quiet); }
+tr:last-child td { border-bottom: 0; }
+td code { font-size: 14px; overflow-wrap: anywhere; }
+footer { margin-top: 96px; border-top: 1.5px solid var(--rule); padding: 28px 0 48px; color: var(--quiet); font-size: 15px; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; justify-content: space-between; }
+footer a { color: inherit; }
+.dark-only { display: none; }
+@media (prefers-color-scheme: dark) { .dark-only { display: block; } .light-only { display: none; } }
+
+@media (max-width: 980px) {
+  .hero-main { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+  .bgcode { left: 30%; }
+  .numbers { grid-template-columns: repeat(2, minmax(0, 1fr)); margin-top: 24px; }
+  .numbers > div:nth-child(3) { border-left: 0; }
+  .numbers > div:nth-child(n+3) { border-top: 1.5px solid var(--rule); }
+  .cards, .two { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 600px) {
+  .wrap { padding: 0 16px; }
+  .top .wrap { height: 56px; }
+  .top nav { gap: 14px; font-size: 14px; }
+  .top nav .opt { display: none; }
+  .hero { min-height: 0; }
+  .hero-main { padding-top: 70px; }
+  .wordmark { font-size: 50px; }
+  .tagline { font-size: 18px; margin: 8px 0 6px; }
+  .lede { font-size: 15.5px; margin-bottom: 16px; }
+  .btn { padding: 9px 13px; font-size: 14px; }
+  .buttons { gap: 8px; margin-bottom: 12px; }
+  .cmd pre { font-size: 12.5px; padding: 10px 12px; }
+  .bgcode { font-size: 12px; left: 8%; opacity: .55; }
+  .numbers b { font-size: 24px; }
+  .numbers > div { padding: 12px 14px; }
+  .bench { padding: 12px; }
+  .hex { font-size: 10.5px; }
+  .panes { grid-template-columns: minmax(0, 1fr); }
+  .pane { height: auto; min-height: 150px; }
+  h2 { font-size: 26px; }
+  section { padding-top: 64px; }
+}
+@media (prefers-reduced-motion: reduce) { .cursor { animation: none; } }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="Open Billie, top of page">
+      <svg viewBox="0 0 28 28" aria-hidden="true"><rect x="2" y="2" width="24" height="24" rx="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 18h4M7 14h7M7 10h10" stroke="#c2410c" stroke-width="2.4" stroke-linecap="round"/><circle cx="20" cy="18" r="2.6" fill="currentColor"/></svg>
+      open-billie
+    </a>
+    <nav aria-label="Sections">
+      <a href="#what">What</a>
+      <a class="opt" href="#kids">Kids</a>
+      <a href="#start">Start</a>
+      <a href="https://github.com/USAREUR-AF/open-billie">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+<div class="hero">
+<pre class="bgcode" aria-hidden="true">        let class = track.classification.unwrap_or(Classification::Unknown);
+        let hae = track.position.altitude_m.unwrap_or(UNKNOWN_ERROR_METRES);
+        let ce = track
+            .position_uncertainty
+            .and_then(|u| Some((u.sigma_east_m?, u.sigma_north_m?)))
+            .map(|(east, north)| east.hypot(north))
+            .unwrap_or(UNKNOWN_ERROR_METRES);
+        let le = track
+            .position_uncertainty
+            .and_then(|u| u.sigma_up_m)
+            .unwrap_or(UNKNOWN_ERROR_METRES);</pre>
+
+  <div class="wrap hero-main">
+    <div>
+      <p class="prompt">&gt;_ billie verify<span class="cursor" aria-hidden="true"></span></p>
+      <h1 class="wordmark">open-billie</h1>
+      <p class="tagline">Any sensor in, one track record, three standard formats out.</p>
+      <p class="lede">Open Billie prepares a node, builds a small package for each sensor (a kid), and publishes its data, normalized, as CoT, ASTERIX CAT062 or SAPIENT through Zenoh. The kid decodes; the shared translator writes the format.</p>
+      <div class="buttons">
+        <a class="btn star" href="https://github.com/USAREUR-AF/open-billie">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M12 2.8l2.8 5.8 6.4.9-4.6 4.5 1.1 6.3L12 17.3l-5.7 3 1.1-6.3-4.6-4.5 6.4-.9z"/></svg>
+          Star on GitHub
+        </a>
+        <a class="btn" href="#start">Install</a>
+        <a class="btn" href="https://github.com/USAREUR-AF/open-billie/blob/main/deploy/README.md">Docs</a>
+        <a class="btn" href="https://github.com/USAREUR-AF/open-billie/blob/main/docs/KID_PACKAGE_AUTHORING_GUIDE.md">Write a kid</a>
+      </div>
+      <div class="cmd">
+        <pre><span class="p">$ </span>git clone https://github.com/USAREUR-AF/open-billie
+<span class="p">$ </span>cd open-billie &amp;&amp; bash tools/setup.sh</pre>
+        <button class="copy" type="button" data-copy="git clone https://github.com/USAREUR-AF/open-billie && cd open-billie && bash tools/setup.sh">Copy</button>
+      </div>
+      <p class="cmd-note">The guided workflow, from Linux or macOS; on Windows, <code>tools\setup.ps1</code>. It installs to an Ubuntu Server 24.04 node over SSH.</p>
+    </div>
+
+    <div>
+      <div class="bench" role="img" aria-label="The example kid's 110-byte synthetic OETF frame, decoded field by field (magic OETF, sequence 42, sensor 263, two tracks; track 311 a small UAS at 87 percent confidence and 152.4 m), mapped to the canonical track record, then written by the real Billie translator as a 346-byte CoT event and a 31-byte ASTERIX CAT062 record.">
+        <p class="stage"><span>1 · sensor bytes in</span><span id="pos"><b data-n="frame-bytes">110</b> bytes</span></p>
+        <div class="hex" id="hex" aria-hidden="true"></div>
+        <div class="field" id="field" aria-hidden="true">&nbsp;</div>
+        <div class="panes" aria-hidden="true">
+          <div class="pane"><div class="lbl">2 · canonical track</div><pre id="canon"></pre></div>
+          <div class="pane"><div class="lbl" id="outlbl">3 · translator out</div><pre id="out"></pre></div>
+        </div>
+      </div>
+      <p class="caption">Real data, replayed: a conformance vector of the synthetic OETF example, decoded and mapped by the example kid and encoded by the real Rust translator. Made by <a href="https://github.com/USAREUR-AF/open-billie/blob/main/site/hero-data/make.py">site/hero-data/make.py</a>.</p>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="numbers" aria-label="Measured">
+      <div><b><span data-n="frame-bytes">110</span> B</b><span>sensor frame, <span data-n="tracks">2</span> tracks</span><code>the OETF vector, hero-data.json</code></div>
+      <div><b><span data-n="cot-bytes">346</span> B</b><span>CoT event for track 311</span><code>CAT062: <span data-n="cat062-bytes">31</span> B; same file</code></div>
+      <div><b data-n="formats">3</b><span>output formats</span><code>enum EncoderFormat, request.rs</code></div>
+      <div><b data-n="runtimes">3</b><span>decoder runtimes in the example</span><code>Containerfile* in kids/examples/oetf</code></div>
+    </div>
+  </div>
+</div>
+
+<section id="what">
+  <div class="wrap">
+    <h2>What it is</h2>
+    <p class="sub">A sensor-neutral project for preparing a node, building sensor-specific kid packages, and publishing normalized data through the shared Billie translator and Zenoh path. The node runs Billie locally after installation. Proprietary sensor protocols, decoders, mappings and captures stay outside this repository; the example kid and the sensor simulator use synthetic data.</p>
+    <div class="cards">
+      <div class="card"><div class="k">The node</div><h3>One guided install</h3><p>The wizard checks the release, the node's architecture, SSH access and prerequisites, then installs the platform on Ubuntu Server 24.04, amd64 or arm64. The platform owns local Zenoh, fabric mTLS, routes and the bridge.</p></div>
+      <div class="card"><div class="k">The kid</div><h3>A package per sensor</h3><p>A decoder, a schema, a user-defined mapping and lookups, synthetic conformance vectors and a runtime adapter. A kid needs no fabric credentials and no encoder of its own.</p></div>
+      <div class="card"><div class="k">The translator</div><h3>Standard formats out</h3><p>The shared Rust translator turns the canonical track into CoT XML, an ASTERIX CAT062 Edition 1.21 record, or a SAPIENT BSI Flex 335 v2.0 message, and rejects anything outside the versioned contract.</p></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap two">
+    <figure>
+      <img class="light-only" src="assets/open-billie-node-light.svg" width="880" height="682" loading="lazy" alt="A kid package for one sensor decodes and maps its data on an Ubuntu Server 24.04 node and hands a track-v2 record over a local Unix socket to the Open Billie platform, whose Rust translator and encoder write CoT, ASTERIX CAT062 or SAPIENT and publish through local Zenoh and an mTLS bridge to the remote fabric.">
+      <img class="dark-only" src="assets/open-billie-node-dark.svg" width="880" height="682" loading="lazy" alt="A kid package for one sensor decodes and maps its data on an Ubuntu Server 24.04 node and hands a track-v2 record over a local Unix socket to the Open Billie platform, whose Rust translator and encoder write CoT, ASTERIX CAT062 or SAPIENT and publish through local Zenoh and an mTLS bridge to the remote fabric.">
+      <figcaption>Drawn figure, from <code>docs/figures/</code>: the boundary between a kid and the platform on one node.</figcaption>
+    </figure>
+    <div>
+      <h2>Where the line is drawn</h2>
+      <p class="sub">The kid owns the sensor: its wire format, its decoder, and the mapping from its fields to Billie's canonical record. The platform owns everything that touches the network beyond the node. The record crosses between them over a local Unix socket.</p>
+<pre class="term">Sensor TCP/UDP input
+  -&gt; kid decoder and user mapping
+  -&gt; canonical record over local Unix socket
+  -&gt; shared Rust translator and encoder
+  -&gt; local Zenoh route
+  -&gt; Open Billie platform mTLS bridge and remote fabric</pre>
+      <p class="sub">Contracts: <a href="https://github.com/USAREUR-AF/open-billie/blob/main/docs/architecture/DECODER_TRANSLATOR_RUNTIME_CONTRACT.md">decoder to translator</a>, <a href="https://github.com/USAREUR-AF/open-billie/blob/main/schemas/CANONICAL_TRACK_V2.md">canonical track v2</a>, <a href="https://github.com/USAREUR-AF/open-billie/blob/main/docs/architecture/GOLDEN_PATH_ZENOH.md">Zenoh and fabric security</a>.</p>
+    </div>
+  </div>
+</section>
+
+<section id="kids">
+  <div class="wrap two">
+    <div>
+      <h2>Build and deploy a kid</h2>
+      <p class="sub">The local tools scan and validate kid sources, build a package for <code>linux/amd64</code> or <code>linux/arm64</code> with Docker or Podman, and ask which decoder implementation to use when there is more than one. The guided deployment transfers and installs it, lets you choose a declared TCP or UDP listener, and activates it.</p>
+      <table>
+        <thead><tr><th>Step</th><th>Command</th></tr></thead>
+        <tbody>
+          <tr><td>validate</td><td><code>bash deploy/bin/billie kid validate kids/examples/oetf</code></td></tr>
+          <tr><td>build</td><td><code>bash deploy/bin/billie kid build kids/examples/oetf --platform linux/arm64</code></td></tr>
+          <tr><td>install</td><td><code>sudo billie kid install /tmp/billie-kid-oetf_0.1.4.tar.gz</code></td></tr>
+          <tr><td>configure</td><td><code>sudo billie kid configure oetf --transport udp --bind-address 192.0.2.20 --port 5100 --source-cidr 192.0.2.0/24</code></td></tr>
+          <tr><td>activate</td><td><code>sudo billie kid activate oetf</code></td></tr>
+        </tbody>
+      </table>
+      <p class="sub" style="margin-top:14px">Kid bundles are separate from the platform release and are unsigned; their checksums detect file changes but do not authenticate the builder. Start with the <a href="https://github.com/USAREUR-AF/open-billie/blob/main/docs/KID_PACKAGE_AUTHORING_GUIDE.md">kid package authoring guide</a> and the <a href="https://github.com/USAREUR-AF/open-billie/blob/main/kids/_template/README.md">template</a>.</p>
+    </div>
+    <div>
+      <h3>The real validator, on the example kid</h3>
+<pre class="term" id="validate">$ bash deploy/bin/billie kid validate kids/examples/oetf
+Valid kid source: oetf@0.2.0
+Manifest: open-billie/kids/examples/oetf/billie-kid.yaml
+  decoder: packages/oetf/python/src/billie_oetf/decoder.py
+  mapper: packages/oetf/python/src/billie_oetf/mapper.py
+  schemas: packages/oetf/shared/schemas
+  mappings: packages/oetf/shared/mappings
+  lookups: packages/oetf/shared/lookups
+  vectors: packages/oetf/shared/conformance/vectors
+WARNING: runtime.image is a development placeholder and is not deployable
+Source structure is valid; resolve warnings before treating it as deployable.
+</pre>
+      <p class="caption">Recorded by <a href="https://github.com/USAREUR-AF/open-billie/blob/main/site/captures/capture-validate.sh">site/captures/capture-validate.sh</a>. The warning is the validator doing its job: the example's image is a placeholder until a build fills it in.</p>
+    </div>
+  </div>
+</section>
+
+<section id="start">
+  <div class="wrap two">
+    <div>
+      <h2>Start here</h2>
+      <p class="sub">Read the <a href="https://github.com/USAREUR-AF/open-billie/blob/main/deploy/README.md">provisioning guide</a> before installing: prerequisites, credential inputs, wizard prompts and troubleshooting. The target node is Ubuntu Server 24.04, <code>amd64</code> or <code>arm64</code>, with SSH access and non-interactive <code>sudo</code>.</p>
+      <table>
+        <thead><tr><th>From</th><th>Run</th></tr></thead>
+        <tbody>
+          <tr><td>Linux</td><td><code>bash tools/setup.sh</code> at the repository root</td></tr>
+          <tr><td>macOS</td><td><code>bash tools/setup.sh</code>; builds run in a Docker or Podman Linux container</td></tr>
+          <tr><td>Windows 10/11</td><td><code>tools\setup.ps1</code> from PowerShell; runs Bash in Ubuntu 24.04 on WSL 2</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div>
+      <h2>Take it off again</h2>
+      <p class="sub">Remove a kid and keep the platform, or remove the platform. Teardown lists what it will remove, asks for confirmation, and asks a second time before deleting node identity and fabric credentials. NetBird is left untouched.</p>
+<pre class="term"><span class="p">$ </span>sudo billie kid deactivate &lt;id&gt;
+<span class="p">$ </span>sudo billie kid remove &lt;id&gt;
+<span class="p">$ </span>sudo billie teardown</pre>
+      <p class="sub">Before updating a node, read the <a href="https://github.com/USAREUR-AF/open-billie/blob/main/docs/UPGRADING.md">upgrade notes</a>: platform 0.3.0 requires kids built for the v2 canonical track contract. Validation status and open items: <a href="https://github.com/USAREUR-AF/open-billie/blob/main/docs/TESTING.md">testing log</a>.</p>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>Open Billie · Apache License 2.0; public domain in the U.S. (<a href="https://github.com/USAREUR-AF/open-billie/blob/main/INTENT.md">INTENT.md</a>) · <a href="https://github.com/USAREUR-AF/open-billie/blob/main/THIRD_PARTY_NOTICES.md">third-party notices</a></span>
+    <span><a href="https://github.com/USAREUR-AF/open-billie">GitHub</a> · <a href="https://github.com/USAREUR-AF/open-billie/blob/main/CONTRIBUTING.md">contributing</a> · <a href="https://github.com/USAREUR-AF/octo-pod">octo-pod</a> · <a href="https://github.com/USAREUR-AF/goatcore">goatcore</a></span>
+  </div>
+</footer>
+
+<script>
+(function () {
+  document.querySelectorAll('[data-copy]').forEach(function (b) {
+    b.addEventListener('click', function () {
+      var done = function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 1600); };
+      if (navigator.clipboard) navigator.clipboard.writeText(b.getAttribute('data-copy')).then(done, function () {});
+    });
+  });
+
+  // Plays site/assets/hero-data.json. The labels below read the frame as
+  // kids/examples/oetf/docs/WIRE_FORMAT.md lays it out; the canonical record and the
+  // outputs are the decoder's, mapper's and translator's own.
+  var still = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var $ = function (id) { return document.getElementById(id); };
+  var CLASS = ['Unknown', 'Fixed wing', 'Rotary wing', 'Small UAS', 'Balloon', 'Bird', 'Surface vehicle', 'Clutter'];
+  function esc(s) { return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  fetch('assets/hero-data.json').then(function (r) { return r.json(); }).then(function (d) {
+    var b = d.frameHex.match(/../g).map(function (h) { return parseInt(h, 16); });
+    var dv = new DataView(new Uint8Array(b).buffer);
+    var hex = $('hex');
+    hex.innerHTML = b.map(function (x) { return '<span>' + (x < 16 ? '0' : '') + x.toString(16) + '</span>'; }).join('');
+    var cells = hex.children;
+    var u16 = function (o) { return dv.getUint16(o, true); }, i16 = function (o) { return dv.getInt16(o, true); };
+    var i32 = function (o) { return dv.getInt32(o, true); };
+    var steps = [
+      [0, 4, 'magic', String.fromCharCode(b[0], b[1], b[2], b[3])],
+      [4, 2, 'version · type', b[4] + ' · ' + b[5] + ' (track report)'],
+      [6, 2, 'frame length', u16(6) + ' bytes'],
+      [8, 4, 'sequence', dv.getUint32(8, true)],
+      [12, 4, 'sensor · flags', u16(12) + ' · ' + u16(14)],
+      [16, 8, 'timestamp', new Date(Number(dv.getBigUint64(16, true) / 1000n)).toISOString()],
+      [24, 4, 'track count', b[24]]
+    ];
+    for (var t = 0; t < b[24]; t++) {
+      var o = 28 + 40 * t, n = 'track ' + (t + 1) + ' ';
+      steps.push([o, 2, n + 'id', u16(o)], [o + 2, 2, n + 'class · confidence', CLASS[b[o + 2]] + ' · ' + b[o + 3] + ' %'],
+        [o + 4, 4, n + 'flags · Mode 3/A', '0x' + u16(o + 4).toString(16) + ' · ' + ('000' + u16(o + 6).toString(8)).slice(-4)],
+        [o + 8, 12, n + 'lat · lon · alt', (i32(o + 8) / 1e7) + '° · ' + (i32(o + 12) / 1e7) + '° · ' + (i32(o + 16) / 100) + ' m'],
+        [o + 20, 6, n + 'velocity E N U', (i16(o + 20) / 100) + ' ' + (i16(o + 22) / 100) + ' ' + (i16(o + 24) / 100) + ' m/s'],
+        [o + 26, 14, n + 'sigmas · RCS · age', '… · ' + (i16(o + 36) / 10) + ' dBsm · ' + u16(o + 38) + ' s']);
+    }
+    steps.push([b.length - 2, 2, 'CRC-16', '0x' + u16(b.length - 2).toString(16)]);
+
+    function canon(c) {
+      var lines = ['{', '  "trackId": "' + c.trackId + '",', '  "classification": "' + c.classification + '",',
+        '  "confidence": ' + c.confidence + ',', '  "confirmed": ' + c.confirmed + ',',
+        '  "position": { "altitudeM": ' + c.position.altitudeM + ' },',
+        '  "velocity": { "eastMps": ' + c.velocity.eastMps + ',', '    "northMps": ' + c.velocity.northMps + ' },',
+        '  "observedAt": "' + c.observedAt + '"', '}'];
+      return esc(lines.join('\n')).replace(/"(\w+)":/g, '<span class="k">"$1"</span>:');
+    }
+    function out(tr) {
+      var cot = tr.outputs[0], cat = tr.outputs[1];
+      return '<span class="s">CoT, ' + cot.length + ' bytes</span>\n' + esc(cot.text) +
+        '\n\n<span class="s">ASTERIX CAT062, ' + cat.length + ' bytes</span>\n' + cat.hex.match(/../g).join(' ');
+    }
+    function mark(s, cls) { for (var i = s[0]; i < s[0] + s[1]; i++) cells[i].className = cls; }
+    function showField(s) { $('field').innerHTML = '<span class="k">' + esc(s[2]) + ' = </span><span class="v">' + esc(String(s[3])) + '</span>'; }
+
+    if (still) {
+      steps.forEach(function (s) { mark(s, 'done'); });
+      showField(steps[8]); $('canon').innerHTML = canon(d.tracks[0].canonical); $('out').innerHTML = out(d.tracks[0]);
+      return;
+    }
+    var k = 0, track = 0;
+    // The panes start on the first track's real record and outputs, and are re-written
+    // for each track once its bytes have been read.
+    $('canon').innerHTML = canon(d.tracks[0].canonical); $('out').innerHTML = out(d.tracks[0]);
+    function reset() { for (var i = 0; i < cells.length; i++) cells[i].className = ''; }
+    function type(el, html, done) {
+      // reveal line by line
+      var lines = html.split('\n'), i = 0;
+      (function next() { el.innerHTML = lines.slice(0, ++i).join('\n'); if (i < lines.length) setTimeout(next, 70); else done(); })();
+    }
+    function step() {
+      if (k > 0) mark(steps[k - 1], 'done');
+      if (k < steps.length) { mark(steps[k], 'on'); showField(steps[k]); k++; setTimeout(step, 420); return; }
+      var tr = d.tracks[track % d.tracks.length];
+      $('canon').innerHTML = ''; $('out').innerHTML = '';
+      type($('canon'), canon(tr.canonical), function () {
+        type($('out'), out(tr), function () { setTimeout(function () { k = 0; track++; reset(); step(); }, 4200); });
+      });
+    }
+    reset(); step();
+  }).catch(function () { $('field').textContent = 'data not loaded'; });
+})();
+</script>
+</body>
+</html>

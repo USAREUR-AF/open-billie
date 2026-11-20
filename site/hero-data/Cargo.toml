@@ -1,0 +1,14 @@
+# Encodes the landing page's example with the real Billie translator.
+# Its own workspace; not part of runtime/rust and not part of any release.
+[package]
+name = "landing-hero-data"
+version = "0.0.0"
+edition = "2021"
+publish = false
+license = "Apache-2.0"
+
+[workspace]
+
+[dependencies]
+billie-translator = { path = "../../runtime/rust/translator" }
+serde_json = "1"
