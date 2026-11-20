@@ -1,6 +1,6 @@
 # goat-transformers encoder option
 
-Status: Built, off by default, not deployed. The numbers below are measured by `runtime/rust/translator/tests/goat_transformers_compare.rs`.
+Status: Built. In a default build, CoT and ASTERIX CAT062 use the library and SAPIENT the native encoder; not deployed. The numbers below are measured by `runtime/rust/translator/tests/goat_transformers_compare.rs`.
 
 The translator can write an output format with the [goat-transformers](https://github.com/USAREUR-AF/goat-transformers) library instead of its native encoder. goat-transformers converts between message formats from data files called packs: one pack states how one format maps to a shared model. An operator selects the encoder for each output format separately and can switch back. A translator built without the cargo feature `goat-transformers` contains none of this code, and its output does not change.
 
@@ -26,19 +26,21 @@ The object ULID comes from the same store on both paths (`BILLIE_SAPIENT_OBJECT_
 
 Build the translator with the feature:
 
+The cargo feature `goat-transformers` is on by default, so `cargo build` and `tools/build-platform-release.sh` include the library path. A native-only build leaves it out:
+
 ```sh
-cargo build --locked --release --features goat-transformers --manifest-path runtime/rust/translator/Cargo.toml
+cargo build --locked --release --no-default-features --manifest-path runtime/rust/translator/Cargo.toml
 ```
 
-`tools/build-platform-release.sh` builds without the feature, so a platform package does not contain the library path.
+Select the encoder of each format in the translator service environment. Each variable takes `native` or `goat-transformers`; unset, it takes the default in the table:
 
-Select the encoder of each format in the translator service environment. Each variable takes `native` (the default) or `goat-transformers`:
+| Variable | Output format | Default (with the feature) | Why |
+|---|---|---|---|
+| `BILLIE_COT_ENCODER` | `cot` | `goat-transformers` | the same event on every input but the time text at a whole second (the same instant) |
+| `BILLIE_CAT062_ENCODER` | `asterix-cat062` | `goat-transformers` | the same octets on every input |
+| `BILLIE_SAPIENT_ENCODER` | `sapient` | `native` | the library does not yet write `object_info` |
 
-| Variable | Output format |
-|---|---|
-| `BILLIE_COT_ENCODER` | `cot` |
-| `BILLIE_CAT062_ENCODER` | `asterix-cat062` |
-| `BILLIE_SAPIENT_ENCODER` | `sapient` |
+A build without the feature uses `native` for every format.
 
 To switch one format on a node, add a systemd drop-in for the translator unit with, for example, `Environment=BILLIE_CAT062_ENCODER=goat-transformers`, then restart the unit. To switch back, remove the line or set `native`, then restart. The translator reads the variables once at start. It exits with status 2 when a value is not one of the two names, when `goat-transformers` is selected in a build without the feature, or when an embedded definition does not load.
 

@@ -918,8 +918,9 @@ fn switching_a_format_back_to_native_restores_the_native_bytes() {
         profile: None,
         record: case.track,
     };
-    let native = encode_request(&request, &EncodeOptions::default()).unwrap();
     let mut options = EncodeOptions::default();
+    options.encoders.cot = EncoderPath::Native;
+    let native = encode_request(&request, &options).unwrap();
     options.encoders.cot = EncoderPath::GoatTransformers;
     let library = encode_request(&request, &options).unwrap();
     assert_ne!(library.bytes, native.bytes);
