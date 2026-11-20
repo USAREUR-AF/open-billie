@@ -21,7 +21,7 @@ roxmltree = "=0.20.0"
 # (tools/sync_goat_transformers_packs.py).
 [dependencies.goat-transformers]
 git = "https://github.com/USAREUR-AF/goat-transformers"
-rev = "6eeec009b098a6636752f4034d44c5ec0a9f13e8"
+rev = "a523c3f562e7909909ddaec9296fe399b3e6e1c8"
 optional = true
 
 [features]

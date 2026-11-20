@@ -50,7 +50,7 @@ The comparison test encodes 33 inputs through both encoders for each format: the
 |---|---|---|---|---|---|
 | ASTERIX CAT062 | 25 | 7 | 1 | 1 of 25 | 373 of 397 |
 | CoT | 33 | 0 | 0 | 17 of 33 | 547 of 594 |
-| SAPIENT | 33 | 0 | 0 | 0 of 33 | 579 of 717 |
+| SAPIENT | 33 | 0 | 0 | 0 of 33 | 610 of 719 |
 
 A SAPIENT report ULID is new for every message on both paths, so two SAPIENT messages are never the same octets. On 2 of the 33 inputs every SAPIENT field is equal.
 
@@ -80,14 +80,15 @@ A receiver sees the same track identity on both paths. From the library path it 
 
 | Field | Inputs | Difference | Cause |
 |---|---|---|---|
-| `location.x_error`, `location.y_error` | 31 | not written by the library | The native encoder converts the east and north sigma from meters to degrees at the track latitude. The library has no such function. |
+| `location.y_error` | 31 | different value, about 1.6e-15 relative | Both convert the north sigma from meters to degrees of latitude at the track latitude (the library since sapient 0.2.0, goat-transformers#146). The native encoder's `WGS84_E2` is the rounded `6.694_379_990_14e-3`; the library takes `e2 = f(2 - f)` = 0.0066943799901413165. With `f * (2.0 - f)` in `sapient.rs` the row closes. `x_error` is equal on every input. |
+| `timestamp.nanos` | 2 | written by the library only | At a whole second the native encoder omits `nanos`; the library writes the 0 it derives from the track time. `Timestamp.nanos` is a proto3 field without presence, so 0 and absent are the same value. |
 | `classification[].confidence` | 31 | not written by the library | The native encoder writes the confidence a second time, inside the classification. The pack maps it to `detection_confidence` only. |
 | `object_info[].type`, `object_info[].value` | 16 | not written by the library | The pack does not map `sapient-object-info` identifiers to `object_info`. |
 | `state` | 13 | not written by the library | The library has no function that builds text from several flags. |
 
-The message timestamp, node UUID, report and object identifiers, the scoped identity in `id`, location, vertical error, coordinate system and datum, detection confidence, classification type and ENU velocity are equal on all 33 inputs. The test counts two valid report ULIDs as equal.
+The message timestamp (seconds, and nanos off a whole second), the x error, node UUID, report and object identifiers, the scoped identity in `id`, location, vertical error, coordinate system and datum, detection confidence, classification type and ENU velocity are equal on all 33 inputs. The test counts two valid report ULIDs as equal.
 
-A SAPIENT message from the library path has no horizontal position error, no classification confidence, no `object_info` and no status in `state`.
+A SAPIENT message from the library path has no classification confidence, no `object_info` and no status in `state`.
 
 ### The recorded baseline
 

@@ -424,6 +424,13 @@ ntp-header, dns-header; module inet
   IETF RFC 791, 768, 792, 1035, 5905, 8200 and 9293, https://www.rfc-editor.org/
   (IETF Trust, BCP 78, where the document states it). Field layouts restated.
 
+Packs dhcpv6-options, edns0-options; modules dhcpv6, edns0
+  IETF RFC 9915 (DHCPv6, section 21) and RFC 6891 (EDNS(0), section 6.1.2),
+  https://www.rfc-editor.org/ (IETF Trust, BCP 78). Option formats and sizes
+  restated. Option codes and names from the IANA registries DHCPv6 Option
+  Codes and DNS EDNS0 Option Codes (OPT), CC0 1.0 per the IANA and IETF joint
+  statement of 10 November 2021.
+
 Packs ros2-tier4-*; modules ros2tier4*
   TIER IV Autoware messages, https://github.com/tier4/tier4_autoware_msgs.
   Apache License 2.0, Copyright TIER IV, Inc. Message field names and types.
@@ -468,7 +475,7 @@ Pack misb-st0601; module misb0601
   distribution statement and no license text. Item tags, types, sizes,
   ranges and scale factors only; no text, table, figure or example.
 
-Pack ais; module ais
+Packs ais, ais-binary; modules ais, aisbin
   gpsd, "AIVDM/AIVDO protocol decoding", v1.58, Eric S. Raymond, file
   www/AIVDM.adoc of https://gitlab.com/gpsd/gpsd at commit
   c59fc6de479d06620c8b2ba395b728e10a71527b. Compilation copyright is held by
@@ -498,6 +505,23 @@ Pack c2sim; module c2sim
   2022 OpenC2SIM Project, MIT License. Schema of SISO-STD-019-2020 (C2SIM).
   https://github.com/OpenC2SIM/C2SIMArtifacts
   Element names, types and units only.
+
+Pack misb-st0102; module misb0102
+  MISB ST 0102.12, Security Metadata Universal and Local Sets for Motion
+  Imagery Data, Motion Imagery Standards Board. NSG Registry public document
+  store, doc/view?i=4422. The registry states that materials in its public
+  portions are in the public domain, released for public use, or fair use of
+  copyright material; the document carries no distribution statement and no
+  license text. Item tags, types, lengths and code values only; no text,
+  table, figure or example.
+
+Pack misb-st0903; module misb0903
+  MISB ST 0903.6, Video Moving Target Indicator Metadata, Motion Imagery
+  Standards Board. NSG Registry public document store, doc/view?i=5310. The
+  registry states that materials in its public portions are in the public
+  domain, released for public use, or fair use of copyright material; the
+  document carries no distribution statement and no license text. Item tags,
+  types and lengths only; no text, table, figure or example.
 
 The packs named conformance*, demo-* and the module probe describe synthetic
 formats written for this project and have no external source.
