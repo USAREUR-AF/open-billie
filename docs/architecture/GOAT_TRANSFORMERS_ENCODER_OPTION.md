@@ -48,19 +48,18 @@ The comparison test encodes 33 inputs through both encoders for each format: the
 
 | Format | Encoded by both | Refused by both | One path refuses | Byte-identical | Fields equal |
 |---|---|---|---|---|---|
-| ASTERIX CAT062 | 25 | 7 | 1 | 1 of 25 | 373 of 397 |
+| ASTERIX CAT062 | 25 | 7 | 1 | 25 of 25 | 397 of 397 |
 | CoT | 33 | 0 | 0 | 28 of 33 | 588 of 594 |
-| SAPIENT | 33 | 0 | 0 | 0 of 33 | 654 of 719 |
+| SAPIENT | 33 | 0 | 0 | 0 of 33 | 685 of 719 |
 
 A SAPIENT report ULID is new for every message on both paths, so two SAPIENT messages are never the same octets. On 2 of the 33 inputs every SAPIENT field is equal.
 
 ### ASTERIX CAT062
 
-The blocks both encoders write differ only in the I062/080 MRH bit, on the 24 tracks with an altitude. Both refuse a record without `confirmed` (5 inputs) and a `trackId` that is not a decimal number (2 inputs). The library sets MRH to 1 when it writes I062/130 (its spec 0.12, goat-transformers#105); the native encoder writes 0. Whether the native encoder follows is this repository's decision; until then the row stays in the baseline. SRC comes from the context key `cat062.src`, 0 when absent; the translator does not pass it, so both paths write 0.
+Every block both encoders write is the same, octet for octet. Both refuse a record without `confirmed` (5 inputs) and a `trackId` that is not a decimal number (2 inputs). Both set the I062/080 MRH bit when they write I062/130, the geometric altitude, which is then the more reliable height (goat-transformers spec 0.12, #105). SRC comes from the context key `cat062.src`, 0 when absent; the translator does not pass it, so both paths write 0.
 
 | Difference | Inputs | Cause |
 |---|---|---|
-| I062/080 octet 1: MRH 1 from the library, 0 from the native encoder (`0xa1` against `0x81`) | 24 | The library sets MRH when I062/130 is written (`derive cat062.mrh present hae`). |
 | The library encodes a record the native encoder refuses | 1 | The native encoder refuses a longitude of 180 degrees, a track number above 4095 and an altitude outside -1500 to 150000 ft. The pack writes any value the field holds; a longitude of 180 is written as 2^25. |
 
 ### CoT
@@ -77,11 +76,10 @@ A receiver sees the same track identity, `opex` and status remarks on both paths
 
 | Field | Inputs | Difference | Cause |
 |---|---|---|---|
-| `location.y_error` | 31 | different value, about 1.6e-15 relative | Both convert the north sigma from meters to degrees of latitude at the track latitude (the library since sapient 0.2.0, goat-transformers#146). The native encoder's `WGS84_E2` is the rounded `6.694_379_990_14e-3`; the library takes `e2 = f(2 - f)` = 0.0066943799901413165. With `f * (2.0 - f)` in `sapient.rs` the row closes. `x_error` is equal on every input. |
 | `timestamp.nanos` | 2 | written by the library only | At a whole second the native encoder omits `nanos`; the library writes the 0 it derives from the track time. `Timestamp.nanos` is a proto3 field without presence, so 0 and absent are the same value. |
 | `object_info[].type`, `object_info[].value` | 16 | not written by the library | The pack does not map `sapient-object-info` identifiers to `object_info`. |
 
-The message timestamp (seconds, and nanos off a whole second), the x error, node UUID, report and object identifiers, the scoped identity in `id`, location, vertical error, coordinate system and datum, detection confidence, classification type and its confidence, `state` and ENU velocity are equal on all 33 inputs. The test counts two valid report ULIDs as equal.
+The message timestamp (seconds, and nanos off a whole second), the x and y error, node UUID, report and object identifiers, the scoped identity in `id`, location, vertical error, coordinate system and datum, detection confidence, classification type and its confidence, `state` and ENU velocity are equal on all 33 inputs. The test counts two valid report ULIDs as equal.
 
 A SAPIENT message from the library path has no `object_info`.
 

@@ -15,7 +15,12 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use crate::{CanonicalTrack, Classification};
 
 const WGS84_A: f64 = 6_378_137.0;
-const WGS84_E2: f64 = 6.694_379_990_14e-3;
+/// WGS 84 flattening, as defined (NIMA TR8350.2).
+const WGS84_F: f64 = 1.0 / 298.257_223_563;
+/// First eccentricity squared, computed from the defined flattening rather than the
+/// rounded table value 6.69437999014e-3, so meridional and prime-vertical radii agree
+/// with goat-transformers' derive functions (spec 0.16) to the last bit.
+const WGS84_E2: f64 = WGS84_F * (2.0 - WGS84_F);
 static OBJECT_ID_STORE_LOCK: Mutex<()> = Mutex::new(());
 
 #[derive(Clone, Debug, Eq, PartialEq)]

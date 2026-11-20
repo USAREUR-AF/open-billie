@@ -245,7 +245,14 @@ impl Cat062Encoder {
         record.extend(track_number.to_be_bytes());
         // UAP FRN 13: I062/080 Track Status (first part and three extents).
         let simulated = track.test_data || track.header_simulated || track.simulated;
-        record.push(0x81 | if confirmed { 0 } else { 0x02 }); // MON, CNF, FX
+        // MRH (0x20): 1 when I062/130, the geometric altitude, is written, which then
+        // is the more reliable height (the decision goat-transformers follows too).
+        let mrh = if track.position.altitude_m.is_some() {
+            0x20
+        } else {
+            0
+        };
+        record.push(0x81 | mrh | if confirmed { 0 } else { 0x02 }); // MON, MRH, CNF, FX
         record.push(
             (if simulated { 0x80 } else { 0 }) | (if track.final_update { 0x40 } else { 0 }) | 0x01,
         ); // SIM, TSE, FX
@@ -398,7 +405,7 @@ mod tests {
             ]
         );
         assert_eq!(u16::from_be_bytes([block[23], block[24]]), 311);
-        assert_eq!(&block[25..29], &[0x81, 0x01, 0x01, 0x00]);
+        assert_eq!(&block[25..29], &[0xa1, 0x01, 0x01, 0x00]);
         assert_eq!(i16::from_be_bytes([block[29], block[30]]), 80);
         let latitude = i32::from_be_bytes(block[11..15].try_into().unwrap()) as f64 / LAT_LON_SCALE;
         let longitude =
@@ -440,7 +447,7 @@ mod tests {
         })
         .encode_for_kid(&track, "oetf")
         .unwrap();
-        assert_eq!(&block[25..29], &[0x83, 0xc1, 0x01, 0x80]);
+        assert_eq!(&block[25..29], &[0xa3, 0xc1, 0x01, 0x80]);
     }
 
     #[test]
