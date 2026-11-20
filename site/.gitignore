@@ -1,0 +1,5 @@
+# Copied in by build.py from docs/figures/; not kept twice.
+assets/open-billie-node-*.svg
+# Build output of site/hero-data/
+hero-data/target/
+hero-data/Cargo.lock

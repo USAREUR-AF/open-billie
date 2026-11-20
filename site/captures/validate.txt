@@ -1,0 +1,11 @@
+$ bash deploy/bin/billie kid validate kids/examples/oetf
+Valid kid source: oetf@0.2.0
+Manifest: open-billie/kids/examples/oetf/billie-kid.yaml
+  decoder: packages/oetf/python/src/billie_oetf/decoder.py
+  mapper: packages/oetf/python/src/billie_oetf/mapper.py
+  schemas: packages/oetf/shared/schemas
+  mappings: packages/oetf/shared/mappings
+  lookups: packages/oetf/shared/lookups
+  vectors: packages/oetf/shared/conformance/vectors
+WARNING: runtime.image is a development placeholder and is not deployable
+Source structure is valid; resolve warnings before treating it as deployable.
