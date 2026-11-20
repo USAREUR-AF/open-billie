@@ -25,15 +25,8 @@
     "refusedByBoth": 7
   },
   "cot": {
-    "bytesIdentical": 17,
+    "bytesIdentical": 28,
     "differences": [
-      {
-        "cause": "opex=\"s\" follows from three flags (testData, headerSimulated, simulated). The cot-xml pack has no field for opex.",
-        "difference": "not written by the library",
-        "example": "s | (absent)",
-        "field": "event/@opex",
-        "inputs": 13
-      },
       {
         "cause": "The native encoder omits a zero fraction of a second; the library always writes milliseconds. The instant is the same.",
         "difference": "same value, different text",
@@ -54,46 +47,18 @@
         "example": "2026-01-01T00:00:00Z | 2026-01-01T00:00:00.000Z",
         "field": "event/@time",
         "inputs": 2
-      },
-      {
-        "cause": "The native encoder always writes a detail element, empty when it has no child. The library writes it only when it has a child.",
-        "difference": "not written by the library",
-        "example": "(element) | (absent)",
-        "field": "event/detail",
-        "inputs": 2
-      },
-      {
-        "cause": "The status flags are not turned into tokens: the library has no function that builds text from several flags.",
-        "difference": "not written by the library",
-        "example": "(element) | (absent)",
-        "field": "event/detail/remarks",
-        "inputs": 13
-      },
-      {
-        "cause": "The status flags are not turned into tokens: the library has no function that builds text from several flags.",
-        "difference": "not written by the library",
-        "example": "test-data,simulated,tentative,coasting,final-update | (absent)",
-        "field": "event/detail/remarks/#text",
-        "inputs": 13
       }
     ],
     "encodedByBoth": 33,
     "fieldsCompared": 594,
-    "fieldsEqual": 547,
-    "fieldsIdentical": 17,
+    "fieldsEqual": 588,
+    "fieldsIdentical": 31,
     "inputs": 33,
     "refusedByBoth": 0
   },
   "sapient": {
     "bytesIdentical": 0,
     "differences": [
-      {
-        "cause": "The native encoder writes the confidence a second time, in the classification, when a classification exists. The pack maps confidence to detection_confidence only.",
-        "difference": "not written by the library",
-        "example": "0.87 | (absent)",
-        "field": "detection_report.classification[].confidence",
-        "inputs": 31
-      },
       {
         "cause": "The native encoder's WGS84_E2 is the rounded 6.694_379_990_14e-3; goat-transformers spec 0.16 takes e2 = f(2 - f) = 0.0066943799901413165. The meridional radius depends on 1 - e2, so the degrees of latitude differ by about 1.6e-15 relative. x_error is equal on every input.",
         "difference": "different value",
@@ -116,13 +81,6 @@
         "inputs": 16
       },
       {
-        "cause": "The status flags are not turned into tokens: the library has no function that builds text from several flags.",
-        "difference": "not written by the library",
-        "example": "\"test-data,simulated,tentative,coasting,final-update\" | (absent)",
-        "field": "detection_report.state",
-        "inputs": 13
-      },
-      {
         "cause": "At a whole second the native encoder omits nanos; the library writes the 0 it derives from time_ms (sapient 0.2.0, sec_of and nsec_of). Timestamp.nanos is a proto3 field without presence, so 0 and absent are the same value.",
         "difference": "written by the library only",
         "example": "(absent) | 0",
@@ -132,7 +90,7 @@
     ],
     "encodedByBoth": 33,
     "fieldsCompared": 719,
-    "fieldsEqual": 610,
+    "fieldsEqual": 654,
     "fieldsIdentical": 1,
     "inputs": 33,
     "refusedByBoth": 0

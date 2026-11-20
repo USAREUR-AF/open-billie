@@ -68,7 +68,7 @@ dependencies = [
 [[package]]
 name = "goat-transformers"
 version = "0.8.0"
-source = "git+https://github.com/USAREUR-AF/goat-transformers?rev=a523c3f562e7909909ddaec9296fe399b3e6e1c8#a523c3f562e7909909ddaec9296fe399b3e6e1c8"
+source = "git+https://github.com/USAREUR-AF/goat-transformers?rev=7fb46b80cf91ccd1d66e715bd002fe1780764adf#7fb46b80cf91ccd1d66e715bd002fe1780764adf"
 
 [[package]]
 name = "itertools"

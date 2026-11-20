@@ -191,6 +191,11 @@ Pack foxglove-location-fix; module foxglove
   https://github.com/foxglove/foxglove-sdk. MIT License, Copyright (c) Foxglove
   Technologies Inc. Field numbers, names and types only.
 
+Packs foxglove-proto-*; modules foxgloveproto*
+  Foxglove schemas (schemas/proto/foxglove), protobuf, from
+  https://github.com/foxglove/foxglove-sdk commit 8cebcc57. MIT License,
+  Copyright (c) Foxglove Technologies Inc. Field numbers, names and types only.
+
 Packs osm-pbf-blob-header, osm-pbf-header, osm-pbf-primitive; module osmpbf
   OpenStreetMap PBF definitions fileformat.proto and osmformat.proto, from
   https://github.com/openstreetmap/OSM-binary. MIT License (Copyright (c) 2010
@@ -420,9 +425,17 @@ Pack dbc-tesla-model3; module dbcteslamodel3
   MIT License, Copyright (c) 2019 Josh Wardell.
 
 Packs ipv4-header, ipv6-header, udp-header, tcp-header, icmp-header,
-ntp-header, dns-header; module inet
-  IETF RFC 791, 768, 792, 1035, 5905, 8200 and 9293, https://www.rfc-editor.org/
-  (IETF Trust, BCP 78, where the document states it). Field layouts restated.
+ntp-header, dns-header, rtp-header, rtcp-header, arp-ipv4-ethernet,
+gre-header, vxlan-header, mpls-label-entry, igmpv2, sctp-common-header,
+bfd-control, igmpv3, icmpv6-header, coap-header, tls-record-header,
+dtls-record-header, bgp-header, ospfv2-header, vrrpv3-ipv4, vrrpv3-ipv6,
+ripv2-header, geneve-header; module inet
+  IETF RFC 791, 768, 792, 826, 894, 1035, 2236, 2328, 2453, 2784, 2890, 3032,
+  3376, 3550, 4271, 4443, 4861, 5462, 5880, 5905, 7252, 7348, 8200, 8446,
+  8926, 9147, 9260, 9293 and 9568, https://www.rfc-editor.org/ (IETF Trust,
+  BCP 78, where the document states it; Internet Society copyright for RFC
+  2236, 2328, 2453, 2784, 2890, 3032, 3376, 3550, 4271 and 4443, the last two
+  with BCP 78). Field layouts restated.
 
 Packs dhcpv6-options, edns0-options; modules dhcpv6, edns0
   IETF RFC 9915 (DHCPv6, section 21) and RFC 6891 (EDNS(0), section 6.1.2),
@@ -525,3 +538,90 @@ Pack misb-st0903; module misb0903
 
 The packs named conformance*, demo-* and the module probe describe synthetic
 formats written for this project and have no external source.
+
+Packs sbp-*; modules sbp, sbp<package>
+  Swift Navigation Binary Protocol message definitions (libsbp spec/yaml),
+  https://github.com/swift-nav/libsbp tag v6.5.2. MIT License, Copyright (c)
+  2015-2021 Swift Navigation. Message names and type ids, field names, types,
+  sizes and units only.
+
+Packs ubx-*; modules ubx<class>
+  u-blox UBX message definitions of pyubx2, https://github.com/semuconsulting/pyubx2
+  tag v1.4.1. BSD 3-Clause License, Copyright (c) 2020 semuadmin (Steve Smith).
+  Message names and identities, field names, types, scales, bit widths and
+  repeat counts only, read from the definition files, which are not run. Units
+  of the bound velocity, speed and heading fields from the ublox_msgs .msg
+  files of https://github.com/KumarRobotics/ublox (BSD, Copyright (c) 2012,
+  Johannes Meyer, TU Darmstadt).
+
+Packs arsdk-*; modules arsdk*
+  Parrot ARSDK message definitions (xml/), https://github.com/Parrot-Developers/arsdk-xml
+  commit 2299c689, each file under its BSD 3-Clause header (Copyright (C)
+  Parrot SA, Parrot Drones SAS); the command encoding from
+  https://github.com/Parrot-Developers/libARCommands and libARSAL (BSD 3-Clause,
+  Copyright (C) 2014 Parrot SA). Names, ids and types only.
+
+Packs stix-*; modules stix*
+  STIX 2.1 JSON Schemas, https://github.com/oasis-open/cti-stix2-json-schemas
+  (OASIS CTI TC Open Repository), commit c4f8d589. Copyright (c) 2016, OASIS
+  Open. BSD 3-Clause License. The packs restate the schemas' structure and are
+  not endorsed by OASIS.
+
+Pack cloudevents; module cloudevents
+  CloudEvents 1.0.2 JSON Schema, https://github.com/cloudevents/spec, tag
+  v1.0.2. Apache License, Version 2.0.
+
+Packs gofs-*; modules gofs*
+  General On-demand Feed Specification (GOFS) JSON Schemas,
+  https://github.com/MobilityData/gofs, commit ab9151ed. Apache License,
+  Version 2.0.
+
+Packs openc2-lang, openc2-slpf; modules oc2lang, oc2slpf
+  OpenC2 Language Specification 1.1 and Stateless Packet Filtering profile 1.1
+  JSON Schemas, OASIS TC Open Repository
+  https://github.com/oasis-open/openc2-custom-aps commit f6ef6b37. Apache
+  License, Version 2.0.
+
+Pack cacao-playbook; module cacao
+  CACAO Security Playbooks 2.0 JSON Schemas, OASIS TC Open Repository
+  https://github.com/oasis-open/cacao-json-schemas commit 72853294. Apache
+  License, Version 2.0.
+
+Packs osi-*; modules osi*
+  ASAM Open Simulation Interface (OSI) v3.8.0 protobuf definitions,
+  https://github.com/OpenSimulationInterface/open-simulation-interface.
+  Mozilla Public License, v. 2.0, Copyright (C) 2016 BMW AG. Field numbers,
+  names and types only; no source file is copied.
+
+Pack dis7; module dis7
+  DIS 7 (IEEE 1278.1-2012) PDU layouts of the open-dis project:
+  https://github.com/open-dis/xmlpg (DIS2012.xml; BSD 2-Clause, Copyright (c)
+  2015, mcgredonps) and PDU type numbers from
+  https://github.com/open-dis/open-dis-python (opendis/dis7.py; BSD 2-Clause,
+  Copyright (c) 2023, Open DIS). Names, types, lengths and type numbers only;
+  no IEEE document read.
+
+Packs ocsf-*; modules ocsf*
+  Open Cybersecurity Schema Framework (OCSF) 1.9.0,
+  https://github.com/ocsf/ocsf-schema tag 1.9.0. Copyright OCSF a Series of LF
+  Projects, LLC; includes the ICD Schema developed by Symantec, a division of
+  Broadcom. Apache License, Version 2.0. The packs restate each event class's
+  structure and are not endorsed by the OCSF project.
+
+Pack ecs-event; module ecsevent
+  Elastic Common Schema v9.5.0, https://github.com/elastic/ecs tag v9.5.0.
+  Copyright 2018-2021 Elasticsearch B.V. Apache License, Version 2.0. Field
+  names and types only.
+
+Pack rtcm3; module rtcm3
+  RTCM 3 message definitions of pyrtcm, https://github.com/semuconsulting/pyrtcm
+  v1.2.1. BSD 3-Clause License, Copyright (c) 2020 semuadmin (Steve Smith).
+  Message and data field numbers, types, bit sizes and resolutions only; read
+  from the definition files, which are not run.
+
+Packs sbf-*; modules sbf, sbf<group>
+  Septentrio SBF block definitions of pysbf2,
+  https://github.com/semuconsulting/pysbf2 v1.0.7. BSD 3-Clause License,
+  Copyright (c) 2020 semuadmin (Steve Smith). Block names and numbers, field
+  names, types, scales and bit widths only; read from the definition files,
+  which are not run.

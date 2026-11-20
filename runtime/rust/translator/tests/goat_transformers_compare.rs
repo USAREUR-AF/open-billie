@@ -903,11 +903,12 @@ fn library_encoder_differs_from_native_exactly_as_recorded() {
 
 #[test]
 fn switching_a_format_back_to_native_restores_the_native_bytes() {
-    // An input the two encoders still write differently (the library writes
-    // no remarks), so the first assertion shows the selection took effect.
+    // An input the two encoders still write differently (at a whole second
+    // the library writes `.000Z` and the native encoder no fraction), so the
+    // first assertion shows the selection took effect.
     let case = cases()
         .into_iter()
-        .find(|case| case.name == "request.rs all status flags set")
+        .find(|case| case.name == "DECODER_TRANSLATOR_RUNTIME_CONTRACT.md example request")
         .unwrap();
     let request = TranslateRequest {
         request_id: "compare".to_owned(),

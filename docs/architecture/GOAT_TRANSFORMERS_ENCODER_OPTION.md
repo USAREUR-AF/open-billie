@@ -49,8 +49,8 @@ The comparison test encodes 33 inputs through both encoders for each format: the
 | Format | Encoded by both | Refused by both | One path refuses | Byte-identical | Fields equal |
 |---|---|---|---|---|---|
 | ASTERIX CAT062 | 25 | 7 | 1 | 1 of 25 | 373 of 397 |
-| CoT | 33 | 0 | 0 | 17 of 33 | 547 of 594 |
-| SAPIENT | 33 | 0 | 0 | 0 of 33 | 610 of 719 |
+| CoT | 33 | 0 | 0 | 28 of 33 | 588 of 594 |
+| SAPIENT | 33 | 0 | 0 | 0 of 33 | 654 of 719 |
 
 A SAPIENT report ULID is new for every message on both paths, so two SAPIENT messages are never the same octets. On 2 of the 33 inputs every SAPIENT field is equal.
 
@@ -67,14 +67,11 @@ The blocks both encoders write differ only in the I062/080 MRH bit, on the 24 tr
 
 | Field | Inputs | Difference | Cause |
 |---|---|---|---|
-| `event/@opex` | 13 | not written by the library | `opex="s"` follows from three flags. The pack has no field for it. |
-| `event/detail/remarks` and its text | 13 | not written by the library | The library has no function that builds text from several flags. |
 | `event/@time`, `@start`, `@stale` | 2 | same instant, different text | The native encoder omits a zero fraction of a second (`2026-01-01T00:00:00Z`); the library always writes milliseconds (`2026-01-01T00:00:00.000Z`). |
-| `event/detail` | 2 | not written by the library | The native encoder always writes a `detail` element, empty when it has no child. |
 
-The `uid` (the scoped identity), type, position, altitude, circular and linear error, the unknown-value sentinels, `how`, the stale instant, course and speed are equal on all 33 inputs. The 17 inputs that have none of the differences in the table are the same octets on both paths. The pack reads `9999999` in `hae`, `ce` and `le` as no value when it decodes CoT; it still writes `9999999` when it encodes a record without the value.
+The `uid` (the scoped identity), type, position, altitude, circular and linear error, the unknown-value sentinels, `how`, the stale instant, course and speed are equal on all 33 inputs. `opex="s"`, the status remarks and the `detail` element are equal too: goat-transformers derives them from the track flags and writes `<detail>` always (track 0.2.0 and cot-xml 0.6.0, goat-transformers#166, spec 0.18). The 28 inputs that have none of the differences in the table are the same octets on both paths. The pack reads `9999999` in `hae`, `ce` and `le` as no value when it decodes CoT; it still writes `9999999` when it encodes a record without the value.
 
-A receiver sees the same track identity on both paths. From the library path it does not receive `opex="s"` or the status remarks, so it cannot tell a simulated, test, tentative, coasting or final track from the event.
+A receiver sees the same track identity, `opex` and status remarks on both paths. The time text differs only at a whole second: the library writes `.000Z`, which chrono's `AutoSi` leaves out. goat-transformers' `iso8601_short` would drop it but writes `.25Z` where `AutoSi` writes `.250Z`, so the pack keeps milliseconds.
 
 ### SAPIENT
 
@@ -82,13 +79,11 @@ A receiver sees the same track identity on both paths. From the library path it 
 |---|---|---|---|
 | `location.y_error` | 31 | different value, about 1.6e-15 relative | Both convert the north sigma from meters to degrees of latitude at the track latitude (the library since sapient 0.2.0, goat-transformers#146). The native encoder's `WGS84_E2` is the rounded `6.694_379_990_14e-3`; the library takes `e2 = f(2 - f)` = 0.0066943799901413165. With `f * (2.0 - f)` in `sapient.rs` the row closes. `x_error` is equal on every input. |
 | `timestamp.nanos` | 2 | written by the library only | At a whole second the native encoder omits `nanos`; the library writes the 0 it derives from the track time. `Timestamp.nanos` is a proto3 field without presence, so 0 and absent are the same value. |
-| `classification[].confidence` | 31 | not written by the library | The native encoder writes the confidence a second time, inside the classification. The pack maps it to `detection_confidence` only. |
 | `object_info[].type`, `object_info[].value` | 16 | not written by the library | The pack does not map `sapient-object-info` identifiers to `object_info`. |
-| `state` | 13 | not written by the library | The library has no function that builds text from several flags. |
 
-The message timestamp (seconds, and nanos off a whole second), the x error, node UUID, report and object identifiers, the scoped identity in `id`, location, vertical error, coordinate system and datum, detection confidence, classification type and ENU velocity are equal on all 33 inputs. The test counts two valid report ULIDs as equal.
+The message timestamp (seconds, and nanos off a whole second), the x error, node UUID, report and object identifiers, the scoped identity in `id`, location, vertical error, coordinate system and datum, detection confidence, classification type and its confidence, `state` and ENU velocity are equal on all 33 inputs. The test counts two valid report ULIDs as equal.
 
-A SAPIENT message from the library path has no classification confidence, no `object_info` and no status in `state`.
+A SAPIENT message from the library path has no `object_info`.
 
 ### The recorded baseline
 
