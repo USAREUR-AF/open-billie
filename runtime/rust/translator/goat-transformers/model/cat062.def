@@ -6,7 +6,7 @@
 # The derive lines fill what another format's track does not hold as CAT062
 # wants it: the time of day from the instant, the track number from an
 # identifier that is a decimal number, and SIM from the three flags of `track`
-# that each say the data is not live.
+# that each say the data is not live, and MRH from whether an altitude is sent.
 module        cat062
 version       0.2.0
 distribution  public
@@ -14,9 +14,12 @@ source        "EUROCONTROL-SPEC-0149-9, Specification for Surveillance Data Exch
 uses          track
 key  sac            int    -  "I062/010 System Area Code, 0 to 255"
 key  sic            int    -  "I062/010 System Identification Code, 0 to 255"
+key  service_id     int    -  "I062/015 Service Identification: the service of the sending system the record belongs to, 0 to 255, assigned by its operator"
 key  time_of_day_s  float  s  "I062/070 Time Of Track Information: seconds since the last UTC midnight, in steps of 1/128 s"
 key  track_number   int    -  "I062/040 Track Number, 0 to 65535"
 key  mon            int    -  "I062/080 MON: 0 = multisensor track, 1 = monosensor track"
+key  mrh            int    -  "I062/080 MRH: 0 = barometric altitude (Mode C) more reliable, 1 = geometric altitude more reliable"
+key  src            int    -  "I062/080 SRC: source of the calculated track altitude of I062/130: 0 = none, 1 = GNSS, 2 = 3D radar, 3 = triangulation, 4 = height from coverage, 5 = speed look-up table, 6 = default height, 7 = multilateration"
 key  cnf            int    -  "I062/080 CNF: 0 = confirmed track, 1 = tentative track"
 key  sim            int    -  "I062/080 SIM: 0 = actual track, 1 = simulated track"
 key  tse            int    -  "I062/080 TSE: 1 = last message transmitted to the user for the track"
@@ -24,3 +27,4 @@ key  cst            int    -  "I062/080 CST: 1 = age of the last received track 
 derive  cat062.time_of_day_s  day_seconds  time_ms
 derive  cat062.track_number   parse_int    uid
 derive  cat062.sim            any          track.simulated  track.header_simulated  track.test_data
+derive  cat062.mrh            present      hae
