@@ -205,7 +205,7 @@ def select_decoder_implementation(
         for index, language in enumerate(choices, start=1):
             print(f"  {index}. {language}")
         while True:
-            answer = input("Choose decoder language: ").strip()
+            answer = input("\nChoose decoder language: ").strip()
             if answer.isdigit() and 1 <= int(answer) <= len(choices):
                 selected = choices[int(answer) - 1]
                 break

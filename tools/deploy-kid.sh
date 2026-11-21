@@ -6,17 +6,38 @@ cd "$ROOT"
 
 fail() { printf '\nOpen Billie kid setup: %s\n' "$*" >&2; exit 2; }
 require() { command -v "$1" >/dev/null 2>&1 || fail "missing prerequisite '$1'. See deploy/README.md."; }
-ask() { local prompt="$1" default="${2:-}" value; if [ -n "$default" ]; then read -r -p "$prompt (default: $default): " value; value="${value:-$default}"; else read -r -p "$prompt: " value; fi; printf '%s' "$value"; }
-confirm() { local answer; read -r -p "$1 [y/N] " answer; [[ "$answer" == [yY] || "$answer" == [yY][eE][sS] ]]; }
+ask() { local prompt="$1" default="${2:-}" value; printf '\n' >&2; if [ -n "$default" ]; then read -r -p "$prompt (default: $default): " value; value="${value:-$default}"; else read -r -p "$prompt: " value; fi; printf '%s' "$value"; }
+confirm() { local answer; printf '\n' >&2; read -r -p "$1 [y/N] " answer; [[ "$answer" == [yY] || "$answer" == [yY][eE][sS] ]]; }
 valid_ipv4() { [[ "$1" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}$ ]] && python3 -c 'import ipaddress,sys; ipaddress.IPv4Address(sys.argv[1])' "$1" >/dev/null 2>&1; }
 valid_cidr() { [[ "$1" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}/([0-9]|[12][0-9]|3[0-2])$ ]] && python3 -c 'import ipaddress,sys; ipaddress.IPv4Network(sys.argv[1], strict=False)' "$1" >/dev/null 2>&1; }
 ipv4_with_mask() { python3 -c 'import ipaddress,sys; ip=ipaddress.IPv4Address(sys.argv[1]); n=ipaddress.IPv4Network("0.0.0.0/"+sys.argv[2]); mask=sys.argv[2]; assert str(n.netmask)==mask and n.prefixlen>=8, "use a contiguous mask from /8 through /32"; print(f"{ip}/{n.prefixlen}")' "$1" "$2" 2>/dev/null; }
+valid_target() { [[ "$1" =~ ^[A-Za-z0-9._-]+@([A-Za-z0-9.-]+|\[[0-9A-Fa-f:]+\])$ ]]; }
+recover_ssh_target() {
+  local candidate
+  printf '\nIf the management connection dropped, the Pi may have renewed its DHCP lease. The sensor address command changes only the selected sensor interface.\n' >&2
+  printf 'If SSH shows a new host-key fingerprint, verify it through a trusted channel before accepting it.\n' >&2
+  while true; do
+    candidate="$(ask 'Current Billie SSH target (user@host)' "$target")"
+    if ! valid_target "$candidate"; then
+      printf 'Enter a username and hostname or IP address, for example operator@192.0.2.10.\n' >&2
+      continue
+    fi
+    if ssh -o BatchMode=no -o PreferredAuthentications=publickey -o NumberOfPasswordPrompts=0 \
+      -o ConnectTimeout=10 -o ServerAliveInterval=5 -o ServerAliveCountMax=2 \
+      -o StrictHostKeyChecking=ask "$candidate" 'sudo -n true'; then
+      target="$candidate"
+      printf 'SSH access restored to %s.\n' "$target"
+      return 0
+    fi
+    printf 'Could not authenticate to %s with SSH keys and non-interactive sudo. Check the address, host-key trust, and key access, then retry.\n' "$candidate" >&2
+  done
+}
 
 for cmd in ssh scp python3; do require "$cmd"; done
-ssh_options=(-o BatchMode=yes -o ConnectTimeout=10)
+ssh_options=(-o BatchMode=yes -o ConnectTimeout=10 -o ServerAliveInterval=5 -o ServerAliveCountMax=2)
 target="${1:-}"
 if [ -z "$target" ]; then target="$(ask 'Node SSH target (user@host)')"; fi
-[[ "$target" =~ ^[A-Za-z0-9._-]+@([A-Za-z0-9.-]+|\[[0-9A-Fa-f:]+\])$ ]] || fail 'target must be user@host'
+valid_target "$target" || fail 'target must be user@host'
 ssh "${ssh_options[@]}" "$target" 'sudo -n true' >/dev/null 2>&1 \
   || fail 'SSH or non-interactive sudo check failed; trust the node host key and configure passwordless sudo for this account before running the kid wizard'
 python3 -c 'import yaml, jsonschema' >/dev/null 2>&1 \
@@ -95,7 +116,10 @@ printf '\nSensor-facing network interfaces on the node:\n'
 network_interfaces="$(ssh "${ssh_options[@]}" "$target" 'sudo -n billie network interfaces')" || fail 'could not read sensor-facing network interfaces from the node'
 printf '%s\n' "$network_interfaces"
 printf '\nBillie is the node receiving sensor traffic. The sensor sends to Billie’s sensor-facing IP and listener port. The sensor source IP/mask below are only used to scope the node firewall; Billie does not configure the sensor.\n'
-network_configured="$(ask 'Billie sensor-port address: [1] Already configured [2] Assign Billie IP now' '1')"
+printf '\nIs Billie’s sensor-port address already configured?\n'
+printf '  [1] Already configured\n'
+printf '  [2] Assign Billie IP now\n'
+network_configured="$(ask 'Select an option' '1')"
 case "$network_configured" in
   1|y|Y|yes|YES) ;;
   2|n|N|no|NO)
@@ -107,7 +131,20 @@ case "$network_configured" in
     billie_cidr="$(ipv4_with_mask "$bind_address" "$billie_mask")" || fail 'enter a valid contiguous IPv4 subnet mask, such as 255.255.255.0'
     printf 'Billie will assign %s to %s with no gateway or DNS. This works before the sensor is connected. SSH/default-route interfaces are refused.\n' "$billie_cidr" "$sensor_interface"
     confirm "Assign Billie $bind_address with subnet mask $billie_mask on $sensor_interface?" || fail 'Billie sensor interface configuration was declined'
-    ssh "${ssh_options[@]}" "$target" "sudo -n billie network configure --interface $sensor_interface --address $billie_cidr --yes"
+    printf 'Applying the sensor-port address. If the Pi’s management lease changes, the wizard will prompt for its current SSH address.\n'
+    if ! ssh "${ssh_options[@]}" "$target" "sudo -n billie network configure --interface $sensor_interface --address $billie_cidr --yes"; then
+      if ssh "${ssh_options[@]}" "$target" 'sudo -n true' >/dev/null 2>&1; then
+        fail 'sensor-port configuration failed while SSH remained available; review the Billie network error above'
+      fi
+      recover_ssh_target
+    fi
+    if ! ssh "${ssh_options[@]}" "$target" 'sudo -n true' >/dev/null 2>&1; then
+      recover_ssh_target
+    fi
+    assigned_cidrs="$(ssh "${ssh_options[@]}" "$target" "ip -o -4 addr show dev $sensor_interface | awk '\$4 ~ /^$bind_address\\// {print \$4}'")" \
+      || fail "could not verify Billie’s sensor-facing address over SSH: $target"
+    printf '%s\n' "$assigned_cidrs" | grep -Fxq "$billie_cidr" \
+      || fail "Billie does not have $billie_cidr assigned to $sensor_interface after configuration"
     ;;
   *) fail 'choose 1 (already configured) or 2 (assign Billie IP now)' ;;
 esac
