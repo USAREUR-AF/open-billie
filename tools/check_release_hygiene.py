@@ -9,7 +9,12 @@ import os
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-LOCKFILES = ("runtime/rust/Cargo.lock", "kids/examples/oetf/packages/oetf/rust/Cargo.lock", "kids/examples/oetf/pnpm-lock.yaml")
+LOCKFILES = (
+    "runtime/rust/Cargo.lock",
+    "kids/examples/oetf/packages/oetf/rust/Cargo.lock",
+    "kids/examples/oetf/pnpm-lock.yaml",
+    "kids/examples/weather-station-bite/Cargo.lock",
+)
 PROVENANCE = Path("docs/provenance/OETF_IMPORT.md")
 PROVENANCE_FIELDS = (
     "Source workspace:",

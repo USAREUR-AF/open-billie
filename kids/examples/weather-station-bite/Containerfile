@@ -1,0 +1,32 @@
+# Development image for the synthetic weather-station kid. Keep compiler and OS
+# release versions explicit; release bundles record the resolved OCI digest.
+FROM docker.io/library/rust:1.85.1-slim-bookworm AS build
+
+WORKDIR /src
+COPY Cargo.toml Cargo.lock ./
+COPY src ./src
+# Cargo.lock pins the bite library to one commit of the public first-bite
+# repository; the build fetches that commit and the locked crates.
+RUN cargo build --locked --release --bin billie-bite-kid
+
+FROM docker.io/library/debian:12.12-slim
+COPY licenses/ /licenses/
+COPY --from=build /src/target/release/billie-bite-kid /usr/local/bin/billie-bite-kid
+# Everything specific to the sensor is data: the dictionary, the mapping to
+# Canonical Track v2, and any lookup tables.
+COPY schemas/weather-station/ /app/schemas/weather-station/
+COPY mappings/ /app/mappings/
+COPY lookups/ /app/lookups/
+
+ENV BITE_KID_ID=weather-station-bite
+ENV BITE_KID_DICTIONARY=/app/schemas/weather-station
+ENV BITE_KID_MAPPINGS=/app/mappings
+ENV BITE_KID_LOOKUPS=/app/lookups
+# name:format pairs; keep in step with interfaces.outputs in billie-kid.yaml.
+ENV BITE_KID_OUTPUTS=tracks-cot:cot,tracks-sapient:sapient
+ENV BILLIE_INPUT_BIND=0.0.0.0
+ENV BILLIE_INPUT_PORT=40100
+ENV BILLIE_INPUT_TRANSPORT=udp
+ENV BILLIE_TRANSLATOR_SOCKET=/run/billie/translator.sock
+EXPOSE 40100/udp
+CMD ["/usr/local/bin/billie-bite-kid"]

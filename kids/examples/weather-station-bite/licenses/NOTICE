@@ -1,0 +1,15 @@
+Open Billie weather-station-bite example kid
+Copyright 2026 U.S. Federal Government (in countries where recognized)
+
+This kid is part of Open Billie and is licensed under the Apache License,
+Version 2.0 (OPEN-BILLIE-LICENSE in this directory).
+
+The files under schemas/weather-station/ are the "weather-station" example
+dictionary of first-bite (https://github.com/USAREUR-AF/first-bite), copied
+unchanged from commit b7bc25898a28bc449dd11bb1876a9645bde43cb3, directory
+dictionaries/weather-station/. first-bite is licensed under the Apache License,
+Version 2.0; its licence and notice are FIRST-BITE-LICENSE and
+FIRST-BITE-NOTICE in this directory.
+
+The runtime links the first-bite `bite` library, built from the same commit,
+and the Rust crates named in Cargo.lock, each under its own licence.

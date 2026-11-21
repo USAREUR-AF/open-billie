@@ -1,0 +1,16 @@
+{
+    "interface": "WX",
+    "payload_hex": "0200174b583700fb2e18bcda9b4236000004030201beef",
+    "expect": {
+        "message_type": "Observation",
+        "fields": {
+            "station_id": "KX7",
+            "temperature": "-12.34",
+            "pressure": "101325",
+            "wind_direction": "271.5",
+            "humidity": "45.5",
+            "sample_serial": "16909060",
+            "checksum": "beef"
+        }
+    }
+}

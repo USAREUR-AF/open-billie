@@ -1,0 +1,21 @@
+{
+    "description": "Station to collector reports.",
+    "protocol": {
+        "network": "ip",
+        "transport": "udp"
+    },
+    "port": 40100,
+    "message_type": {
+        "start": 0,
+        "stop": 8,
+        "values": {
+            "1": "Heartbeat",
+            "2": "Observation",
+            "3": "Position"
+        }
+    },
+    "message_length": {
+        "start": 8,
+        "stop": 24
+    }
+}

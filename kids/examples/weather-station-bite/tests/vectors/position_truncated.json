@@ -1,0 +1,22 @@
+{
+  "name": "position_truncated",
+  "description": "Malformed input: a Position datagram cut after 20 bytes. Latitude decodes; longitude and altitude lie beyond the datagram. No track is sent.",
+  "interface": "WX",
+  "datagramHex": "03001b4b5837004050359e83e425afc06276ecbf",
+  "receivedAt": "2026-01-01T00:00:00.000Z",
+  "decoded": {
+    "message": "Position",
+    "fields": {
+      "message_type": "Position",
+      "message_length": 27,
+      "station_id": "KX7",
+      "latitude": 64.8378,
+      "longitude": null,
+      "altitude": null
+    }
+  },
+  "track": null,
+  "missing": [
+    "position.longitudeDeg"
+  ]
+}

@@ -1,0 +1,8 @@
+{
+    "interface": "WX",
+    "payload_hex": "2a0003",
+    "expect": {
+        "message_type": "42",
+        "fields": {}
+    }
+}

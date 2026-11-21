@@ -1,0 +1,36 @@
+{
+  "name": "position_boundary",
+  "description": "Boundary case: the south pole, the antimeridian and a negative altitude.",
+  "interface": "WX",
+  "datagramHex": "03001b5a5a3939c0568000000000004066800000000000c1480000",
+  "receivedAt": "2026-01-01T00:00:00.000Z",
+  "decoded": {
+    "message": "Position",
+    "fields": {
+      "message_type": "Position",
+      "message_length": 27,
+      "station_id": "ZZ99",
+      "latitude": -90.0,
+      "longitude": 180.0,
+      "altitude": -12.5
+    }
+  },
+  "track": {
+    "apiVersion": "billie.dev/track-v2",
+    "kind": "Track",
+    "trackId": "ZZ99",
+    "sourceId": "WX",
+    "trackGeneration": "1",
+    "observedAt": "2026-01-01T00:00:00.000Z",
+    "testData": true,
+    "headerSimulated": false,
+    "simulated": false,
+    "position": {
+      "latitudeDeg": -90.0,
+      "longitudeDeg": 180.0,
+      "altitudeM": -12.5
+    },
+    "classification": "other"
+  },
+  "missing": []
+}

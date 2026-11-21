@@ -1,0 +1,17 @@
+first-bite
+Copyright 2023-2026 U.S. Federal Government (in countries where recognized)
+
+Portions of this work written by U.S. Federal government employees within the
+scope of their federal employment are not subject to copyright protection in the
+United States (17 U.S.C. 105) and are in the public domain there. In countries
+where copyright protection is available, those portions are released under the
+Apache License, Version 2.0. Merged contributions from private contributors are
+released under the same License. See INTENT.md.
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE at
+the root of this repository).
+
+This product links third-party Rust crates under their own licenses. The
+licenses permitted in the dependency tree are listed in deny.toml and enforced
+in CI; each release carries an SPDX software bill of materials that names every
+component and its license.

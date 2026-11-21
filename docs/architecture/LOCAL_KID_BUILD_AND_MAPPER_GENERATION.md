@@ -14,7 +14,7 @@ The `billie` CLI provides kid scan, validate, build, install, configure, activat
 
 ## Mapper generation
 
-`billie mapper generate` accepts the Open Billie byte-offset JSON decode schema and Protocol Buffers `.proto` schemas. The protobuf adapter requires `protoc` and the Python protobuf descriptor module. It inventories message and field metadata and writes a reviewable mapper plan plus mapping-contract JSON files. It does not produce a complete executable mapper or infer field meaning.
+`billie mapper generate` accepts the Open Billie byte-offset JSON decode schema, Protocol Buffers `.proto` schemas, and the JSON Schema that first-bite's `bite schema <dictionary>` prints for a dictionary. The protobuf adapter requires `protoc` and the Python protobuf descriptor module. It inventories message and field metadata and writes a reviewable mapper plan plus mapping-contract JSON files. It does not produce a complete executable mapper or infer field meaning.
 
 Example JSON schema command:
 
@@ -32,6 +32,16 @@ billie mapper generate --schema schemas/messages.proto --format protobuf \
   --proto-path schemas --output mappings/mapper-plan.json \
   --mappings-dir mappings/generated
 ```
+
+Example bite dictionary command, after `bite schema schemas/my-sensor > schemas/my-sensor.records.schema.json`:
+
+```sh
+billie mapper generate --schema schemas/my-sensor.records.schema.json --format bite-schema \
+  --source-protocol my-sensor --target billie-canonical \
+  --output mappings/mapper-plan.json --mappings-dir mappings/generated
+```
+
+The plan lists each message of the dictionary with its fields in wire order, each with its bit range, JSON type, unit, and value labels. `--format auto` chooses between `billie-json` and `protobuf` only; name `bite-schema` explicitly.
 
 `--interactive` prompts for target field names; it does not determine semantic equivalence, units, or conversion rules. Generated bindings remain unresolved unless reviewed. `--enable-direct` explicitly opts into direct copies for selected same-name fields; review their semantics before use. Keep source units, enum lookups, coordinate conventions, defaults, and omitted fields documented in the kid's mapping files and test vectors. The mapper emits canonical track records; the shared Rust translator constructs CoT, ASTERIX CAT062, or SAPIENT output.
 
