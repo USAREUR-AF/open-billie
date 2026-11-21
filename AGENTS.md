@@ -14,6 +14,7 @@ Open Billie prepares a node, builds sensor-specific packages (called kids), and 
 | `runtime/rust/` | the translator workspace |
 | `kids/_template/`, `kids/examples/oetf/` | the kid package template and the synthetic example, in Python, Rust and TypeScript |
 | `kids/examples/weather-station-bite/` | a synthetic kid whose decoder is the first-bite `bite` library and a dictionary |
+| `kids/xf-ingest/` | the kid for standard-format feeds: goat-transformers converts each message to Canonical Track v2 ([decision](docs/architecture/XF_INGEST_KID.md)) |
 | `tools/` | setup, build and deploy scripts, the release and boundary checks, and the platform unit tests (`test_*.py`) |
 | `schemas/` | schemas |
 | `docs/` | guides, architecture, and `TESTING.md` |
@@ -32,9 +33,10 @@ cargo fmt --manifest-path runtime/rust/Cargo.toml --all -- --check
 cargo test --locked --workspace --manifest-path runtime/rust/Cargo.toml
 cargo test --locked --features goat-transformers --manifest-path runtime/rust/translator/Cargo.toml
 python3 tools/sync_goat_transformers_packs.py --check
+python3 tools/sync_goat_transformers_packs.py --target xf-ingest --check
 ```
 
-For a change under `kids/examples/oetf/`, the workflow also runs that package's Python, Rust and TypeScript tests; for a change under `kids/examples/weather-station-bite/`, its Rust format check and tests. Copy the commands from it. Include the commands that you ran and their results in the pull request.
+For a change under `kids/examples/oetf/`, the workflow also runs that package's Python, Rust and TypeScript tests; for a change under `kids/examples/weather-station-bite/` or `kids/xf-ingest/`, its Rust format check and tests. Copy the commands from it. Include the commands that you ran and their results in the pull request.
 
 ## Rules
 

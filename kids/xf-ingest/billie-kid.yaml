@@ -1,0 +1,63 @@
+apiVersion: billie.dev/v1
+kind: KidPackage
+metadata:
+  id: xf-ingest
+  version: 0.1.0
+  displayName: Standard-format feeds to tracks (goat-transformers)
+  description: For a sensor whose output is already a standard format. goat-transformers converts each message, in the format named by XF_FROM_FORMAT, to Canonical Track v2, and the kid hands it to the translator. No code for any format is in the kid.
+
+runtime:
+  # Placeholder. `billie kid build` records the built image digest in the bundle.
+  image: registry.example.invalid/open-billie/xf-ingest@sha256:0000000000000000000000000000000000000000000000000000000000000000
+  command: ["/usr/local/bin/billie-xf-ingest"]
+  environment:
+    - BILLIE_TRANSLATOR_SOCKET
+    - BILLIE_INPUT_PORT
+    - BILLIE_INPUT_BIND
+    - BILLIE_INPUT_TRANSPORT
+    # Operator settings, from the env file given to `billie kid activate --config`.
+    - XF_FROM_FORMAT
+    - XF_SOURCE_ID
+    - XF_IN_FRAME
+    - XF_MULTICAST_GROUP
+    - XF_MULTICAST_IFACE
+    - XF_INPUT
+    - XF_TRACK_GENERATION
+    - XF_ON_ERROR
+  persistentPaths: []
+
+decoderImplementations:
+  rust:
+    status: deployable
+    decoder: src/settings.rs
+    mapper: src/translator.rs
+    containerfile: Containerfile
+    command: ["/usr/local/bin/billie-xf-ingest"]
+
+components:
+  decoder: src/settings.rs
+  mapper: src/translator.rs
+  schemas: schemas
+  mappings: mappings
+  lookups: lookups
+  vectors: tests/vectors
+
+interfaces:
+  inputs:
+    # One datagram is one message unless XF_IN_FRAME says otherwise.
+    - name: xf-udp
+      transport: udp
+      port: 40540
+    # A stream: XF_IN_FRAME is required.
+    - name: xf-tcp
+      transport: tcp
+      port: 40541
+  outputs:
+    # Keep in step with XF_OUTPUTS in the Containerfile.
+    - name: tracks-cot
+      format: cot
+    - name: tracks-sapient
+      format: sapient
+    - name: tracks-cat062
+      format: asterix-cat062
+  requires: []

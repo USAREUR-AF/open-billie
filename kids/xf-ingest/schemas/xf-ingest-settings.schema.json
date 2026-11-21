@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/USAREUR-AF/open-billie/kids/xf-ingest/schemas/xf-ingest-settings.schema.json",
+  "title": "xf-ingest settings",
+  "description": "The env file given to `billie kid activate xf-ingest --config <env-file>`, as an object of its keys. BILLIE_INPUT_* come from `billie kid configure`; XF_PACKS, XF_MODELS, XF_OUTPUTS and XF_KID_ID are set by the image.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["XF_FROM_FORMAT", "XF_SOURCE_ID"],
+  "properties": {
+    "XF_FROM_FORMAT": { "enum": ["canonical-track-v2", "cot-protobuf", "cot-xml", "geojson"], "description": "the input format: a pack named in lookups/input-formats.json" },
+    "XF_SOURCE_ID": { "type": "string", "pattern": "^[A-Za-z0-9._-]{1,128}$", "description": "the sourceId of every track; CAT062 SAC/SIC is assigned per sourceId" },
+    "XF_IN_FRAME": { "type": "string", "description": "how one message is delimited (goat-xf-pipe framing); default whole for udp, required for tcp" },
+    "XF_MULTICAST_GROUP": { "type": "string", "format": "ipv4", "description": "an IPv4 multicast group to join on the listener port" },
+    "XF_MULTICAST_IFACE": { "type": "string", "format": "ipv4", "description": "the local address of the interface to join the group on" },
+    "XF_INPUT": { "type": "string", "description": "a goat-xf-pipe input endpoint that replaces the listener, such as tcp://192.0.2.10:4000" },
+    "XF_TRACK_GENERATION": { "type": "string", "pattern": "^[A-Za-z0-9._-]{1,128}$", "description": "trackGeneration for messages that carry none; default 1" },
+    "XF_ON_ERROR": { "enum": ["skip", "stop"], "description": "skip (default): count a message that does not convert and go on" }
+  }
+}

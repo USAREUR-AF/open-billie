@@ -1,0 +1,9 @@
+{
+  "description": "The input formats xf-ingest offers: XF_FROM_FORMAT takes one name. Each is a goat-transformers pack under goat-transformers/packs whose messages carry a track identity, so they convert to Canonical Track v2.",
+  "formats": [
+    { "name": "canonical-track-v2", "wire": "json", "binary": false, "message": "one Canonical Track v2 JSON object" },
+    { "name": "cot-protobuf", "wire": "protobuf", "binary": true, "message": "one TAK protocol (CoT protobuf) message" },
+    { "name": "cot-xml", "wire": "xml", "binary": false, "message": "one Cursor-on-Target XML event" },
+    { "name": "geojson", "wire": "geojson", "binary": false, "message": "one GeoJSON Feature with an id" }
+  ]
+}

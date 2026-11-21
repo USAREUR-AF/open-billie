@@ -1,0 +1,18 @@
+Open Billie xf-ingest kid
+Copyright 2026 U.S. Federal Government (in countries where recognized)
+
+This kid is part of Open Billie and is licensed under the Apache License,
+Version 2.0 (OPEN-BILLIE-LICENSE in this directory).
+
+The files under goat-transformers/ are pack and model definition files of
+goat-transformers (https://github.com/USAREUR-AF/goat-transformers), copied
+unchanged from commit d57d36118edf296d1f610893025631f97d955ded (release
+xf-pipe-v0.1.1). The runtime links the goat-transformers engine and its
+goat-adapters-core and goat-adapters-std crates, built from the same commit.
+goat-transformers is licensed under the Apache License, Version 2.0; its
+licence and notice are GOAT-TRANSFORMERS-LICENSE and GOAT-TRANSFORMERS-NOTICE
+in this directory. The test vectors under tests/vectors take their input
+messages from the vectors of the same commit.
+
+The runtime also links the Rust crates named in Cargo.lock, each under its own
+licence.
