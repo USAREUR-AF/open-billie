@@ -49,12 +49,33 @@ def fabric_key(local_key: str) -> str | None:
     return PREFIX + "/" + local_key
 
 
+# How the Zenoh REST plugin (zenoh 1.9.0, plugins/zenoh-plugin-rest,
+# payload_to_json) writes a sample's payload into the "value" of a JSON event:
+#   - an empty payload is null;
+#   - application/json, text/json, text/json5: the payload parsed as JSON (an
+#     object, array, number, string ...); base64 text if it is not valid JSON;
+#   - text/plain, zenoh/string: the payload as text; base64 if not UTF-8;
+#   - every other encoding, application/xml and text/xml included: base64.
+# sample_body() returns the payload bytes, so the fabric receives what the
+# kid published, not its base64 text.
+JSON_ENCODINGS = ("application/json", "text/json", "text/json5")
+TEXT_ENCODINGS = ("text/plain", "zenoh/string")
+
+
 def sample_body(value: object, content_type: str) -> bytes:
-    if not isinstance(value, str):
-        return json.dumps(value, separators=(",", ":")).encode("utf-8")
-    if content_type.startswith("text/") or content_type in ("application/json", "application/xml"):
+    encoding = content_type.split(";", 1)[0].strip().lower()
+    if value is None:
+        return b""
+    if encoding in JSON_ENCODINGS or not isinstance(value, str):
+        return json.dumps(value, separators=(",", ":"), ensure_ascii=False).encode("utf-8")
+    if encoding in TEXT_ENCODINGS:
         return value.encode("utf-8")
-    return base64.b64decode(value, validate=True)
+    try:
+        return base64.b64decode(value, validate=True)
+    except ValueError:
+        # Not base64 although the rule says it is: forward the text unchanged
+        # rather than drop the sample.
+        return value.encode("utf-8")
 
 
 def increment(name: str) -> None:
