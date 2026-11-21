@@ -22,6 +22,13 @@ release candidate and must be reviewed against the tagged source before release.
   checks, and ARM64 platform smoke-test tooling.
 - Project licensing, contribution, security-reporting, provenance, and
   third-party inventory documents.
+- Optional goat-transformers encoder path for CoT, ASTERIX CAT-062, and
+  SAPIENT behind the cargo feature `goat-transformers`, selected per output
+  format with `BILLIE_COT_ENCODER`, `BILLIE_CAT062_ENCODER`, and
+  `BILLIE_SAPIENT_ENCODER`. The default is the native encoder; a build without
+  the feature is unchanged. See the
+  [encoder option](docs/architecture/GOAT_TRANSFORMERS_ENCODER_OPTION.md) for
+  the measured differences from the native encoders.
 
 ### Changed
 

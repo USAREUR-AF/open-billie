@@ -1,0 +1,133 @@
+{
+  "asterix-cat062": {
+    "bytesIdentical": 25,
+    "differences": [
+      {
+        "cause": "The native encoder refuses a longitude of 180 degrees, a track number above 4095 and an altitude outside -1500 to 150000 ft. The pack writes any value the field holds; longitude 180 is written as 2^25.",
+        "difference": "one path refuses",
+        "example": "refused: out_of_range | encoded",
+        "field": "(outcome)",
+        "inputs": 1
+      }
+    ],
+    "encodedByBoth": 25,
+    "fieldsCompared": 397,
+    "fieldsEqual": 397,
+    "fieldsIdentical": 25,
+    "inputs": 33,
+    "refusedByBoth": 7
+  },
+  "cot": {
+    "bytesIdentical": 17,
+    "differences": [
+      {
+        "cause": "opex=\"s\" follows from three flags (testData, headerSimulated, simulated). The cot-xml pack has no field for opex.",
+        "difference": "not written by the library",
+        "example": "s | (absent)",
+        "field": "event/@opex",
+        "inputs": 13
+      },
+      {
+        "cause": "The native encoder omits a zero fraction of a second; the library always writes milliseconds. The instant is the same.",
+        "difference": "same value, different text",
+        "example": "2026-01-01T00:03:00Z | 2026-01-01T00:03:00.000Z",
+        "field": "event/@stale",
+        "inputs": 2
+      },
+      {
+        "cause": "The native encoder omits a zero fraction of a second; the library always writes milliseconds. The instant is the same.",
+        "difference": "same value, different text",
+        "example": "2026-01-01T00:00:00Z | 2026-01-01T00:00:00.000Z",
+        "field": "event/@start",
+        "inputs": 2
+      },
+      {
+        "cause": "The native encoder omits a zero fraction of a second; the library always writes milliseconds. The instant is the same.",
+        "difference": "same value, different text",
+        "example": "2026-01-01T00:00:00Z | 2026-01-01T00:00:00.000Z",
+        "field": "event/@time",
+        "inputs": 2
+      },
+      {
+        "cause": "The native encoder always writes a detail element, empty when it has no child. The library writes it only when it has a child.",
+        "difference": "not written by the library",
+        "example": "(element) | (absent)",
+        "field": "event/detail",
+        "inputs": 2
+      },
+      {
+        "cause": "The status flags are not turned into tokens: the library has no function that builds text from several flags.",
+        "difference": "not written by the library",
+        "example": "(element) | (absent)",
+        "field": "event/detail/remarks",
+        "inputs": 13
+      },
+      {
+        "cause": "The status flags are not turned into tokens: the library has no function that builds text from several flags.",
+        "difference": "not written by the library",
+        "example": "test-data,simulated,tentative,coasting,final-update | (absent)",
+        "field": "event/detail/remarks/#text",
+        "inputs": 13
+      }
+    ],
+    "encodedByBoth": 33,
+    "fieldsCompared": 594,
+    "fieldsEqual": 547,
+    "fieldsIdentical": 17,
+    "inputs": 33,
+    "refusedByBoth": 0
+  },
+  "sapient": {
+    "bytesIdentical": 0,
+    "differences": [
+      {
+        "cause": "The native encoder writes the confidence a second time, in the classification, when a classification exists. The pack maps confidence to detection_confidence only.",
+        "difference": "not written by the library",
+        "example": "0.87 | (absent)",
+        "field": "detection_report.classification[].confidence",
+        "inputs": 31
+      },
+      {
+        "cause": "The native encoder converts the east sigma from meters to degrees of longitude at the track latitude. The library has no such function.",
+        "difference": "not written by the library",
+        "example": "2.8746089091824686e-5 | (absent)",
+        "field": "detection_report.location.x_error",
+        "inputs": 31
+      },
+      {
+        "cause": "The native encoder converts the north sigma from meters to degrees of latitude at the track latitude. The library has no such function.",
+        "difference": "not written by the library",
+        "example": "2.5322345357410664e-5 | (absent)",
+        "field": "detection_report.location.y_error",
+        "inputs": 31
+      },
+      {
+        "cause": "The native encoder writes one object_info per identifier whose scheme is sapient-object-info, with the constant type rcs_dbsm. The pack does not map the identifiers list to object_info.",
+        "difference": "not written by the library",
+        "example": "\"rcs_dbsm\" | (absent)",
+        "field": "detection_report.object_info[].type",
+        "inputs": 16
+      },
+      {
+        "cause": "The native encoder writes one object_info per identifier whose scheme is sapient-object-info. The pack does not map the identifiers list to object_info.",
+        "difference": "not written by the library",
+        "example": "\"-18.3\" | (absent)",
+        "field": "detection_report.object_info[].value",
+        "inputs": 16
+      },
+      {
+        "cause": "The status flags are not turned into tokens: the library has no function that builds text from several flags.",
+        "difference": "not written by the library",
+        "example": "\"test-data,simulated,tentative,coasting,final-update\" | (absent)",
+        "field": "detection_report.state",
+        "inputs": 13
+      }
+    ],
+    "encodedByBoth": 33,
+    "fieldsCompared": 717,
+    "fieldsEqual": 579,
+    "fieldsIdentical": 2,
+    "inputs": 33,
+    "refusedByBoth": 0
+  }
+}

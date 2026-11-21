@@ -2,6 +2,7 @@
 fn main() {
     use billie_translator::{
         parse_cat062_source_config_json, publish_to_local_zenoh, serve_unix, EncodeOptions,
+        EncoderSelection,
     };
     use std::path::PathBuf;
 
@@ -29,7 +30,17 @@ fn main() {
             std::process::exit(2);
         }
     };
-    let mut encode_options = EncodeOptions::default();
+    let encoders = match EncoderSelection::from_env() {
+        Ok(selection) => selection,
+        Err(error) => {
+            eprintln!("billie-translator: {error}");
+            std::process::exit(2);
+        }
+    };
+    let mut encode_options = EncodeOptions {
+        encoders,
+        ..EncodeOptions::default()
+    };
     let source_map_path = std::env::var_os("BILLIE_CAT062_SOURCE_MAP")
         .map(PathBuf::from)
         .unwrap_or_else(|| PathBuf::from("/etc/billie/translator/cat062-sources.json"));

@@ -1,0 +1,97 @@
+# ASTERIX Category 062, System Track Data: one data block holding one record.
+# Public. Written from EUROCONTROL-SPEC-0149-9 Edition 1.21; the items mapped
+# are the ones the CAT062 encoder of USAREUR-AF/open-billie writes. I/O is hex
+# text. Needs engine version 0.8 (`layout sequential`). See pack.md.
+#
+#   octet 1       CAT = 62
+#   octets 2-3    LEN, the length of the data block in octets, CAT and LEN included
+#   FSPEC         octets of 7 presence bits and an extension bit; bit n is FRN n
+#   then          the items whose FSPEC bit is 1, in FRN order
+#
+# An FRN this pack does not map has no `if` block: a record with that FSPEC
+# bit set fails with `malformed-wire` (ruling 1 of engine-spec 0.8), and
+# encode never sets the bit.
+#
+# I062/130 is the height above the WGS-84 ellipsoid in steps of 6.25 ft.
+# 6.25 ft is 1.905 m exactly, written here as the fraction 381/200, so `hae`
+# is in metres.
+#
+# I062/080: each mapped bit has its raw key in `cat062`; CNF, SIM, TSE and CST
+# also bind the `track` flag of the same meaning with an `also` line. CNF is 0
+# for a confirmed track, the reverse of `track.confirmed`; the table `cnf`
+# turns it over. Encode writes the raw key when the entity has it, else the
+# flag, else the default. The defaults are on the flags: MON 1, SIM, TSE and
+# CST 0, so the item always has its first part and three extents. The other
+# status bits are `pad`: dropped on decode, written 0.
+format     asterix-cat062
+version    0.2.0
+distribution public
+source  "EUROCONTROL-SPEC-0149-9, Specification for Surveillance Data Exchange ASTERIX Part 9 Category 062, SDPS Track Messages, Edition 1.21, 5 June 2025, https://www.eurocontrol.int/sites/default/files/2025-06/asterix-cat062-system-track-data-p9-ed1-21.pdf"
+source  "USAREUR-AF/open-billie runtime/rust/translator/src/cat062.rs (Apache-2.0): which items its encoder writes, and the blocks it produces, used as vectors"
+uses       track
+uses       cat062
+wire       bits
+layout     sequential
+bit_order  msb
+map     cnf  0  1
+map     cnf  1  0
+kind    track
+when    8  62                                # CAT
+# the four items the specification requires in every record. SAC and SIC come
+# from the caller; the time of day and the track number follow from `time_ms`
+# and `uid` (model/cat062.def); CNF has no default, so the flag is required.
+requires cat062.sac cat062.sic cat062.time_of_day_s cat062.track_number track.confirmed
+default cat062.mon          1
+default track.simulated     0
+default track.final_update  0
+default track.coasting      0
+length  16 whole                             # LEN
+presence fspec fx
+if fspec.1                                   # FRN 1, I062/010 Data Source Identifier
+  field  cat062.sac  8  uint
+  field  cat062.sic  8  uint
+end
+if fspec.4                                   # FRN 4, I062/070 Time Of Track Information, 1/128 s
+  field  cat062.time_of_day_s  24  uscale:1/128
+end
+if fspec.5                                   # FRN 5, I062/105 Calculated Position in WGS-84, 180/2^25 degrees
+  field  lat  32  sscale:180/33554432
+  field  lon  32  sscale:180/33554432
+end
+if fspec.7                                   # FRN 7, I062/185 Calculated Track Velocity (Cartesian), 0.25 m/s
+  field  track.vel_east_ms   16  sscale:1/4    # Vx
+  field  track.vel_north_ms  16  sscale:1/4    # Vy: the y-axis points to geographical north
+end
+if fspec.12                                  # FRN 12, I062/040 Track Number
+  field  cat062.track_number  16  uint
+end
+if fspec.13                                  # FRN 13, I062/080 Track Status
+  chain
+    field  cat062.mon  1  uint                  # MON
+    pad    5                                    # SPI, MRH, SRC
+    field  cat062.cnf  1  uint                  # CNF: 0 = confirmed, 1 = tentative
+    also   track.confirmed  via cnf
+    fx
+    field  cat062.sim  1  uint                  # SIM
+    also   track.simulated
+    field  cat062.tse  1  uint                  # TSE: last message for the track
+    also   track.final_update
+    pad    5                                    # TSB, FPC, AFF, STP, KOS
+    fx
+    pad    7                                    # second extent: AMA, MD4, ME, MI, MD5
+    fx
+    field  cat062.cst  1  uint                  # CST
+    also   track.coasting
+    pad    6                                    # PSR, SSR, MDS, ADS, SUC, AAC
+    fx
+    pad    7                                    # fourth extent: SDS, EMS, PFT, FPLT
+    fx
+    pad    7                                    # fifth extent: DUPT, DUPF, DUPM, SFC, IDD, IEC, MLAT
+    fx
+    pad    7                                    # sixth extent: M5I and spare bits
+    fx
+  end
+end
+if fspec.18                                  # FRN 18, I062/130 Calculated Track Geometric Altitude, 6.25 ft
+  field  hae  16  sscale:381/200
+end

@@ -1,5 +1,10 @@
 # Open Billie
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/figures/open-billie-node-dark.svg">
+  <img src="docs/figures/open-billie-node-light.svg" width="760" alt="A kid package for one sensor decodes and maps its data on an Ubuntu Server 24.04 node and hands a track-v2 record over a local Unix socket to the Open Billie platform, whose Rust translator and encoder write CoT, ASTERIX CAT062 or SAPIENT and publish through local Zenoh and an mTLS bridge to the remote fabric.">
+</picture>
+
 Open Billie is a sensor-neutral project intended for open-source distribution for preparing a node, building sensor-specific kid packages, and publishing normalized data through the shared Billie translator and Zenoh path. It follows the single-node provisioning flow from the Billie Modular Golden Path and OctoPod.
 
 Open Billie was written by U.S. Federal government employees. In the U.S. it is not subject to copyright and is in the public domain; in countries where copyright is recognized, it is released under the [Apache License 2.0](LICENSE). See [INTENT.md](INTENT.md). Third-party material remains under its respective license; review [third-party notices](THIRD_PARTY_NOTICES.md) before redistributing built artifacts.

@@ -6,6 +6,8 @@
 mod cat062;
 mod cot;
 mod dispatch;
+#[cfg(feature = "goat-transformers")]
+mod goat_path;
 #[cfg(unix)]
 mod ipc;
 #[cfg(unix)]
@@ -18,7 +20,12 @@ pub use cat062::{
     Cat062Encoder, Cat062Options, Cat062SourceConfig, Cat062SourceIdentifier,
 };
 pub use cot::{CotEncodeError, CotEncoder, CotOptions};
-pub use dispatch::{encode_request, EncodeDispatchError, EncodeOptions, EncodedPayload};
+pub use dispatch::{
+    encode_request, EncodeDispatchError, EncodeOptions, EncodedPayload, EncoderPath,
+    EncoderSelection, LibraryEncodeError,
+};
+#[cfg(feature = "goat-transformers")]
+pub use goat_path::GOAT_TRANSFORMERS_COMMIT;
 #[cfg(unix)]
 pub use ipc::{serve_unix, PublishError, MAX_REQUEST_BYTES};
 #[cfg(unix)]

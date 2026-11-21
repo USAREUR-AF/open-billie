@@ -371,6 +371,7 @@ fn dispatch_error(error: &EncodeDispatchError) -> (&'static str, &str) {
         EncodeDispatchError::Cot(error) => (error.code, &error.message),
         EncodeDispatchError::Cat062(error) => (error.code, &error.message),
         EncodeDispatchError::Sapient(error) => (error.code, &error.message),
+        EncodeDispatchError::Library(error) => (error.code, &error.message),
         EncodeDispatchError::UnsupportedFormat(_) => (
             "unsupported_format",
             "requested encoder format is registered but not implemented",

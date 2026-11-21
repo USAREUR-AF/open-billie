@@ -277,7 +277,11 @@ impl Cat062Encoder {
         Ok(block)
     }
 
-    fn source_identifier(&self, kid: &str, source_id: &str) -> Result<(u8, u8), Cat062EncodeError> {
+    pub(crate) fn source_identifier(
+        &self,
+        kid: &str,
+        source_id: &str,
+    ) -> Result<(u8, u8), Cat062EncodeError> {
         let assignment = self
             .options
             .sources

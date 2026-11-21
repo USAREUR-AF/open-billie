@@ -1,0 +1,101 @@
+goat-transformers
+Copyright 2025-2026 U.S. Federal Government (in countries where recognized)
+
+Portions of this work written by U.S. Federal government employees within the
+scope of their federal employment are not subject to copyright protection in the
+United States (17 U.S.C. 105) and are in the public domain there. In countries
+where copyright protection is available, those portions are released under the
+Apache License, Version 2.0. Merged contributions from private contributors are
+released under the same License. See INTENT.md.
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE at
+the root of this repository).
+
+The engines use only the standard library of their language. No third-party
+code is included in this repository.
+
+The packs under packs/ and the model modules under model/ were written from the
+third-party sources below. The source files are not included. A pack records
+field names, field numbers, positions, types, units and code values. Each
+pack's PROVENANCE.md and the `source` lines of its pack.def state the exact
+version, the SHA-256 of each file read and the license statement of the source.
+The license of each source is given here as that source states it.
+
+Pack a-gra; module agra
+  Autonomy Government Reference Architecture (A-GRA) schema 6.0a (version
+  006.0.ASK), U.S. Air Force. https://github.com/open-arsenal/a-gra
+  File header: Distribution Statement A. Approved for public release:
+  distribution is unlimited.
+
+Pack uci; module uci
+  Universal Command and Control Interface (UCI) schema 2.6 (version 002.6.0),
+  U.S. Air Force. https://github.com/open-arsenal/uci
+  File header: Distribution Statement A. Approved for public release:
+  distribution is unlimited.
+
+Packs isa, isa-message, isa-ipl1, isa-xml; modules isa, isa1, isaxml
+  Integrated Sensor Architecture (ISA) schema set 6.0.13: IPL 3.7 and IPL 1.6
+  protobuf declaration files, IPL 4.7 XML schema.
+  File header: Distribution Statement A. Approved for Public Release.
+  Distribution is Unlimited. The files carry no license text and no copyright
+  line.
+
+Packs sapient, sapient-v1; modules sapient, sapient1
+  SAPIENT protobuf files, BSI Flex 335 v2.0 and v1.0, Defence Science and
+  Technology Laboratory (Dstl). https://github.com/dstl/SAPIENT-Proto-Files
+  Crown owned Copyright 2023. Apache License, Version 2.0.
+
+Pack cot-protobuf; module takproto
+  TAK protocol version 1 protobuf definitions, from
+  https://github.com/deptofdefense/AndroidTacticalAssaultKit-CIV (directory
+  takproto). The repository's LICENSE.md is the GNU General Public License,
+  Version 3; its INTENT.md states that portions written by U.S. Federal
+  government employees are ineligible for copyright protection in the U.S.
+  The .proto files carry no license or copyright header. Field numbers, names
+  and types only.
+
+Pack cot-xml; module core
+  Cursor on Target event schema, The MITRE Corporation, approved for public
+  release.
+
+Pack canonical-track-v2; module track
+  Canonical Track v2 schema, https://github.com/USAREUR-AF/open-billie
+  Apache License, Version 2.0.
+
+Pack nmea2000; module n2k
+  CANboat database (docs/canboat.json), version 9.2.0.
+  https://github.com/canboat/canboat
+  (C) 2009-2026, Kees Verruijt, Harlingen, The Netherlands. Apache License,
+  Version 2.0.
+
+Pack mavlink2; module mavlink
+  MAVLink message definitions (common.xml, standard.xml, minimal.xml).
+  https://github.com/mavlink/mavlink
+  The repository's COPYING file states the GNU Lesser General Public License,
+  version 3, with an exception that places generated code under the MIT
+  license. The XML files carry no license header. Message names and ids, field
+  names, types, array lengths, units and enumeration values only; no
+  description text.
+
+Pack remote-id; module rid
+  opendroneid-core-c, the reference implementation of ASTM F3411 message
+  contents. https://github.com/opendroneid/opendroneid-core-c
+  Copyright (C) 2019 Intel Corporation. Apache License, Version 2.0.
+
+Pack adsb; module adsb
+  Junzi Sun, "The 1090 Megahertz Riddle: A Guide to Decoding Mode S and ADS-B
+  Signals", second edition, TU Delft OPEN Publishing.
+  https://mode-s.org/1090mhz/  Copyright 2021 Junzi Sun. CC BY-NC-SA 4.0.
+  Field positions, widths, code meanings and five example messages; no text,
+  table or figure.
+  pyModeS, https://github.com/junzis/pyModeS  GNU General Public License,
+  Version 3. Published test messages and their decoded values; no code.
+
+Pack geojson
+  IETF RFC 7946, The GeoJSON Format.
+
+Pack nvg
+  NATO Vector Graphics 1.5 XML schema, NATO Allied Command Transformation.
+
+The packs named conformance*, demo-* and the module probe describe synthetic
+formats written for this project and have no external source.

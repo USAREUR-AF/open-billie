@@ -1,0 +1,26 @@
+# The cat062 module: values of ASTERIX Category 062 (System Track Data) as the
+# category holds them. Used by the pack `asterix-cat062`. Each status bit has a
+# raw key here; where `track` has a flag of the same meaning the pack binds
+# both to the bit.
+#
+# The derive lines fill what another format's track does not hold as CAT062
+# wants it: the time of day from the instant, the track number from an
+# identifier that is a decimal number, and SIM from the three flags of `track`
+# that each say the data is not live.
+module        cat062
+version       0.2.0
+distribution  public
+source        "EUROCONTROL-SPEC-0149-9, Specification for Surveillance Data Exchange ASTERIX Part 9 Category 062, SDPS Track Messages, Edition 1.21, 5 June 2025, https://www.eurocontrol.int/sites/default/files/2025-06/asterix-cat062-system-track-data-p9-ed1-21.pdf"
+uses          track
+key  sac            int    -  "I062/010 System Area Code, 0 to 255"
+key  sic            int    -  "I062/010 System Identification Code, 0 to 255"
+key  time_of_day_s  float  s  "I062/070 Time Of Track Information: seconds since the last UTC midnight, in steps of 1/128 s"
+key  track_number   int    -  "I062/040 Track Number, 0 to 65535"
+key  mon            int    -  "I062/080 MON: 0 = multisensor track, 1 = monosensor track"
+key  cnf            int    -  "I062/080 CNF: 0 = confirmed track, 1 = tentative track"
+key  sim            int    -  "I062/080 SIM: 0 = actual track, 1 = simulated track"
+key  tse            int    -  "I062/080 TSE: 1 = last message transmitted to the user for the track"
+key  cst            int    -  "I062/080 CST: 1 = age of the last received track update is higher than the system dependent threshold (coasting)"
+derive  cat062.time_of_day_s  day_seconds  time_ms
+derive  cat062.track_number   parse_int    uid
+derive  cat062.sim            any          track.simulated  track.header_simulated  track.test_data

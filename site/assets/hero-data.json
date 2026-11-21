@@ -1,0 +1,118 @@
+{
+ "vector": "kids/examples/oetf/packages/oetf/shared/conformance/vectors/track_report_two_tracks.json",
+ "description": "Two tracks: one confirmed with Mode 3/A, one tentative/coasting/final/simulated with no Mode 3/A.",
+ "frameHex": "4f45544601106e002a0000000701000040d235df4a42060002000000370103571100000e0000000000000000883b00001efba90196004001180162025a00460049ff4a00380105570e0000000000000000000000883b00001efba90196004001180162025a00460049ff4a00c2c7",
+ "frameLength": 110,
+ "tracks": [
+  {
+   "canonical": {
+    "apiVersion": "billie.dev/track-v2",
+    "kind": "Track",
+    "trackId": "311",
+    "sourceId": "263",
+    "trackGeneration": "fixture-1",
+    "testData": false,
+    "headerSimulated": false,
+    "confirmed": true,
+    "coasting": false,
+    "finalUpdate": false,
+    "simulated": false,
+    "observedAt": "2025-10-29T12:00:00.123Z",
+    "position": {
+     "latitudeDeg": 0.0,
+     "longitudeDeg": 0.0,
+     "altitudeM": 152.4
+    },
+    "velocity": {
+     "eastMps": -12.5,
+     "northMps": 4.25,
+     "upMps": 1.5
+    },
+    "classification": "uas",
+    "confidence": 0.87,
+    "positionUncertainty": {
+     "sigmaEastM": 3.2,
+     "sigmaNorthM": 2.8000000000000003,
+     "sigmaUpM": 6.1000000000000005
+    },
+    "identifiers": [
+     {
+      "scheme": "sapient-object-info",
+      "value": "-18.3"
+     }
+    ]
+   },
+   "outputs": [
+    {
+     "contentType": "application/xml",
+     "format": "cot",
+     "hex": "3c6576656e742076657273696f6e3d22322e3022207569643d226f6574662f3236332f3331312f666978747572652d312220747970653d22612d752d412d4d2d462d51222074696d653d22323032352d31302d32395431323a30303a30302e3132335a222073746172743d22323032352d31302d32395431323a30303a30302e3132335a22207374616c653d22323032352d31302d32395431323a30333a30302e3132335a2220686f773d226d2d70223e3c706f696e74206c61743d223022206c6f6e3d223022206861653d223135322e34222063653d22342e323532303538333235303933383622206c653d22362e31303030303030303030303030303035222f3e3c64657461696c3e3c747261636b20636f757273653d223238382e37373830333332323234343535222073706565643d2231332e323032373435393236353130383933222f3e3c2f64657461696c3e3c2f6576656e743e",
+     "length": 346,
+     "text": "<event version=\"2.0\" uid=\"oetf/263/311/fixture-1\" type=\"a-u-A-M-F-Q\" time=\"2025-10-29T12:00:00.123Z\" start=\"2025-10-29T12:00:00.123Z\" stale=\"2025-10-29T12:03:00.123Z\" how=\"m-p\"><point lat=\"0\" lon=\"0\" hae=\"152.4\" ce=\"4.25205832509386\" le=\"6.1000000000000005\"/><detail><track course=\"288.7780332224455\" speed=\"13.202745926510893\"/></detail></event>"
+    },
+    {
+     "contentType": "application/vnd.asterix.category-062",
+     "format": "asterix-cat062",
+     "hex": "3e001f9b0d1001025460100000000000000000ffce00110137810101000050",
+     "length": 31,
+     "text": null
+    }
+   ]
+  },
+  {
+   "canonical": {
+    "apiVersion": "billie.dev/track-v2",
+    "kind": "Track",
+    "trackId": "312",
+    "sourceId": "263",
+    "trackGeneration": "fixture-1",
+    "testData": false,
+    "headerSimulated": false,
+    "confirmed": false,
+    "coasting": true,
+    "finalUpdate": true,
+    "simulated": true,
+    "observedAt": "2025-10-29T12:00:00.123Z",
+    "position": {
+     "latitudeDeg": 0.0,
+     "longitudeDeg": 0.0,
+     "altitudeM": 152.4
+    },
+    "velocity": {
+     "eastMps": -12.5,
+     "northMps": 4.25,
+     "upMps": 1.5
+    },
+    "classification": "bird",
+    "confidence": 0.87,
+    "positionUncertainty": {
+     "sigmaEastM": 3.2,
+     "sigmaNorthM": 2.8000000000000003,
+     "sigmaUpM": 6.1000000000000005
+    },
+    "identifiers": [
+     {
+      "scheme": "sapient-object-info",
+      "value": "-18.3"
+     }
+    ]
+   },
+   "outputs": [
+    {
+     "contentType": "application/xml",
+     "format": "cot",
+     "hex": "3c6576656e742076657273696f6e3d22322e3022207569643d226f6574662f3236332f3331322f666978747572652d312220747970653d22612d752d41222074696d653d22323032352d31302d32395431323a30303a30302e3132335a222073746172743d22323032352d31302d32395431323a30303a30302e3132335a22207374616c653d22323032352d31302d32395431323a30333a30302e3132335a2220686f773d226d2d7022206f7065783d2273223e3c706f696e74206c61743d223022206c6f6e3d223022206861653d223135322e34222063653d22342e323532303538333235303933383622206c653d22362e31303030303030303030303030303035222f3e3c64657461696c3e3c747261636b20636f757273653d223238382e37373830333332323234343535222073706565643d2231332e323032373435393236353130383933222f3e3c72656d61726b733e73696d756c617465642c74656e7461746976652c636f617374696e672c66696e616c2d7570646174653c2f72656d61726b733e3c2f64657461696c3e3c2f6576656e743e",
+     "length": 409,
+     "text": "<event version=\"2.0\" uid=\"oetf/263/312/fixture-1\" type=\"a-u-A\" time=\"2025-10-29T12:00:00.123Z\" start=\"2025-10-29T12:00:00.123Z\" stale=\"2025-10-29T12:03:00.123Z\" how=\"m-p\" opex=\"s\"><point lat=\"0\" lon=\"0\" hae=\"152.4\" ce=\"4.25205832509386\" le=\"6.1000000000000005\"/><detail><track course=\"288.7780332224455\" speed=\"13.202745926510893\"/><remarks>simulated,tentative,coasting,final-update</remarks></detail></event>"
+    },
+    {
+     "contentType": "application/vnd.asterix.category-062",
+     "format": "asterix-cat062",
+     "hex": "3e001f9b0d1001025460100000000000000000ffce0011013883c101800050",
+     "length": 31,
+     "text": null
+    }
+   ]
+  }
+ ]
+}
