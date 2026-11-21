@@ -1,0 +1,12 @@
+{
+  "name": "cot-protobuf--07-control-alone",
+  "source": "goat-transformers d57d36118edf296d1f610893025631f97d955ded packs/cot-protobuf/vectors/07-control-alone.json",
+  "from": "cot-protobuf",
+  "input": "0a0408011001",
+  "context": {
+    "time_ms": "1767225600000",
+    "track.source_id": "sensor-a",
+    "track.generation": "1"
+  },
+  "expectError": "no-kind"
+}

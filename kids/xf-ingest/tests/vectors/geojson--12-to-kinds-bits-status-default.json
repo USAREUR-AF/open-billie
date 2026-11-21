@@ -1,0 +1,12 @@
+{
+  "name": "geojson--12-to-kinds-bits-status-default",
+  "source": "goat-transformers d57d36118edf296d1f610893025631f97d955ded packs/geojson/vectors/12-to-kinds-bits-status-default.json",
+  "from": "geojson",
+  "input": "{\"type\":\"Feature\",\"geometry\":null,\"properties\":{\"time_ms\":290}}",
+  "context": {
+    "time_ms": "1767225600000",
+    "track.source_id": "sensor-a",
+    "track.generation": "1"
+  },
+  "expectError": "no-kind"
+}

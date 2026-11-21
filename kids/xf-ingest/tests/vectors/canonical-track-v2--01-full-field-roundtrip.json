@@ -1,0 +1,42 @@
+{
+  "name": "canonical-track-v2--01-full-field-roundtrip",
+  "source": "goat-transformers d57d36118edf296d1f610893025631f97d955ded packs/canonical-track-v2/vectors/01-full-field-roundtrip.json",
+  "from": "canonical-track-v2",
+  "input": "{\"apiVersion\":\"billie.dev/track-v2\",\"kind\":\"Track\",\"trackId\":\"trk-0042\",\"sourceId\":\"radar-north\",\"trackGeneration\":\"gen-7\",\"testData\":false,\"headerSimulated\":true,\"simulated\":false,\"confirmed\":true,\"coasting\":false,\"finalUpdate\":false,\"observedAt\":\"2021-02-27T20:00:00.250Z\",\"position\":{\"latitudeDeg\":30.0090027,\"longitudeDeg\":-85.9578182,\"altitudeM\":1250.5},\"velocity\":{\"eastMps\":-12.5,\"northMps\":40.25,\"upMps\":0.5},\"classification\":\"uas\",\"confidence\":0.875,\"positionUncertainty\":{\"sigmaEastM\":15,\"sigmaNorthM\":12.5,\"sigmaUpM\":30}}",
+  "context": {
+    "time_ms": "1767225600000",
+    "track.source_id": "sensor-a",
+    "track.generation": "1"
+  },
+  "expect": {
+    "apiVersion": "billie.dev/track-v2",
+    "kind": "Track",
+    "trackId": "trk-0042",
+    "sourceId": "radar-north",
+    "trackGeneration": "gen-7",
+    "testData": false,
+    "headerSimulated": true,
+    "simulated": false,
+    "confirmed": true,
+    "coasting": false,
+    "finalUpdate": false,
+    "observedAt": "2021-02-27T20:00:00.250Z",
+    "position": {
+      "latitudeDeg": 30.0090027,
+      "longitudeDeg": -85.9578182,
+      "altitudeM": 1250.5
+    },
+    "velocity": {
+      "eastMps": -12.5,
+      "northMps": 40.25,
+      "upMps": 0.5
+    },
+    "classification": "uas",
+    "confidence": 0.875,
+    "positionUncertainty": {
+      "sigmaEastM": 15,
+      "sigmaNorthM": 12.5,
+      "sigmaUpM": 30
+    }
+  }
+}

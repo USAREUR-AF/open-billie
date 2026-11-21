@@ -57,5 +57,34 @@ class GoatTransformersPackTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stderr)
 
 
+class XfIngestPackTests(unittest.TestCase):
+    """The xf-ingest kid's copy: offline checks, as above. The comparison with
+    the commit itself is `sync_goat_transformers_packs.py --target xf-ingest --check`."""
+
+    def test_crate_lockfile_and_copied_files_name_one_commit(self):
+        revision = SYNC.pinned_revision_inline(SYNC.XF_INGEST_MANIFEST, SYNC.XF_INGEST_CRATE)
+        self.assertEqual((SYNC.XF_INGEST_DESTINATION / "COMMIT").read_text(encoding="ascii"), revision + "\n")
+        manifest = SYNC.XF_INGEST_MANIFEST.read_text(encoding="utf-8")
+        self.assertEqual(set(re.findall(r'rev = "([0-9a-f]{40})"', manifest)), {revision})
+        lock = (ROOT / "kids/xf-ingest/Cargo.lock").read_text(encoding="utf-8")
+        sources = set(re.findall(r'source = "(git\+https://github.com/USAREUR-AF/goat-transformers[^"]*)"', lock))
+        self.assertEqual(sources, {f"git+https://github.com/USAREUR-AF/goat-transformers?rev={revision}#{revision}"})
+
+    def test_copied_files_match_their_recorded_digests_and_nothing_else_is_copied(self):
+        lines = (SYNC.XF_INGEST_DESTINATION / "SHA256SUMS").read_text(encoding="ascii").splitlines()
+        self.assertEqual([line.split("  ", 1)[1] for line in lines], list(SYNC.XF_INGEST_FILES))
+        for line in lines:
+            digest, relative = line.split("  ", 1)
+            with self.subTest(file=relative):
+                data = (SYNC.XF_INGEST_DESTINATION / relative).read_bytes()
+                self.assertEqual(hashlib.sha256(data).hexdigest(), digest)
+        present = {
+            path.relative_to(SYNC.XF_INGEST_DESTINATION).as_posix()
+            for path in SYNC.XF_INGEST_DESTINATION.rglob("*")
+            if path.is_file()
+        }
+        self.assertEqual(present, set(SYNC.XF_INGEST_FILES) | {"COMMIT", "SHA256SUMS"})
+
+
 if __name__ == "__main__":
     unittest.main()

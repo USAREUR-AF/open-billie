@@ -1,0 +1,13 @@
+{
+  "description": "How xf-ingest fills Canonical Track v2. The conversion itself is the goat-transformers canonical-track-v2 pack (goat-transformers/packs/canonical-track-v2/pack.def): every input format decodes to the shared model and the pack encodes the model as the canonical JSON. The kid adds the context below for keys a message does not carry; a value the message carries is never replaced.",
+  "target": "canonical-track-v2",
+  "context": [
+    { "key": "time_ms", "canonical": "observedAt", "value": "the time the kid received the message", "flag": "--set-receive-time time_ms" },
+    { "key": "track.source_id", "canonical": "sourceId", "value": "XF_SOURCE_ID", "flag": "--set track.source_id=<XF_SOURCE_ID>" },
+    { "key": "track.generation", "canonical": "trackGeneration", "value": "XF_TRACK_GENERATION, default 1", "flag": "--set track.generation=<XF_TRACK_GENERATION>" }
+  ],
+  "afterConversion": [
+    { "canonical": "classification", "rule": "a value outside the Billie track-class vocabulary is removed (the translator refuses it); each removed value is printed once" }
+  ],
+  "refused": "A message that cannot supply trackId (uid), sourceId, trackGeneration, observedAt, latitude and longitude is refused by the pack with no-kind and counted; nothing is sent for it."
+}

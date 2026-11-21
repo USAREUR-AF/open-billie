@@ -1,0 +1,29 @@
+# Image for the xf-ingest kid. Keep compiler and OS release versions explicit;
+# release bundles record the resolved OCI digest.
+FROM docker.io/library/rust:1.85.1-slim-bookworm AS build
+
+WORKDIR /src
+COPY Cargo.toml Cargo.lock ./
+COPY src ./src
+# Cargo.lock pins goat-transformers (engine and adapters) to one commit of the
+# public repository; the build fetches that commit and the locked crates.
+RUN cargo build --locked --release --bin billie-xf-ingest
+
+FROM docker.io/library/debian:12.12-slim
+COPY licenses/ /licenses/
+COPY --from=build /src/target/release/billie-xf-ingest /usr/local/bin/billie-xf-ingest
+# The formats are data: goat-transformers pack and model files from the same
+# commit as the engine (tools/sync_goat_transformers_packs.py --target xf-ingest).
+COPY goat-transformers/ /app/goat-transformers/
+
+ENV XF_KID_ID=xf-ingest
+ENV XF_PACKS=/app/goat-transformers/packs
+ENV XF_MODELS=/app/goat-transformers/model
+# name:format pairs; keep in step with interfaces.outputs in billie-kid.yaml.
+ENV XF_OUTPUTS=tracks-cot:cot,tracks-sapient:sapient,tracks-cat062:asterix-cat062
+ENV BILLIE_INPUT_BIND=0.0.0.0
+ENV BILLIE_INPUT_PORT=40540
+ENV BILLIE_INPUT_TRANSPORT=udp
+ENV BILLIE_TRANSLATOR_SOCKET=/run/billie/translator.sock
+EXPOSE 40540/udp 40541/tcp
+CMD ["/usr/local/bin/billie-xf-ingest"]
