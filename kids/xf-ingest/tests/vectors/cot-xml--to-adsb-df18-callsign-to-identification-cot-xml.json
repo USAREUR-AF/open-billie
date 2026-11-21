@@ -1,0 +1,12 @@
+{
+  "name": "cot-xml--to-adsb-df18-callsign-to-identification-cot-xml",
+  "source": "goat-transformers d57d36118edf296d1f610893025631f97d955ded packs/cot-xml/vectors/to-adsb-df18-callsign-to-identification-cot-xml.json",
+  "from": "cot-xml",
+  "input": "<event version=\"2.0\" type=\"a-f-A\" how=\"m-g\"><point lat=\"0\" lon=\"0\" hae=\"0\" ce=\"0\" le=\"0\"/><detail><contact callsign=\"EZY85MH\"/></detail></event>",
+  "context": {
+    "time_ms": "1767225600000",
+    "track.source_id": "sensor-a",
+    "track.generation": "1"
+  },
+  "expectError": "no-kind"
+}

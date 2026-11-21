@@ -1,0 +1,29 @@
+{
+  "name": "cot-protobuf--03-full-message-roundtrip",
+  "source": "goat-transformers d57d36118edf296d1f610893025631f97d955ded packs/cot-protobuf/vectors/03-full-message-roundtrip.json",
+  "from": "cot-protobuf",
+  "input": "0a0d080110011a074a2d303133333412f6010a09612d662d472d552d431209556e646566696e65642a074a2d303133333430809ccea8fe2e38809ccea8fe2e40a09ad9a8fe2e4a036d2d675161133e004e023e4059df20b5e44c7d55c061cdcccccccc4c45c0696666666666a64640710000000000e058407a8d010a143c7569642044726f69643d224741544f52222f3e12120a092a3a2d313a7374637012054741544f521a130a044379616e120b5465616d204d656d626572220a0a0347505312034750532a02085732280a0e47454e455249432044455649434512084154414b2d4349561a0232392208342e352e312e31333a12090000000000204440110000000000e07040",
+  "context": {
+    "time_ms": "1767225600000",
+    "track.source_id": "sensor-a",
+    "track.generation": "1"
+  },
+  "expect": {
+    "apiVersion": "billie.dev/track-v2",
+    "kind": "Track",
+    "trackId": "J-01334",
+    "sourceId": "sensor-a",
+    "trackGeneration": "1",
+    "observedAt": "2021-02-27T20:00:00.000Z",
+    "position": {
+      "latitudeDeg": 30.0090027,
+      "longitudeDeg": -85.9578182,
+      "altitudeM": -42.6
+    },
+    "velocity": {
+      "eastMps": -40.25,
+      "northMps": -7.393805049852144e-15
+    },
+    "classification": "a-f-G-U-C"
+  }
+}

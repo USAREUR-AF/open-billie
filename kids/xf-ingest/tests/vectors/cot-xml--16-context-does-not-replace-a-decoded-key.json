@@ -1,0 +1,25 @@
+{
+  "name": "cot-xml--16-context-does-not-replace-a-decoded-key",
+  "source": "goat-transformers d57d36118edf296d1f610893025631f97d955ded packs/cot-xml/vectors/16-context-does-not-replace-a-decoded-key.json",
+  "from": "cot-xml",
+  "input": "<event version=\"2.0\" uid=\"J-01334\" type=\"a-f-G-U-C\" time=\"2021-02-27T20:00:00.000Z\" start=\"2021-02-27T20:00:00.000Z\" how=\"m-g\"><point lat=\"30.0090027\" lon=\"-85.9578182\" hae=\"-42.6\" ce=\"45.3\" le=\"99.5\"/><detail><contact callsign=\"GATOR\"/></detail></event>",
+  "context": {
+    "time_ms": "1767225600000",
+    "track.source_id": "sensor-a",
+    "track.generation": "1"
+  },
+  "expect": {
+    "apiVersion": "billie.dev/track-v2",
+    "kind": "Track",
+    "trackId": "J-01334",
+    "sourceId": "sensor-a",
+    "trackGeneration": "1",
+    "observedAt": "2021-02-27T20:00:00.000Z",
+    "position": {
+      "latitudeDeg": 30.0090027,
+      "longitudeDeg": -85.9578182,
+      "altitudeM": -42.6
+    },
+    "classification": "a-f-G-U-C"
+  }
+}

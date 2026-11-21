@@ -1,0 +1,30 @@
+[package]
+name = "billie-xf-ingest"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "Apache-2.0"
+description = "Open Billie kid for standard-format sensor feeds: goat-transformers converts each message to Canonical Track v2 and the kid hands it to the translator."
+
+[lib]
+name = "billie_xf_ingest"
+path = "src/lib.rs"
+
+[[bin]]
+name = "billie-xf-ingest"
+path = "src/main.rs"
+
+[dependencies]
+# The goat-xf-pipe command line, its transports (UDP, TCP, multicast) and
+# framers, and through them the goat-transformers engine. Standard library
+# only. Pinned to the commit of goat-transformers release xf-pipe-v0.1.1; the
+# pack and model files under goat-transformers/ are copied from the same
+# commit (tools/sync_goat_transformers_packs.py --target xf-ingest).
+goat-adapters-std = { git = "https://github.com/USAREUR-AF/goat-transformers", rev = "d57d36118edf296d1f610893025631f97d955ded" }
+goat-adapters-core = { git = "https://github.com/USAREUR-AF/goat-transformers", rev = "d57d36118edf296d1f610893025631f97d955ded" }
+serde_json = "1"
+
+[profile.release]
+lto = true
+codegen-units = 1
+strip = true

@@ -1,0 +1,23 @@
+{
+  "name": "canonical-track-v2--10-to-cot-xml-defaults",
+  "source": "goat-transformers d57d36118edf296d1f610893025631f97d955ded packs/canonical-track-v2/vectors/10-to-cot-xml-defaults.json",
+  "from": "canonical-track-v2",
+  "input": "{\"apiVersion\":\"billie.dev/track-v2\",\"kind\":\"Track\",\"trackId\":\"trk-0043\",\"sourceId\":\"radar-north\",\"trackGeneration\":\"gen-1\",\"observedAt\":\"2026-01-01T00:00:00Z\",\"position\":{\"latitudeDeg\":45,\"longitudeDeg\":-73}}",
+  "context": {
+    "time_ms": "1767225600000",
+    "track.source_id": "sensor-a",
+    "track.generation": "1"
+  },
+  "expect": {
+    "apiVersion": "billie.dev/track-v2",
+    "kind": "Track",
+    "trackId": "trk-0043",
+    "sourceId": "radar-north",
+    "trackGeneration": "gen-1",
+    "observedAt": "2026-01-01T00:00:00.000Z",
+    "position": {
+      "latitudeDeg": 45,
+      "longitudeDeg": -73
+    }
+  }
+}
