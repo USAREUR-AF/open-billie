@@ -64,6 +64,13 @@ release candidate and must be reviewed against the tagged source before release.
 
 ### Fixed
 
+- The island-to-fabric bridge forwarded CoT XML (`application/xml`) as its
+  base64 text, so fabric subscribers received base64 instead of XML. The
+  island's Zenoh REST plugin gives the payload of every encoding other than
+  JSON (`application/json`, `text/json`, `text/json5`) and plain text
+  (`text/plain`, `zenoh/string`) as base64. The bridge now decodes it and
+  forwards the payload bytes: XML, ASTERIX and SAPIENT binary arrive unchanged,
+  and JSON is written back as JSON.
 - SAPIENT object identity creation is serialized so concurrent requests retain
   a single stable mapping per track identity.
 - The public-boundary scanner no longer embeds private downstream product
