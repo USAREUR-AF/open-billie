@@ -21,6 +21,7 @@ python3 -m http.server 8000 --directory site           # look at it on http://lo
 | `captures/capture-validate.sh` | records `captures/validate.txt` |
 | `captures/validate.txt` | the real kid validator on the example kid, shown on the page as it is |
 | `build.py` | the check the pages workflow runs |
+| `fitcheck.py` | run by `build.py`: loads the page in headless Chrome at 1440 and 390 px and fails when a box is cut off |
 
 ## The first screen
 
@@ -52,3 +53,7 @@ marks each with `data-n`.
 `build.py` also fails if the code shown faintly behind the first screen is no
 longer in `runtime/rust/translator/src/cot.rs`, or if the validator session on the
 page differs from `captures/validate.txt`.
+
+## Command and output boxes
+
+Every `<pre>` on the page is marked `data-box="command"` or `data-box="output"`. A box shows its whole text at any width: it wraps at spaces, each line of it a `<span class="ln">` with a hanging indent, and a word holding a hyphen or slash moves to the next line whole. Copy copies the command from the button's `data-copy`. `fitcheck.py` fails the build when a command box is cut off at 1440 or 390 px, an output box at 1440 px, or a `<pre>` carries no mark; with no Chrome it is skipped outside CI.
