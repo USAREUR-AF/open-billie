@@ -12,6 +12,7 @@ does not keep a second copy of it.
 import json
 import re
 import shutil
+import subprocess
 import sys
 from pathlib import Path
 
@@ -53,8 +54,10 @@ def check():
     code = unescape(re.search(r'<pre class="bgcode"[^>]*>(.*?)</pre>', page, re.S).group(1))
     if code.strip("\n") not in (ROOT / "runtime/rust/translator/src/cot.rs").read_text():
         errors.append("the code behind the first screen is no longer in runtime/rust/translator/src/cot.rs")
-    term = unescape(re.search(r'<pre class="term" id="validate">(.*?)</pre>', page, re.S).group(1))
-    if term != (SITE / "captures/validate.txt").read_text():
+    # the page wraps each line in <span class="ln">, and each word with a hyphen or slash in <span class="w">
+    term = re.search(r'<pre class="term" id="validate"[^>]*>(.*?)</pre>', page, re.S).group(1)
+    term = unescape(re.sub(r"<[^>]+>", "", term))
+    if term.rstrip("\n") != (SITE / "captures/validate.txt").read_text().rstrip("\n"):
         errors.append("the validator session on the page differs from site/captures/validate.txt")
     for e in errors:
         print("site check:", e, file=sys.stderr)
@@ -70,4 +73,7 @@ def copy():
 
 if __name__ == "__main__":
     copy()
-    sys.exit(0 if check() else 1)
+    ok = check()
+    # no command box cut off at 1440 or 390 px, no output box at 1440 (headless Chrome)
+    fit = subprocess.run([sys.executable, str(SITE / "fitcheck.py"), str(SITE), "index.html"]).returncode == 0
+    sys.exit(0 if ok and fit else 1)

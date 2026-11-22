@@ -102,7 +102,11 @@ h3 { font: 700 19px/1.3 var(--sans); margin: 0 0 8px; }
 figure { margin: 0; }
 figure img { width: 100%; height: auto; display: block; border-radius: 14px; border: 1.5px solid var(--rule); background: var(--panel); }
 figcaption { font-size: 13.5px; color: var(--quiet); margin-top: 8px; }
-.term { background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 16px 18px; font: 13.5px/1.6 var(--mono); overflow-x: auto; white-space: pre; margin: 0 0 12px; }
+.term { background: var(--code-bg); color: var(--code-ink); border-radius: 10px; padding: 16px 18px; font: 13.5px/1.6 var(--mono); overflow-x: auto; white-space: pre-wrap; overflow-wrap: anywhere; margin: 0 0 12px; }
+/* every box shows whole: lines wrap at spaces and continuation lines hang in (--hang, else two characters) */
+.cmd pre .ln, .term .ln { display: block; padding-left: var(--hang, 2ch); text-indent: calc(-1 * var(--hang, 2ch)); }
+/* a word with a hyphen or slash moves to the next line whole, and breaks only if it alone is wider than the box */
+pre .ln .w { display: inline-block; max-width: 100%; text-indent: 0; }
 table { border-collapse: collapse; width: 100%; font-size: 15.5px; background: var(--panel); border: 1.5px solid var(--rule); }
 th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--rule); vertical-align: top; }
 th { font: 700 13px var(--mono); text-transform: uppercase; letter-spacing: .05em; color: var(--quiet); }
@@ -195,8 +199,8 @@ footer a { color: inherit; }
         <a class="btn" href="https://github.com/USAREUR-AF/open-billie/blob/main/docs/KID_PACKAGE_AUTHORING_GUIDE.md">Write a kid</a>
       </div>
       <div class="cmd">
-        <pre><span class="p">$ </span>git clone https://github.com/USAREUR-AF/open-billie
-<span class="p">$ </span>cd open-billie &amp;&amp; bash tools/setup.sh</pre>
+        <pre data-box="command"><span class="ln"><span class="p">$ </span>git clone <span class="w">https://github.com/USAREUR-AF/open-billie</span>
+</span><span class="ln"><span class="p">$ </span>cd <span class="w">open-billie</span> &amp;&amp; bash <span class="w">tools/setup.sh</span></span></pre>
         <button class="copy" type="button" data-copy="git clone https://github.com/USAREUR-AF/open-billie && cd open-billie && bash tools/setup.sh">Copy</button>
       </div>
       <p class="cmd-note">The guided workflow, from Linux or macOS; on Windows, <code>tools\setup.ps1</code>. It installs to an Ubuntu Server 24.04 node over SSH.</p>
@@ -208,8 +212,8 @@ footer a { color: inherit; }
         <div class="hex" id="hex" aria-hidden="true"></div>
         <div class="field" id="field" aria-hidden="true">&nbsp;</div>
         <div class="panes" aria-hidden="true">
-          <div class="pane"><div class="lbl">2 · canonical track</div><pre id="canon"></pre></div>
-          <div class="pane"><div class="lbl" id="outlbl">3 · translator out</div><pre id="out"></pre></div>
+          <div class="pane"><div class="lbl">2 · canonical track</div><pre id="canon" data-box="output"></pre></div>
+          <div class="pane"><div class="lbl" id="outlbl">3 · translator out</div><pre id="out" data-box="output"></pre></div>
         </div>
       </div>
       <p class="caption">Real data, replayed: a conformance vector of the synthetic OETF example, decoded and mapped by the example kid and encoded by the real Rust translator. Made by <a href="https://github.com/USAREUR-AF/open-billie/blob/main/site/hero-data/make.py">site/hero-data/make.py</a>.</p>
@@ -248,12 +252,12 @@ footer a { color: inherit; }
     <div>
       <h2>Where the line is drawn</h2>
       <p class="sub">The kid owns the sensor: its wire format, its decoder, and the mapping from its fields to Billie's canonical record. The platform owns everything that touches the network beyond the node. The record crosses between them over a local Unix socket.</p>
-<pre class="term">Sensor TCP/UDP input
-  -&gt; kid decoder and user mapping
-  -&gt; canonical record over local Unix socket
-  -&gt; shared Rust translator and encoder
-  -&gt; local Zenoh route
-  -&gt; Open Billie platform mTLS bridge and remote fabric</pre>
+<pre class="term" style="--hang:5ch" data-box="output"><span class="ln">Sensor <span class="w">TCP/UDP</span> input
+</span><span class="ln">  <span class="w">-&gt;</span> kid decoder and user mapping
+</span><span class="ln">  <span class="w">-&gt;</span> canonical record over local Unix socket
+</span><span class="ln">  <span class="w">-&gt;</span> shared Rust translator and encoder
+</span><span class="ln">  <span class="w">-&gt;</span> local Zenoh route
+</span><span class="ln">  <span class="w">-&gt;</span> Open Billie platform mTLS bridge and remote fabric</span></pre>
       <p class="sub">Contracts: <a href="https://github.com/USAREUR-AF/open-billie/blob/main/docs/architecture/DECODER_TRANSLATOR_RUNTIME_CONTRACT.md">decoder to translator</a>, <a href="https://github.com/USAREUR-AF/open-billie/blob/main/schemas/CANONICAL_TRACK_V2.md">canonical track v2</a>, <a href="https://github.com/USAREUR-AF/open-billie/blob/main/docs/architecture/GOLDEN_PATH_ZENOH.md">Zenoh and fabric security</a>.</p>
     </div>
   </div>
@@ -278,18 +282,17 @@ footer a { color: inherit; }
     </div>
     <div>
       <h3>The real validator, on the example kid</h3>
-<pre class="term" id="validate">$ bash deploy/bin/billie kid validate kids/examples/oetf
-Valid kid source: oetf@0.2.0
-Manifest: open-billie/kids/examples/oetf/billie-kid.yaml
-  decoder: packages/oetf/python/src/billie_oetf/decoder.py
-  mapper: packages/oetf/python/src/billie_oetf/mapper.py
-  schemas: packages/oetf/shared/schemas
-  mappings: packages/oetf/shared/mappings
-  lookups: packages/oetf/shared/lookups
-  vectors: packages/oetf/shared/conformance/vectors
-WARNING: runtime.image is a development placeholder and is not deployable
-Source structure is valid; resolve warnings before treating it as deployable.
-</pre>
+<pre class="term" id="validate" style="--hang:4ch" data-box="output"><span class="ln">$ bash <span class="w">deploy/bin/billie</span> kid validate <span class="w">kids/examples/oetf</span>
+</span><span class="ln">Valid kid source: oetf@0.2.0
+</span><span class="ln">Manifest: <span class="w">open-billie/kids/examples/oetf/billie-kid.yaml</span>
+</span><span class="ln">  decoder: <span class="w">packages/oetf/python/src/billie_oetf/decoder.py</span>
+</span><span class="ln">  mapper: <span class="w">packages/oetf/python/src/billie_oetf/mapper.py</span>
+</span><span class="ln">  schemas: <span class="w">packages/oetf/shared/schemas</span>
+</span><span class="ln">  mappings: <span class="w">packages/oetf/shared/mappings</span>
+</span><span class="ln">  lookups: <span class="w">packages/oetf/shared/lookups</span>
+</span><span class="ln">  vectors: <span class="w">packages/oetf/shared/conformance/vectors</span>
+</span><span class="ln">WARNING: runtime.image is a development placeholder and is not deployable
+</span><span class="ln">Source structure is valid; resolve warnings before treating it as deployable.</span></pre>
       <p class="caption">Recorded by <a href="https://github.com/USAREUR-AF/open-billie/blob/main/site/captures/capture-validate.sh">site/captures/capture-validate.sh</a>. The warning is the validator doing its job: the example's image is a placeholder until a build fills it in.</p>
     </div>
   </div>
@@ -312,9 +315,9 @@ Source structure is valid; resolve warnings before treating it as deployable.
     <div>
       <h2>Take it off again</h2>
       <p class="sub">Remove a kid and keep the platform, or remove the platform. Teardown lists what it will remove, asks for confirmation, and asks a second time before deleting node identity and fabric credentials. NetBird is left untouched.</p>
-<pre class="term"><span class="p">$ </span>sudo billie kid deactivate &lt;id&gt;
-<span class="p">$ </span>sudo billie kid remove &lt;id&gt;
-<span class="p">$ </span>sudo billie teardown</pre>
+<pre class="term" data-box="command"><span class="ln"><span class="p">$ </span>sudo billie kid deactivate &lt;id&gt;
+</span><span class="ln"><span class="p">$ </span>sudo billie kid remove &lt;id&gt;
+</span><span class="ln"><span class="p">$ </span>sudo billie teardown</span></pre>
       <p class="sub">Before updating a node, read the <a href="https://github.com/USAREUR-AF/open-billie/blob/main/docs/UPGRADING.md">upgrade notes</a>: platform 0.3.0 requires kids built for the v2 canonical track contract. Validation status and open items: <a href="https://github.com/USAREUR-AF/open-billie/blob/main/docs/TESTING.md">testing log</a>.</p>
     </div>
   </div>
