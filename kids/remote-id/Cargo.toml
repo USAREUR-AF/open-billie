@@ -1,0 +1,13 @@
+[package]
+name = "billie-remote-id-kid"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "Apache-2.0"
+description = "Open Billie kid for drone Remote ID (ASTM F3411, ASD-STAN EN 4709-002) broadcasts heard over Wi-Fi or Bluetooth."
+
+[dependencies]
+# The decoder, tracker and trust checks: every transmitter gets a verdict
+# (authenticated, plausible, suspicious or spoofed) before it becomes a track.
+remoteid = "0.3.3"
+serde_json = "1"

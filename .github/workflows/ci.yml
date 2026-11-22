@@ -76,6 +76,10 @@ jobs:
         run: cargo fmt --manifest-path kids/xf-ingest/Cargo.toml -- --check
       - name: Test xf-ingest kid
         run: cargo test --locked --manifest-path kids/xf-ingest/Cargo.toml
+      - name: Check remote-id kid formatting
+        run: cargo fmt --manifest-path kids/remote-id/Cargo.toml -- --check
+      - name: Test remote-id kid
+        run: cargo test --locked --manifest-path kids/remote-id/Cargo.toml
       - name: Check xf-ingest goat-transformers definitions against the pinned commit
         run: python3 tools/sync_goat_transformers_packs.py --target xf-ingest --check
 
