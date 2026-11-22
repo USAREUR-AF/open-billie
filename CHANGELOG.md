@@ -64,6 +64,19 @@ release candidate and must be reviewed against the tagged source before release.
 
 ### Fixed
 
+- A kid could stop receiving sensor data after a restart that did not go
+  through `billie kid activate`. `billie cat062 source set|remove` and
+  `billie apply` restart the translator, and with it the kid; systemd
+  restarts a kid on failure and at boot. The new container gets a new Podman
+  address, but the DNAT rule for the host port to the removed container could
+  stay first in the chain, so every datagram went to a dead address while the
+  kid showed active. The kid unit now runs `billie-kid-ops.py prestart` before
+  every start. It removes the old container and every port forward for the
+  listener that targets no existing container, as activation does.
+  `billie kid status` now checks that the listener's DNAT rules target the
+  running container and reports a mismatch with the repair. A kid activated
+  before this release keeps its old unit until `billie kid activate <id>` is
+  run once.
 - The island-to-fabric bridge forwarded CoT XML (`application/xml`) as its
   base64 text, so fabric subscribers received base64 instead of XML. The
   island's Zenoh REST plugin gives the payload of every encoding other than

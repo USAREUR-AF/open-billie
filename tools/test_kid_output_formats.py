@@ -91,6 +91,78 @@ class KidOutputFormatTests(unittest.TestCase):
         self.assertIn("ExecStopPost=/usr/bin/podman rm --force --ignore billie-kid-oetf", unit)
         self.assertIn("TimeoutStopSec=30", unit)
 
+    def test_kid_unit_cleans_stale_forwards_before_every_start(self):
+        unit = OPS.render_kid_systemd_unit(
+            "q53-res", "0.1.1", pathlib.PurePosixPath("/run/billie/translator.sock"),
+            pathlib.PurePosixPath("/opt/billie/kids/q53-res/run-kid.sh"), "billie-kid-q53-res", "billie",
+            pathlib.PurePosixPath("/opt/billie/bin/billie-kid-ops.py"),
+        )
+        prestart = "ExecStartPre=/usr/bin/python3 /opt/billie/bin/billie-kid-ops.py prestart q53-res"
+        self.assertIn(prestart, unit)
+        self.assertLess(unit.index("ExecStartPre=/usr/bin/test -S"), unit.index(prestart))
+        self.assertLess(unit.index(prestart), unit.index("ExecStart=/usr/bin/bash"))
+
+    def test_prestart_removes_the_old_container_then_cleans_this_listener(self):
+        calls = []
+        with (
+            patch.object(OPS, "require_root"),
+            patch.object(OPS, "remove_stale_container", side_effect=lambda kid: calls.append(("rm", kid))),
+            patch.object(OPS, "listener_binding", return_value=("127.0.0.1", 40532, "udp", 40532)),
+            patch.object(OPS, "cleanup_orphaned_port_forwards", side_effect=lambda *a: calls.append(("clean",) + a) or []),
+        ):
+            self.assertEqual(OPS.prestart("q53-res"), 0)
+        self.assertEqual(calls, [("rm", "q53-res"), ("clean", "127.0.0.1", 40532, "udp")])
+
+    def test_prestart_fails_when_stale_forwards_remain(self):
+        with (
+            patch.object(OPS, "require_root"),
+            patch.object(OPS, "remove_stale_container"),
+            patch.object(OPS, "listener_binding", return_value=("127.0.0.1", 40532, "udp", 40532)),
+            patch.object(OPS, "cleanup_orphaned_port_forwards", return_value=["could not remove stale Netavark rule"]),
+            patch.object(OPS.shutil, "which", return_value="/usr/sbin/iptables"),
+        ):
+            self.assertEqual(OPS.prestart("q53-res"), 1)
+
+    # The NAT table seen on a node after `billie cat062 source set` restarted the
+    # translator and the kid: the rule to the removed container is first.
+    STALE_NAT = (
+        "-A NETAVARK-DN-1 -d 127.0.0.1/32 -p udp -m udp --dport 40532 -j DNAT --to-destination 10.88.0.10:40532\n"
+        "-A NETAVARK-DN-1 -d 127.0.0.1/32 -p udp -m udp --dport 40532 -j DNAT --to-destination 10.88.0.11:40532\n"
+        "-A NETAVARK-DN-1 -d 127.0.0.1/32 -p tcp -m tcp --dport 40532 -j DNAT --to-destination 10.88.0.10:40532\n"
+    )
+
+    def test_forward_targets_are_listed_in_rule_order_for_one_listener(self):
+        self.assertEqual(
+            OPS.listener_forward_targets(self.STALE_NAT, "127.0.0.1", 40532, "udp"),
+            ["10.88.0.10:40532", "10.88.0.11:40532"],
+        )
+
+    def test_a_rule_to_a_removed_container_is_a_mismatch(self):
+        targets = OPS.listener_forward_targets(self.STALE_NAT, "127.0.0.1", 40532, "udp")
+        problem = OPS.forward_mismatch(targets, {"10.88.0.11"}, 40532)
+        self.assertIn("10.88.0.10:40532", problem)
+        self.assertIsNone(OPS.forward_mismatch(["10.88.0.11:40532"], {"10.88.0.11"}, 40532))
+        self.assertIn("no DNAT rule", OPS.forward_mismatch([], {"10.88.0.11"}, 40532))
+        self.assertIn("not running", OPS.forward_mismatch(["10.88.0.11:40532"], set(), 40532))
+
+    def test_status_reports_the_mismatch_and_the_repair(self):
+        completed = __import__("subprocess").CompletedProcess
+        with tempfile.TemporaryDirectory() as directory:
+            listener = pathlib.Path(directory) / "q53-res" / "listener.json"
+            listener.parent.mkdir()
+            listener.write_text("{}", encoding="utf-8")
+            with (
+                patch.object(OPS, "listener_binding", return_value=("127.0.0.1", 40532, "udp", 40532)),
+                patch.object(OPS.shutil, "which", return_value="/usr/sbin/iptables"),
+                patch.object(OPS, "run", return_value=completed([], 0, self.STALE_NAT, "")),
+                patch.object(OPS, "container_ipv4_addresses", return_value={"10.88.0.11"}),
+                patch("builtins.print") as printed,
+            ):
+                self.assertEqual(OPS.check_listener_forward("q53-res", pathlib.Path(directory)), 1)
+        output = "\n".join(str(call.args[0]) for call in printed.call_args_list)
+        self.assertIn("MISMATCH", output)
+        self.assertIn("billie kid activate q53-res", output)
+
     def test_stale_container_removal_ignores_already_removed_container(self):
         with patch.object(OPS, "run") as run:
             OPS.remove_stale_container("oetf")

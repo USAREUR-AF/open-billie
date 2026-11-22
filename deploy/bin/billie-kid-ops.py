@@ -651,8 +651,139 @@ def start_kid_service_with_verified_forward(
         container_name, bind_address, host_port, transport, container_port, unit_name
     )
 
+def listener_binding(kid_id: str) -> tuple[str, int, str, int]:
+    """The configured listener of a kid: (host address, host port, transport, container port)."""
+    path = Path("/etc/billie/kids") / kid_id / "listener.json"
+    try:
+        listener = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        fail(f"kid listener configuration is unreadable: {exc}")
+    try:
+        address = str(ipaddress.IPv4Address(listener["hostAddress"]))
+        host_port = int(listener["hostPort"])
+        container_port = int(listener["containerPort"])
+        transport = str(listener["transport"])
+    except (KeyError, TypeError, ValueError):
+        fail("kid listener configuration is incomplete; rerun billie kid configure")
+    if transport not in ("udp", "tcp"):
+        fail("kid listener transport must be udp or tcp")
+    return address, host_port, transport, container_port
+
+
+def prestart(kid_id: str) -> int:
+    """Run before every start of a kid's container (systemd ExecStartPre).
+
+    A kid restarts without `billie kid activate` whenever the translator
+    restarts (`billie cat062 source set|remove`, `billie apply`), on
+    `Restart=on-failure` and at boot. Its new container gets a new Podman
+    address, but a DNAT rule for the host port that still targets the old
+    container can stay ahead of the new rule, so every datagram goes to the
+    dead address while the kid looks healthy. Remove the old container and
+    every forward for this listener that targets no existing container, as
+    activation does, before the new container starts.
+    """
+    require_root()
+    remove_stale_container(kid_id)
+    address, host_port, transport, _container_port = listener_binding(kid_id)
+    errors = cleanup_orphaned_port_forwards(address, host_port, transport)
+    if errors and shutil.which("iptables"):
+        print(
+            f"billie kid prestart {kid_id}: stale Podman port forwards for {address}:{host_port}/{transport} "
+            "could not be removed: " + "; ".join(errors),
+            file=sys.stderr,
+        )
+        return 1
+    return 0
+
+
+def listener_forward_targets(rules_output: str, bind_address: str, host_port: int, transport: str) -> list[str]:
+    """The DNAT targets (ip:port) for one host listener, in rule order (Netavark or CNI)."""
+    targets: list[str] = []
+    for line in rules_output.splitlines():
+        try:
+            parts = shlex.split(line)
+        except ValueError:
+            continue
+        if len(parts) < 3 or parts[0] != "-A" or not parts[1].startswith(("NETAVARK-DN-", "CNI-DN-")):
+            continue
+        arguments = parts[2:]
+
+        def option(name: str) -> str | None:
+            try:
+                return arguments[arguments.index(name) + 1]
+            except (ValueError, IndexError):
+                return None
+
+        if (
+            option("-j") == "DNAT"
+            and option("-d") in {bind_address, f"{bind_address}/32"}
+            and option("-p") == transport
+            and option("--dport") == str(host_port)
+            and option("--to-destination")
+        ):
+            targets.append(str(option("--to-destination")))
+    return targets
+
+
+def forward_mismatch(targets: list[str], container_ips: set[str], container_port: int) -> str | None:
+    """Why the host listener does not reach the running container, or None when it does."""
+    expected = {f"{ip}:{container_port}" for ip in container_ips}
+    if not container_ips:
+        return "the kid container is not running"
+    if not targets:
+        return "no DNAT rule forwards the host port"
+    stale = [target for target in targets if target not in expected]
+    if stale:
+        return (
+            f"DNAT rule(s) to {', '.join(stale)} do not target the running container "
+            f"({', '.join(sorted(expected))}); datagrams can be sent to a removed container"
+        )
+    return None
+
+
+def container_ipv4_addresses(container_name: str) -> set[str]:
+    inspected = run(["podman", "inspect", container_name], capture=True, check=False)
+    if inspected.returncode:
+        return set()
+    try:
+        networks = json.loads(inspected.stdout)[0].get("NetworkSettings", {}).get("Networks") or {}
+        return {
+            str(ipaddress.IPv4Address(item["IPAddress"]))
+            for item in networks.values()
+            if isinstance(item, dict) and item.get("IPAddress")
+        }
+    except (IndexError, KeyError, TypeError, ValueError, AttributeError, json.JSONDecodeError):
+        return set()
+
+
+def check_listener_forward(kid_id: str, config_root: Path = Path("/etc/billie/kids")) -> int:
+    """`billie kid status`: report whether the host listener forwards to the running container."""
+    listener_path = config_root / kid_id / "listener.json"
+    if not listener_path.is_file():
+        print("Port forward: no listener configured")
+        return 0
+    address, host_port, transport, container_port = listener_binding(kid_id)
+    iptables = shutil.which("iptables")
+    if not iptables:
+        print("Port forward: not checked (iptables is unavailable)")
+        return 0
+    nat = run([iptables, "-t", "nat", "-S"], capture=True, check=False)
+    if nat.returncode:
+        print(f"Port forward: not checked (cannot read the NAT table: {nat.stderr.strip()})")
+        return 0
+    targets = listener_forward_targets(nat.stdout, address, host_port, transport)
+    problem = forward_mismatch(targets, container_ipv4_addresses(f"billie-kid-{kid_id}"), container_port)
+    if problem:
+        print(f"Port forward {address}:{host_port}/{transport}: MISMATCH: {problem}")
+        print(f"  Repair: sudo billie kid activate {kid_id}")
+        return 1
+    print(f"Port forward {address}:{host_port}/{transport} -> {', '.join(targets)}: OK")
+    return 0
+
+
 def render_kid_systemd_unit(kid_id: str, version: str, runtime_socket: Path, runner: Path,
-                            container_name: str, instance_prefix: str) -> str:
+                            container_name: str, instance_prefix: str, ops: Path | None = None) -> str:
+    ops = Path(__file__).resolve() if ops is None else ops
     return f"""[Unit]
 Description=Open Billie kid {kid_id} {version}
 StartLimitIntervalSec=60
@@ -665,6 +796,9 @@ PartOf={instance_prefix}-translator.service
 [Service]
 Type=simple
 ExecStartPre=/usr/bin/test -S {runtime_socket}
+# Every start: remove the old container and port forwards that target no
+# existing container, so the host port reaches this container.
+ExecStartPre=/usr/bin/python3 {ops} prestart {kid_id}
 ExecStart=/usr/bin/bash {runner}
 ExecStop=/usr/bin/podman stop --time 20 --ignore {container_name}
 ExecStopPost=/usr/bin/podman rm --force --ignore {container_name}
@@ -1231,6 +1365,8 @@ def main() -> int:
     remove_parser.add_argument("--remove-config", action="store_true", help="also remove protected runtime configuration")
     status_parser = subparsers.add_parser("status", help="show active kid service state")
     status_parser.add_argument("kid_id")
+    prestart_parser = subparsers.add_parser("prestart", help=argparse.SUPPRESS)
+    prestart_parser.add_argument("kid_id")
     logs_parser = subparsers.add_parser("logs", help="show recent kid service logs")
     logs_parser.add_argument("kid_id")
     logs_parser.add_argument("--lines", type=int, default=80)
@@ -1259,6 +1395,10 @@ def main() -> int:
         print(f"Deactivated {args.kid_id}; installed package versions were preserved")
     elif args.command == "remove":
         remove_kid(args.kid_id, args.version, args.remove_config)
+    elif args.command == "prestart":
+        if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,62}", args.kid_id):
+            fail("kid id must contain lowercase letters, digits, and hyphens")
+        return prestart(args.kid_id)
     elif args.command == "status":
         if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,62}", args.kid_id):
             fail("kid id must contain lowercase letters, digits, and hyphens")
@@ -1266,6 +1406,8 @@ def main() -> int:
         result = run(["systemctl", "status", "--no-pager", name], check=False)
         if result.returncode:
             print(f"Kid service is not active: {name}")
+            return 1
+        if check_listener_forward(args.kid_id):
             return 1
     elif args.command == "logs":
         if not re.fullmatch(r"[a-z0-9][a-z0-9-]{0,62}", args.kid_id):
