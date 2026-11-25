@@ -67,4 +67,4 @@ Two separate projects run beside Open Billie on the same small computer and are 
 | Project | What it does on the node |
 |---|---|
 | [goatrope](https://github.com/USAREUR-AF/goatrope) | Builds the node into a tap on one Ethernet link (inline or listen), a decode-and-send stage, or a relay. A kid can read what it delivers |
-| scapegoat (public repository not yet published) | For a sensor that sends nothing until a C2 system speaks to it first, scapegoat plays that C2 side so the sensor starts sending; a kid then decodes the sensor's output |
+| [scapegoat](https://github.com/USAREUR-AF/scapegoat) | For a sensor that sends nothing until a C2 system speaks to it first, scapegoat plays that C2 side so the sensor starts sending; a kid then decodes the sensor's output |
