@@ -32,44 +32,8 @@ pub const GOAT_TRANSFORMERS_COMMIT: &str = include_str!("../goat-transformers/CO
 
 const SOURCE_FORMAT: &str = "canonical-track-v2";
 
-/// Model modules, each after the modules it uses.
-const MODEL: [(&str, &str); 4] = [
-    (
-        "model/core.def",
-        include_str!("../goat-transformers/model/core.def"),
-    ),
-    (
-        "model/track.def",
-        include_str!("../goat-transformers/model/track.def"),
-    ),
-    (
-        "model/cat062.def",
-        include_str!("../goat-transformers/model/cat062.def"),
-    ),
-    (
-        "model/sapient.def",
-        include_str!("../goat-transformers/model/sapient.def"),
-    ),
-];
-
-const PACKS: [(&str, &str); 4] = [
-    (
-        "packs/canonical-track-v2/pack.def",
-        include_str!("../goat-transformers/packs/canonical-track-v2/pack.def"),
-    ),
-    (
-        "packs/cot-xml/pack.def",
-        include_str!("../goat-transformers/packs/cot-xml/pack.def"),
-    ),
-    (
-        "packs/asterix-cat062/pack.def",
-        include_str!("../goat-transformers/packs/asterix-cat062/pack.def"),
-    ),
-    (
-        "packs/sapient/pack.def",
-        include_str!("../goat-transformers/packs/sapient/pack.def"),
-    ),
-];
+// MODEL and PACKS: every model module and pack of goat-transformers/SHA256SUMS, from build.rs.
+include!(concat!(env!("OUT_DIR"), "/goat_transformers_embedded.rs"));
 
 fn error(code: &'static str, message: impl Into<String>) -> LibraryEncodeError {
     LibraryEncodeError {
