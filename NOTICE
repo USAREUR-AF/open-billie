@@ -13,7 +13,7 @@ the root of this repository).
 
 The following files are adapted from Billie Modular, an earlier project also
 written by U.S. Federal government employees, at revision
-3909b655b1ca2a3bd55406120f0ef471658a6e68 (packages/rps42/decoder) and
+3909b655b1ca2a3bd55406120f0ef471658a6e68 (its TypeScript decoder package) and
 45ce20b7ec4ca5996bcbed20059fb0445eb9bf7f (tsconfig.base.json). They are covered
 by the same terms as the rest of this work:
 

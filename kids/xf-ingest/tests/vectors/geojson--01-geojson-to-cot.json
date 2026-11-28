@@ -1,8 +1,8 @@
 {
   "name": "geojson--01-geojson-to-cot",
-  "source": "goat-transformers d57d36118edf296d1f610893025631f97d955ded packs/geojson/vectors/01-geojson-to-cot.json",
+  "source": "adapted, with a synthetic position, from goat-transformers d57d36118edf296d1f610893025631f97d955ded packs/geojson/vectors/01-geojson-to-cot.json",
   "from": "geojson",
-  "input": "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[-85.9578182,30.0090027,-42.6]},\"properties\":{\"type\":\"a-f-G-U-C\",\"time_ms\":1614456000000,\"how\":\"m-g\",\"ce\":45.3,\"le\":99.5,\"callsign\":\"GATOR\"},\"id\":\"J-01334\"}",
+  "input": "{\"type\":\"Feature\",\"geometry\":{\"type\":\"Point\",\"coordinates\":[2.5,1.25,-42.6]},\"properties\":{\"type\":\"a-f-G-U-C\",\"time_ms\":1614456000000,\"how\":\"m-g\",\"ce\":45.3,\"le\":99.5,\"callsign\":\"GATOR\"},\"id\":\"J-01334\"}",
   "context": {
     "time_ms": "1767225600000",
     "track.source_id": "sensor-a",
@@ -16,8 +16,8 @@
     "trackGeneration": "1",
     "observedAt": "2021-02-27T20:00:00.000Z",
     "position": {
-      "latitudeDeg": 30.0090027,
-      "longitudeDeg": -85.9578182,
+      "latitudeDeg": 1.25,
+      "longitudeDeg": 2.5,
       "altitudeM": -42.6
     },
     "classification": "a-f-G-U-C"
