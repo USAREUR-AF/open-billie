@@ -4,6 +4,12 @@
   connection: local
   become: true
   gather_facts: true
+  vars:
+    # The one primary key in https://pkgs.netbird.io/debian/public.key (uid Wiretrustee).
+    # The download is installed only when it holds this key and no other. If NetBird
+    # publishes a new key, confirm its fingerprint from a second source and change the pin.
+    netbird_apt_key_fingerprint: "EFE37DF047DF7CCDF1FC54FA83F79AD029778355"   # gitleaks:allow (the fingerprint of a public key)
+    netbird_apt_key_holding: /etc/apt/keyrings/netbird-public-key.asc.unverified
   tasks:
     - name: Require supported Ubuntu 24.04 host
       ansible.builtin.assert:
@@ -30,15 +36,56 @@
         state: present
         update_cache: true
 
-    - name: Install NetBird repository signing key
+    # Fetched to a holding path, checked, then installed. APT trusts every key in the
+    # keyring that signed-by names, so the keyring must hold the pinned key and no other.
+    # A download that is anything else is deleted and the play stops before APT sees it.
+    - name: Create the root-owned directory that holds the key download
+      ansible.builtin.file:
+        path: /etc/apt/keyrings
+        state: directory
+        owner: root
+        group: root
+        mode: '0755'
+
+    - name: Download the NetBird repository signing key to a holding path
       ansible.builtin.get_url:
         url: https://pkgs.netbird.io/debian/public.key
-        dest: /tmp/netbird-public-key.asc
+        dest: "{{ netbird_apt_key_holding }}"
         owner: root
         group: root
         mode: '0644'
+        force: true
 
-    - name: Convert NetBird signing key to the official APT keyring format
+    - name: List the primary key fingerprints in the downloaded NetBird key
+      ansible.builtin.shell: |
+        set -o pipefail
+        gpg --batch --no-default-keyring --show-keys --with-colons --with-fingerprint \
+          {{ netbird_apt_key_holding | quote }} \
+          | awk -F: '$1=="pub"{p=1; next} $1=="sub"{p=0} p && $1=="fpr"{print $10; p=0}'
+      args:
+        executable: /bin/bash
+      register: netbird_apt_key_listing
+      changed_when: false
+      failed_when: false
+
+    - name: Refuse a NetBird signing key that is not the pinned one
+      when: netbird_apt_key_listing.rc != 0 or netbird_apt_key_listing.stdout_lines != [netbird_apt_key_fingerprint]
+      block:
+        - name: Delete the refused NetBird signing key download
+          ansible.builtin.file:
+            path: "{{ netbird_apt_key_holding }}"
+            state: absent
+
+        - name: Stop because the NetBird signing key does not match its pin
+          ansible.builtin.fail:
+            msg: >-
+              The key at pkgs.netbird.io/debian/public.key is not the one pinned in
+              bootstrap.yml (netbird_apt_key_fingerprint): found
+              {{ netbird_apt_key_listing.stdout_lines | default([]) | join(', ') or 'no key' }}.
+              Nothing was installed. If NetBird has published a new key, confirm its
+              fingerprint from a second source and change the pin.
+
+    - name: Convert the verified NetBird signing key to the official APT keyring format
       ansible.builtin.command:
         argv:
           - gpg
@@ -46,7 +93,7 @@
           - --yes
           - --output
           - /usr/share/keyrings/netbird-archive-keyring.gpg
-          - /tmp/netbird-public-key.asc
+          - "{{ netbird_apt_key_holding }}"
       changed_when: true
 
     - name: Set readable permissions on NetBird signing keyring
@@ -65,7 +112,7 @@
 
     - name: Remove temporary NetBird signing key download
       ansible.builtin.file:
-        path: /tmp/netbird-public-key.asc
+        path: "{{ netbird_apt_key_holding }}"
         state: absent
 
     - name: Install the NetBird CLI and service
