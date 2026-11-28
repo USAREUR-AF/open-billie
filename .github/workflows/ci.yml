@@ -72,6 +72,10 @@ jobs:
         run: cargo fmt --manifest-path kids/examples/weather-station-bite/Cargo.toml -- --check
       - name: Test weather-station-bite kid
         run: cargo test --locked --manifest-path kids/examples/weather-station-bite/Cargo.toml
+      - name: The crate licence notices shipped with the translator and the weather-station-bite kid are current
+        run: |
+          python3 tools/crate_notices.py runtime/rust/Cargo.toml billie-translator runtime/rust/THIRD_PARTY_CRATES.txt --check
+          python3 tools/crate_notices.py kids/examples/weather-station-bite/Cargo.toml billie-bite-kid kids/examples/weather-station-bite/licenses/THIRD_PARTY_CRATES.txt --check
       - name: Check xf-ingest kid formatting
         run: cargo fmt --manifest-path kids/xf-ingest/Cargo.toml -- --check
       - name: Test xf-ingest kid

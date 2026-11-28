@@ -4,6 +4,10 @@ The repository's Apache-2.0 license applies to Open Billie-authored material onl
 
 See the [third-party software inventory](docs/THIRD_PARTY_INVENTORY.md) for the reviewed source manifests, lockfiles, declared dependencies, container images, and outstanding artifact-level work. It is a source-level inventory, not a complete SBOM for a generated image or release artifact.
 
+## Crates compiled into shipped Rust binaries
+
+The translator in the platform package is a statically linked Rust binary, and so is the weather-station-bite kid's decoder. The licence texts of the third-party crates each is built from are in `runtime/rust/THIRD_PARTY_CRATES.txt` (installed beside this file in the platform release) and `kids/examples/weather-station-bite/licenses/THIRD_PARTY_CRATES.txt` (in the kid image at `/licenses/`). `tools/crate_notices.py` writes both from the lockfiles, and CI checks that they are current.
+
 ## Standards references and implementation provenance
 
 - **SAPIENT / BSI Flex 335 v2.0:** The translator contains Open Billie-authored protobuf serialization code. Its test-only Prost model mirrors the SAPIENT v2 message field layout published by [Dstl's SAPIENT-Proto-Files](https://github.com/dstl/SAPIENT-Proto-Files/tree/main/bsi_flex_335_v2_0). Dstl's [repository licence](https://github.com/dstl/SAPIENT-Proto-Files/blob/main/LICENCE.txt) identifies Crown-owned copyright 2023 and licenses the protobuf files under Apache-2.0, except where otherwise noted. Open Billie does not include those `.proto` files. The BSI Flex standard document is separately copyright BSI ([BSI product description](https://groupsiteppdmig.bsigroup.com/en-GB/insights-and-media/insights/brochures/bsi-flex-335-interface-of-the-sapient-sensor-management-specification/)); Open Billie does not include or reproduce its text.
