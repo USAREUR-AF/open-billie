@@ -1,0 +1,51 @@
+apiVersion: billie.dev/v1
+kind: KidPackage
+metadata:
+  id: remote-id
+  version: 0.1.0
+  displayName: Drone Remote ID kid
+  description: Drone Remote ID (ASTM F3411-22a, ASD-STAN EN 4709-002) broadcasts heard over Wi-Fi or Bluetooth, decoded and graded for spoofing by the remoteid crate, published as uas tracks.
+
+runtime:
+  # Placeholder. `billie kid build` records the built image digest in the bundle.
+  image: registry.example.invalid/open-billie/remote-id@sha256:0000000000000000000000000000000000000000000000000000000000000000
+  command: ["/usr/local/bin/billie-remote-id-kid"]
+  environment:
+    - BILLIE_TRANSLATOR_SOCKET
+    - BILLIE_INPUT_PORT
+    - BILLIE_INPUT_BIND
+    - BILLIE_INPUT_TRANSPORT
+    - REMOTE_ID_LINK
+    - REMOTE_ID_SOURCE_ID
+  persistentPaths: []
+
+decoderImplementations:
+  rust:
+    status: deployable
+    decoder: src/lib.rs
+    mapper: src/lib.rs
+    containerfile: Containerfile
+    command: ["/usr/local/bin/billie-remote-id-kid"]
+
+components:
+  decoder: src/lib.rs
+  mapper: src/lib.rs
+  schemas: schemas
+  mappings: mappings
+  lookups: lookups
+  vectors: src/lib.rs
+
+interfaces:
+  inputs:
+    # One 802.11 frame (REMOTE_ID_LINK=wifi) or one BLE advertisement
+    # (REMOTE_ID_LINK=ble) per datagram.
+    - name: rid-udp
+      transport: udp
+      port: 40110
+  outputs:
+    # Keep in step with REMOTE_ID_KID_OUTPUTS in the Containerfile.
+    - name: tracks-cot
+      format: cot
+    - name: tracks-sapient
+      format: sapient
+  requires: []

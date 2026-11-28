@@ -1,0 +1,5 @@
+# Safe example only. The listener address and port come from
+# `billie kid configure`; set REMOTE_ID_LINK to match what the receiver forwards.
+kid:
+  id: remote-id
+  listener: rid-udp

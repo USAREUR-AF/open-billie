@@ -1,0 +1,24 @@
+# Image for the Remote ID kid. Keep compiler and OS release versions explicit;
+# release bundles record the resolved OCI digest.
+FROM docker.io/library/rust:1.85.1-slim-bookworm AS build
+
+WORKDIR /src
+COPY Cargo.toml Cargo.lock ./
+COPY src ./src
+RUN cargo build --locked --release --bin billie-remote-id-kid
+
+FROM docker.io/library/debian:12.12-slim
+COPY licenses/ /licenses/
+COPY --from=build /src/target/release/billie-remote-id-kid /usr/local/bin/billie-remote-id-kid
+
+ENV REMOTE_ID_KID_ID=remote-id
+# name:format pairs; keep in step with interfaces.outputs in billie-kid.yaml.
+ENV REMOTE_ID_KID_OUTPUTS=tracks-cot:cot,tracks-sapient:sapient
+ENV REMOTE_ID_LINK=wifi
+ENV REMOTE_ID_SOURCE_ID=remote-id
+ENV BILLIE_INPUT_BIND=0.0.0.0
+ENV BILLIE_INPUT_PORT=40110
+ENV BILLIE_INPUT_TRANSPORT=udp
+ENV BILLIE_TRANSLATOR_SOCKET=/run/billie/translator.sock
+EXPOSE 40110/udp
+CMD ["/usr/local/bin/billie-remote-id-kid"]

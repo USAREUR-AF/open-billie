@@ -1,0 +1,9 @@
+Open Billie remote-id kid
+Copyright 2026 U.S. Federal Government (in countries where recognized)
+
+This kid is part of Open Billie and is licensed under the Apache License,
+Version 2.0 (OPEN-BILLIE-LICENSE in this directory).
+
+The runtime links the remoteid crate (https://crates.io/crates/remoteid),
+licensed under the MIT License (REMOTEID-LICENSE in this directory), and the
+Rust crates named in Cargo.lock, each under its own licence.
