@@ -55,6 +55,23 @@ The tarball holds the same tree. `tools/check_release_artifact.py` checks that t
 - The Syft SBOMs leave `licenseConcluded` as `NOASSERTION`. This review does not rewrite them.
 - The crates SBOM lists the lockfile's crates, test-only ones included. `THIRD_PARTY_CRATES.txt` lists the ones built into the binary.
 
+## Published history
+
+The whole published history was scanned on 27 Nov:
+- a mirror of every ref GitHub serves (98 commits; there are no tags);
+- every blob (639) by object id;
+- every commit's author, committer and message;
+- every path name.
+
+The scan used the same leak gate. Its hits, by kind:
+- **People's names and personal mailboxes in commit metadata**, on 90 of the 98 commits.
+- **Two names in files**: the earlier project's sensor package and a private organisation. Both were removed from the files on `main` by the public-text change.
+- **A contributor's own DCO entry** in `CONTRIBUTORS.md`.
+- **Upstream text**: the Node.js licence, and SAPIENT section numbers read as addresses.
+- **A real-world test position**, replaced by a synthetic one.
+
+Decision of 28 Nov, by the maintainer: the history is left as published, with no rewrite and no purge request. The contributor's DCO entry stays. A forward-looking commit-identity check is being installed on every public repository.
+
 ## arm64
 
 Not yet reviewed. When the dry run's `signed` artifact exists, the same reads and scans are run over its arm64 files and recorded here, together with the dry run's amd64 files.
