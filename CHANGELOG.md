@@ -65,6 +65,12 @@ release candidate and must be reviewed against the tagged source before release.
 
 ### Security
 
+- Bootstrap installs NetBird's package-signing key only when it is the key
+  pinned by its full fingerprint in `deploy/platform/bootstrap.yml`. The key
+  is fetched to a holding path and checked; a file holding any other key, or
+  an extra one, is deleted and the play stops before APT reads the NetBird
+  source. Running bootstrap again replaces the keyring on an existing node
+  with the checked key.
 - Update the OETF development toolchain to Vitest 4.1.12, Vite 6.4.5,
   and esbuild 0.25.12, and remove the old vite-node/Tinypool dependency chain.
 - Update the CI Ansible Core pin from 2.17.14 to 2.21.6. This does not
