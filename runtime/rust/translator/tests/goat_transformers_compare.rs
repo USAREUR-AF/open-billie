@@ -840,28 +840,50 @@ fn render(tallies: &BTreeMap<&'static str, Tally>, known: &Value) -> Value {
                 })
             })
             .collect();
-        root.insert(
-            (*format).to_owned(),
-            json!({
-                "inputs": tally.inputs,
-                "encodedByBoth": tally.encoded_by_both,
-                "refusedByBoth": tally.refused_by_both,
-                "bytesIdentical": tally.bytes_identical,
-                "fieldsIdentical": tally.fields_identical,
-                "fieldsCompared": tally.fields_compared,
-                "fieldsEqual": tally.fields_equal,
-                "differences": rows,
-            }),
-        );
+        let mut target = json!({
+            "inputs": tally.inputs,
+            "encodedByBoth": tally.encoded_by_both,
+            "refusedByBoth": tally.refused_by_both,
+            "bytesIdentical": tally.bytes_identical,
+            "fieldsIdentical": tally.fields_identical,
+            "fieldsCompared": tally.fields_compared,
+            "fieldsEqual": tally.fields_equal,
+            "differences": rows,
+        });
+        // A count recorded for this architecture goes back to its own entry;
+        // `bytesIdentical` keeps the count recorded on x86_64.
+        if let Some(by_arch) = known[*format]["bytesIdenticalByArch"].as_object() {
+            let mut by_arch = by_arch.clone();
+            if by_arch.contains_key(std::env::consts::ARCH) {
+                by_arch.insert(
+                    std::env::consts::ARCH.to_owned(),
+                    json!(tally.bytes_identical),
+                );
+                target["bytesIdentical"] = known[*format]["bytesIdentical"].clone();
+            }
+            target["bytesIdenticalByArch"] = Value::Object(by_arch);
+        }
+        root.insert((*format).to_owned(), target);
     }
     Value::Object(root)
 }
 
 /// The baseline without the columns that are not asserted: an example holds
-/// the first input's values, and a cause is prose.
+/// the first input's values, and a cause is prose. Where the baseline records
+/// a byte-identical count for the architecture the test runs on
+/// (`bytesIdenticalByArch`), that count is the one asserted.
 fn asserted(baseline: &Value) -> Value {
     let mut copy = baseline.clone();
     for (_, target) in copy.as_object_mut().into_iter().flatten() {
+        if let Some(by_arch) = target
+            .as_object_mut()
+            .unwrap()
+            .remove("bytesIdenticalByArch")
+        {
+            if let Some(count) = by_arch.get(std::env::consts::ARCH) {
+                target["bytesIdentical"] = count.clone();
+            }
+        }
         for row in target["differences"].as_array_mut().into_iter().flatten() {
             let row = row.as_object_mut().unwrap();
             row.remove("example");

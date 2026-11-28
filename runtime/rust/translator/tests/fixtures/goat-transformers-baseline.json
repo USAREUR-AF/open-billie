@@ -19,6 +19,9 @@
   },
   "cot": {
     "bytesIdentical": 28,
+    "bytesIdenticalByArch": {
+      "aarch64": 30
+    },
     "differences": [
       {
         "cause": "The native encoder omits a zero fraction of a second; the library always writes milliseconds. The instant is the same.",
