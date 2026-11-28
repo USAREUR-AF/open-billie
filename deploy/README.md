@@ -109,7 +109,7 @@ Use Ubuntu 24.04 in WSL 2; the setup launcher and Bash scripts run inside that d
 
 #### Signed-release verification
 
-Published signed releases additionally require **Cosign** and the release identity or trusted public key provided by the project maintainers. Keep the `.deb`, matching `.tar.gz`, architecture-specific `SHA256SUMS-<arch>`, and the three adjacent Cosign bundles (`.sigstore.json` for the manifest, `.deb`, and tarball) together. Checksum-only mode needs the package, tarball, and manifest but verifies integrity only; it does not establish who built them. Do not use checksum-only for a public release unless you have independently authenticated the artifact source.
+Published signed releases additionally require **Cosign** and the release identity: this repository's release workflow at the release tag ([RELEASING.md](../RELEASING.md) shows the check). Keep the `.deb`, matching `.tar.gz`, architecture-specific `SHA256SUMS-<arch>`, and the three adjacent Cosign bundles (`.sigstore.json` for the manifest, `.deb`, and tarball) together. Checksum-only mode needs the package, tarball, and manifest but verifies integrity only; it does not establish who built them. Do not use checksum-only for a public release unless you have independently authenticated the artifact source.
 
 Install Cosign from its official release or your operating system's trusted package source when using signed verification. You do not need Cosign for a checksum-only local development install.
 

@@ -77,7 +77,8 @@ fi
 if [ ! -r "$deb_arg" ]; then die "package is missing or unreadable: $deb_arg"; fi
 deb_path="$(cd "$(dirname "$deb_arg")" && pwd)/$(basename "$deb_arg")"
 deb_name="$(basename "$deb_path")"
-if [[ ! "$deb_name" =~ ^billie-platform_([0-9]+\.[0-9]+\.[0-9]+\+[A-Za-z0-9._-]+)_(amd64|arm64)\.deb$ ]]; then
+# A release names its files <version>-<revision>; a build before 0.3.0 named them <version>+<revision>.
+if [[ ! "$deb_name" =~ ^billie-platform_([0-9]+\.[0-9]+\.[0-9]+[+-][A-Za-z0-9._-]+)_(amd64|arm64)\.deb$ ]]; then
   die 'package filename must be billie-platform_<version>_<amd64|arm64>.deb'
 fi
 release_version="${BASH_REMATCH[1]}"

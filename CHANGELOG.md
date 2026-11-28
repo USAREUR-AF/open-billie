@@ -20,6 +20,12 @@ release candidate and must be reviewed against the tagged source before release.
   ASTERIX CAT-062, and SAPIENT.
 - Kid bundle checksum verification, source-boundary scanning, release hygiene
   checks, and ARM64 platform smoke-test tooling.
+- A release is one signed `SHA256SUMS` over every file it publishes: the
+  platform `.deb` and tarball for amd64 and arm64, the synthetic
+  weather-station-bite kid bundle for each, and SPDX SBOMs of each kid image
+  and of the translator's crates. It is signed keylessly by the release
+  workflow, which can also be run by hand as a dry run. See
+  [RELEASING.md](RELEASING.md).
 - Project licensing, contribution, security-reporting, provenance, and
   third-party inventory documents.
 - Optional goat-transformers encoder path for CoT, ASTERIX CAT-062, and
@@ -32,6 +38,9 @@ release candidate and must be reviewed against the tagged source before release.
 
 ### Changed
 
+- Release file names use `-` between the version and the source revision
+  (`billie-platform_0.3.0-<rev>_<arch>.deb`); the package's own version keeps
+  `+`. `tools/install-to-node.sh` accepts both names.
 - The goat-transformers encoder path is on by default (cargo feature
   `goat-transformers`): CoT and ASTERIX CAT-062 use it unless
   `BILLIE_COT_ENCODER` or `BILLIE_CAT062_ENCODER` says `native`; SAPIENT stays
