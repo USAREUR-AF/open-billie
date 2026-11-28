@@ -26,7 +26,7 @@ The dictionary is first-bite's `weather-station` example: a fictional station th
 | `tests/vectors/` | datagrams and the decoded record and track expected from each |
 | `src/` | the runtime: listener, `bite` call, map executor, translator request. No field layout |
 | `Containerfile` | builds the runtime and copies the data files to `/app`; its `ENV` lines name the kid, the dictionary and the outputs |
-| `licenses/` | the Open Billie licence, the first-bite licence and notice, and this kid's notice |
+| `licenses/` | the Open Billie licence, the first-bite licence and notice, this kid's notice, and the licences of the crates its decoder is built from (`THIRD_PARTY_CRATES.txt`, written by `tools/crate_notices.py`) |
 
 At start-up the runtime refuses a dictionary that `bite` reports errors in, runs the vectors the dictionary carries, and refuses to start if one fails. A datagram that cannot be decoded, or a record whose map leaves a required canonical field empty, is logged by size or field name and dropped; the process keeps running.
 
