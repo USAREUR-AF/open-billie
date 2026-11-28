@@ -159,8 +159,11 @@ fi
 POST
 chmod 0755 "$DEBIAN/postinst"
 
-DEB="$DIST/billie-platform_${RELEASE_VERSION}_${DEB_ARCH}.deb"
-TARBALL="$DIST/billie-platform-${RELEASE_VERSION}_${DEB_ARCH}.tar.gz"
+# File names use "-" where the package version has "+": GitHub may rename a release file
+# whose name holds "+", and SHA256SUMS must name the files as published.
+FILE_VERSION="$BASE_VERSION-$GIT_REVISION"
+DEB="$DIST/billie-platform_${FILE_VERSION}_${DEB_ARCH}.deb"
+TARBALL="$DIST/billie-platform-${FILE_VERSION}_${DEB_ARCH}.tar.gz"
 MANIFEST="$DIST/SHA256SUMS-$DEB_ARCH"
 dpkg-deb --build --root-owner-group "$PAYLOAD" "$DEB"
 tar -czf "$TARBALL" -C "$RELEASE_TREE" .

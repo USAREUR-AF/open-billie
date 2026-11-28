@@ -1,48 +1,96 @@
+# The signed platform release (RELEASING.md).
+#
+# A tag `v<version>` (deploy/VERSION's version, on a commit on main) builds, for amd64
+# and arm64 on Ubuntu 24.04, each on its own architecture:
+#   billie-platform_<version>-<rev>_<arch>.deb and billie-platform-<version>-<rev>_<arch>.tar.gz,
+#     with SHA256SUMS-<arch> (tools/build-platform-release.sh; the package's own
+#     Version is <version>+<rev>)
+#   billie-kid-weather-station-bite_<kid version>_<arch>.tar.gz and its .sha256 sidecar,
+#     the synthetic test kid (billie kid build)
+#   an SPDX SBOM of each kid bundle's image, named for the bundle (tools/generate_kid_sbom.py)
+#   an SPDX SBOM of the crates in the platform's translator, billie-platform_..._<arch>.crates.spdx.json
+# then writes one SHA256SUMS over every one of those files, signs it keylessly with
+# cosign (the signature names this workflow and the tag; no long-lived key), signs the
+# platform files one by one as tools/install-to-node.sh checks them, verifies every
+# signature as an installer will, and attaches everything to a GitHub Release of the tag.
+#
+# Run by hand (workflow_dispatch) it is a dry run: the same build, checks and signatures
+# at the branch's commit, kept as a workflow artifact; nothing is published, also when it
+# is run on a tag.
 name: Signed platform release
 
 on:
   push:
     tags:
       - 'v*.*.*'
+  workflow_dispatch:
 
 permissions:
   contents: read
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
-  prepare:
+  version:
     runs-on: ubuntu-24.04
-    permissions:
-      contents: write
-    env:
-      GH_TOKEN: "${{ github.token }}"
+    timeout-minutes: 5
+    outputs:
+      version: ${{ steps.v.outputs.version }}
     steps:
-      - name: Check out tagged source
+      - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0
 
-      - name: Confirm tag matches platform version and create draft
+      - name: A tag is released only from a commit on main
+        if: github.ref_type == 'tag'
+        run: |
+          git fetch -q --no-tags origin main
+          git merge-base --is-ancestor "$GITHUB_SHA" origin/main || { echo "the tagged commit is not on main"; exit 1; }
+
+      - name: The version, held to the tag and the changelog
+        id: v
+        env:
+          EVENT: ${{ github.event_name }}
+          REF_TYPE: ${{ github.ref_type }}
+          TAG: ${{ github.ref_name }}
         shell: bash
         run: |
           set -euo pipefail
           version="$(tr -d '[:space:]' < deploy/VERSION)"
-          test "$GITHUB_REF_NAME" = "v$version"
-          gh release create "$GITHUB_REF_NAME" --verify-tag --draft --generate-notes
+          [[ "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]] || { echo "deploy/VERSION is not a version: $version"; exit 1; }
+          if [ "$EVENT" = push ] && [ "$REF_TYPE" = tag ]; then
+            test "$TAG" = "v$version" || { echo "tag $TAG, but deploy/VERSION has $version"; exit 1; }
+            # A release has a dated changelog section: "## [<version>] - YYYY-MM-DD".
+            grep -Eqx "## \[$version\] - [0-9]{4}-[0-9]{2}-[0-9]{2}" CHANGELOG.md \
+              || { echo "CHANGELOG.md has no dated section for $version"; exit 1; }
+          else
+            grep -Eq "^## \[$version\]" CHANGELOG.md || { echo "CHANGELOG.md has no section for $version"; exit 1; }
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
 
-  build-and-upload:
-    needs: prepare
+  build:
+    needs: version
     strategy:
       fail-fast: false
       matrix:
-        runner: [ubuntu-24.04, ubuntu-24.04-arm]
-    runs-on: "${{ matrix.runner }}"
-    permissions:
-      contents: write
-      id-token: write
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+            syft_sha256: ad92bd3ec1b94a3df01d4d0aec199afa9c42b72e86da436ff5f837914d32706b
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+            syft_sha256: 8efe605309c98798e1ee0cffdcf8c05ca26819b4cd44c0b03650f1e963e9bdb6
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 60
     env:
-      GH_TOKEN: "${{ github.token }}"
+      KID: kids/examples/weather-station-bite
+      SYFT_VERSION: 1.57.2
     steps:
-      - name: Check out tagged source
+      - name: Check out source
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
@@ -50,12 +98,22 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y cargo rustc
+          sudo apt-get install -y cargo rustc dpkg-dev python3-yaml python3-jsonschema podman
 
-      - name: Install Cosign
-        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
-        with:
-          cosign-release: v3.1.4
+      # Syft's release checksums are signed by its own release workflow; the two
+      # tarballs' SHA-256 here were read from that verified file.
+      - name: Install Syft
+        env:
+          SYFT_SHA256: ${{ matrix.syft_sha256 }}
+          ARCH: ${{ matrix.arch }}
+        run: |
+          set -euo pipefail
+          tarball="syft_${SYFT_VERSION}_linux_${ARCH}.tar.gz"
+          curl -fsSLo "$RUNNER_TEMP/$tarball" "https://github.com/anchore/syft/releases/download/v${SYFT_VERSION}/$tarball"
+          echo "$SYFT_SHA256  $RUNNER_TEMP/$tarball" | sha256sum --check --strict
+          mkdir -p "$RUNNER_TEMP/syft"
+          tar -xzf "$RUNNER_TEMP/$tarball" -C "$RUNNER_TEMP/syft" syft
+          echo "$RUNNER_TEMP/syft" >> "$GITHUB_PATH"
 
       - name: Test shared runtime
         run: cargo test --locked --workspace --manifest-path runtime/rust/Cargo.toml
@@ -74,33 +132,188 @@ jobs:
       - name: Audit package contents
         run: python3 tools/check_release_artifact.py dist/*.deb dist/*.tar.gz
 
-      - name: Sign, verify, and upload release assets
+      - name: The platform's file names carry no '+', and the package is built from a clean tree
+        env:
+          ARCH: ${{ matrix.arch }}
         shell: bash
         run: |
           set -euo pipefail
           shopt -s nullglob
-          assets=(dist/*.deb dist/*.tar.gz dist/SHA256SUMS-*)
-          test "${#assets[@]}" -eq 3
-          identity="https://github.com/${GITHUB_REPOSITORY}/.github/workflows/release.yml@${GITHUB_REF}"
-          for asset in "${assets[@]}"; do
-            cosign sign-blob "$asset" --bundle "$asset.sigstore.json" --yes
+          debs=(dist/billie-platform_*_"$ARCH".deb)
+          test "${#debs[@]}" -eq 1
+          case "${debs[0]}" in *+*) echo "a release file name holds '+': ${debs[0]}"; exit 1 ;; esac
+          version="$(dpkg-deb -f "${debs[0]}" Version)"
+          case "$version" in *.dirty) echo "built from a changed tree: $version"; exit 1 ;; esac
+          echo "package version $version"
+
+      - name: Build the test kid's bundle, named for its architecture
+        env:
+          ARCH: ${{ matrix.arch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Podman, as on a node; it builds natively on this runner's architecture.
+          python3 deploy/bin/billie-kid-build.py "$KID" --engine podman --platform "linux/$ARCH" --output "$RUNNER_TEMP/kids"
+          cd "$RUNNER_TEMP/kids"
+          bundles=(billie-kid-*.tar.gz)
+          test "${#bundles[@]}" -eq 1
+          b="${bundles[0]}"
+          named="${b%.tar.gz}_${ARCH}.tar.gz"
+          # The sidecar names the file it checks: written again for the new name.
+          sha256sum --check --strict "$b.sha256"
+          mv -- "$b" "$GITHUB_WORKSPACE/dist/$named"
+          (cd "$GITHUB_WORKSPACE/dist" && sha256sum "$named" > "$named.sha256")
+          tar -xOzf "$GITHUB_WORKSPACE/dist/$named" bundle.json
+
+      - name: SBOMs, the kid's image and the translator's crates
+        env:
+          ARCH: ${{ matrix.arch }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          syft version
+          for b in dist/billie-kid-*_"$ARCH".tar.gz; do
+            python3 tools/generate_kid_sbom.py "$b" --output "${b%.tar.gz}.spdx.json"
           done
-          for asset in "${assets[@]}"; do
-            cosign verify-blob "$asset" --bundle "$asset.sigstore.json" \
-              --certificate-identity "$identity" \
+          deb="$(ls dist/billie-platform_*_"$ARCH".deb)"
+          syft scan "dir:runtime/rust" --override-default-catalogers rust-cargo-lock-cataloger \
+            --source-name billie-translator --source-version "$(dpkg-deb -f "$deb" Version)" \
+            -o "spdx-json=${deb%.deb}.crates.spdx.json"
+
+      - name: The files this architecture contributes
+        env:
+          ARCH: ${{ matrix.arch }}
+        run: |
+          cd dist
+          ls -l
+          test "$(ls | wc -l)" -eq 7
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: release-${{ matrix.arch }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
+
+  sign:
+    needs: [version, build]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      # Checkout first: it cleans the workspace, so the files come after it.
+      - name: Check out the signing configuration
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+          sparse-checkout: tools/release
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: release-*
+          path: dist
+          merge-multiple: true
+
+      - name: SHA256SUMS over every file
+        run: |
+          set -euo pipefail
+          cd dist
+          test "$(ls | wc -l)" -eq 14
+          sha256sum -- * > SHA256SUMS
+          cat SHA256SUMS
+
+      - name: Install Cosign
+        uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532 # v4.1.3
+        with:
+          cosign-release: v3.1.4
+
+      # The signing config is pinned in the tree (Fulcio and a Rekor v1 log), so a change
+      # to Sigstore's published one cannot move a signature to a log a verifier refuses.
+      - name: Sign SHA256SUMS, and each platform file as install-to-node.sh checks it
+        shell: bash
+        run: |
+          set -euo pipefail
+          for f in dist/SHA256SUMS dist/*.deb dist/billie-platform-*.tar.gz dist/SHA256SUMS-*; do
+            cosign sign-blob --yes --signing-config tools/release/signing-config.json --bundle "$f.sigstore.json" "$f"
+          done
+
+      - name: Every signature verifies as an installer will check it
+        env:
+          IDENTITY: https://github.com/${{ github.repository }}/.github/workflows/release.yml@${{ github.ref }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          for b in dist/*.sigstore.json; do
+            cosign verify-blob "${b%.sigstore.json}" --bundle "$b" \
+              --certificate-identity "$IDENTITY" \
               --certificate-oidc-issuer https://token.actions.githubusercontent.com
           done
-          release_assets=("${assets[@]}")
-          for asset in "${assets[@]}"; do release_assets+=("$asset.sigstore.json"); done
-          gh release upload "$GITHUB_REF_NAME" "${release_assets[@]}" --clobber
+          (cd dist && sha256sum --check --strict SHA256SUMS)
 
-  publish:
-    needs: build-and-upload
+      # A verifier that pins SHA256SUMS reads a Sigstore bundle v0.3 with one hashedrekord
+      # 0.0.1 entry in a Rekor v1 log, with its signed entry timestamp and inclusion proof.
+      - name: The SHA256SUMS bundle is that shape
+        run: |
+          python3 -I - dist/SHA256SUMS.sigstore.json <<'PY'
+          import json, sys
+          b = json.load(open(sys.argv[1]))
+          assert b["mediaType"] == "application/vnd.dev.sigstore.bundle.v0.3+json", b["mediaType"]
+          vm = b["verificationMaterial"]
+          assert "certificate" in vm, "no certificate"
+          es = vm["tlogEntries"]
+          assert len(es) == 1, f"{len(es)} log entries"
+          e = es[0]
+          assert e["kindVersion"] == {"kind": "hashedrekord", "version": "0.0.1"}, e["kindVersion"]
+          assert e.get("inclusionPromise", {}).get("signedEntryTimestamp"), "no signed entry timestamp (a Rekor v2 log?)"
+          assert e.get("inclusionProof", {}).get("checkpoint", {}).get("envelope"), "no inclusion proof checkpoint"
+          print("bundle v0.3, hashedrekord 0.0.1, signed entry timestamp and inclusion proof present")
+          PY
+
+      - name: The release's files
+        run: ls -l dist
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: signed
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
+
+  release:
+    if: github.event_name == 'push' && github.ref_type == 'tag'
+    needs: [version, sign]
     runs-on: ubuntu-24.04
+    timeout-minutes: 10
     permissions:
       contents: write
-    env:
-      GH_TOKEN: "${{ github.token }}"
     steps:
-      - name: Publish verified architecture-specific release assets
-        run: gh release edit "$GITHUB_REF_NAME" --draft=false
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: signed
+          path: dist
+
+      # Created as a draft, so nothing is public until GitHub's asset names are checked
+      # to be the names SHA256SUMS lists.
+      - name: The GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.ref_name }}
+          V: ${{ needs.version.outputs.version }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          awk -v v="$V" 'index($0, "## [" v "] - ") == 1 { on = 1; next } on && /^## / { exit } on' CHANGELOG.md > "$RUNNER_TEMP/notes.md"
+          [ -s "$RUNNER_TEMP/notes.md" ] || { echo "CHANGELOG.md has no section for $V" >&2; exit 1; }
+          printf '\nOpen Billie %s for Ubuntu 24.04, amd64 and arm64, with the synthetic weather-station-bite test kid for each. SHA256SUMS lists every file and is signed with cosign (keyless): SHA256SUMS.sigstore.json. Checking and installing: RELEASING.md.\n' "$V" >> "$RUNNER_TEMP/notes.md"
+          gh release create "$TAG" dist/* --draft --verify-tag --title "Open Billie $V" --notes-file "$RUNNER_TEMP/notes.md"
+          (cd dist && ls | sort) > "$RUNNER_TEMP/local.txt"
+          gh release view "$TAG" --json assets -q '.assets[].name' | sort > "$RUNNER_TEMP/published.txt"
+          diff "$RUNNER_TEMP/local.txt" "$RUNNER_TEMP/published.txt" || { echo "GitHub renamed a file; the draft is left unpublished" >&2; exit 1; }
+          gh release edit "$TAG" --draft=false
