@@ -1,8 +1,8 @@
 {
   "name": "cot-protobuf--01-event-to-cot-xml",
-  "source": "goat-transformers d57d36118edf296d1f610893025631f97d955ded packs/cot-protobuf/vectors/01-event-to-cot-xml.json",
+  "source": "adapted, with a synthetic position, from goat-transformers d57d36118edf296d1f610893025631f97d955ded packs/cot-protobuf/vectors/01-event-to-cot-xml.json",
   "from": "cot-protobuf",
-  "input": "125f0a09612d662d472d552d432a074a2d303133333430809ccea8fe2e38809ccea8fe2e4a036d2d675161133e004e023e4059df20b5e44c7d55c061cdcccccccc4c45c0696666666666a64640710000000000e058407a09120712054741544f52",
+  "input": "125f0a09612d662d472d552d432a074a2d303133333430809ccea8fe2e38809ccea8fe2e4a036d2d6751000000000000f43f59000000000000044061cdcccccccc4c45c0696666666666a64640710000000000e058407a09120712054741544f52",
   "context": {
     "time_ms": "1767225600000",
     "track.source_id": "sensor-a",
@@ -16,8 +16,8 @@
     "trackGeneration": "1",
     "observedAt": "2021-02-27T20:00:00.000Z",
     "position": {
-      "latitudeDeg": 30.0090027,
-      "longitudeDeg": -85.9578182,
+      "latitudeDeg": 1.25,
+      "longitudeDeg": 2.5,
       "altitudeM": -42.6
     },
     "classification": "a-f-G-U-C"

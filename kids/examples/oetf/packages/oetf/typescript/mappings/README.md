@@ -60,7 +60,7 @@ All three maps use `repeats` on `Track count`, which yields one output record pe
 | Velocity sigma east / north | `…enu_velocity.east_rate_error` / `north_rate_error` | as-is |
 | RCS | Canonical `identifiers` entry `{scheme: "sapient-object-info", value}`; Rust translator emits `detection_report.object_info` `{type: "rcs_dbsm", value}` | `toCanonicalIdentifier` then shared encoder conversion |
 
-Position sigma east/north are **intentionally not** mapped to `location.x_error`/`y_error`. Under `LAT_LNG_DEG_M`, those fields are in degrees, and converting metres to degrees needs a latitude-aware conversion that the translator doesn't have. (The RPS-42 maps currently put metres there.)
+Position sigma east/north are **intentionally not** mapped to `location.x_error`/`y_error`. Under `LAT_LNG_DEG_M`, those fields are in degrees, and converting metres to degrees needs a latitude-aware conversion that the translator doesn't have.
 
 ## Tests
 
